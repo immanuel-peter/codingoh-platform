@@ -6,10 +6,9 @@ import {
   FaSun,
   FaRegSun,
   FaRegCircleUser,
-  FaUser,
+  FaInbox,
 } from "react-icons/fa6";
 import Link from "next/link";
-import { Menu } from "@headlessui/react";
 
 import { Question, questions } from "@/dummy/questions";
 
@@ -64,7 +63,7 @@ const Navbar = () => {
           <Link href="/" className="flex flex-row items-center ml-[10px]">
             <FaCode className="text-3xl" />
             <span className="text-2xl text-blue-700 font-bold ml-2">
-              Coding OH
+              CodingOH
             </span>
           </Link>
         </nav>
@@ -90,43 +89,19 @@ const Navbar = () => {
             </ul>
           )}
         </div>
-        <nav className="p-3 flex flex-row items-center justify-between">
+        <nav className="p-3 flex flex-row items-center justify-evenly">
           <button onClick={() => setSunClicked(!sunClicked)}>
             {sunClicked ? (
-              <FaRegSun className="text-xl mr-4" />
+              <FaRegSun className="text-xl mr-3" />
             ) : (
-              <FaSun className="text-xl mr-4" />
+              <FaSun className="text-xl mr-3" />
             )}
           </button>
-          <Link href="/" className="flex flex-row items-center ml-3">
-            <div className="text-base font-medium p-3 border-solid border-blue-600 border-2 bg-blue-500 rounded-3xl">
-              Contribute
-            </div>
+          <Link href="/" className="ml-3 p-3">
+            <FaRegCircleUser className="text-3xl text-cyan-600" />
           </Link>
-          <Link href="/" className="flex flex-row items-center ml-3">
-            <Menu as="div" className="relative inline-block text-left">
-              <Menu.Button>
-                <FaRegCircleUser className="text-3xl ml-3 text-cyan-600" />
-              </Menu.Button>
-              <Menu.Items className="absolute right-0 mt-2 w-32 origin-top-right divide-y divide-slate-300 bg-white shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
-                <Menu.Item>
-                  <a
-                    href="/"
-                    className="flex items-center justify-center px-2 py-2 text-sm"
-                  >
-                    Profile
-                  </a>
-                </Menu.Item>
-                <Menu.Item>
-                  <a
-                    href="/"
-                    className="text-red-500 flex items-center justify-center px-2 py-2 text-sm"
-                  >
-                    Log Out
-                  </a>
-                </Menu.Item>
-              </Menu.Items>
-            </Menu>
+          <Link href="/" className="ml-3 p-3">
+            <FaInbox className="text-3xl" />
           </Link>
         </nav>
       </header>

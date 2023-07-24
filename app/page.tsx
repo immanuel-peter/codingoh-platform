@@ -48,6 +48,9 @@ export default function Home() {
           )}
         </div>
       </div>
+      <button className="fixed bottom-4 left-4 bg-blue-500 hover:bg-blue-600 text-white rounded-full p-3 shadow-md">
+        Help CodingOH
+      </button>
     </main>
   );
 }

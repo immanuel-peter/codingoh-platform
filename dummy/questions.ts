@@ -1,5 +1,11 @@
 import { varStatus } from "@/utils";
 
+/*
+  export function varStatus() {
+    return Math.random() > 0.5;
+  }
+*/
+
 export interface Question {
   question: string;
   asker: User;
@@ -76,6 +82,36 @@ export const users: User[] = [
     codingLanguages: ["JavaScript", "Python", "Ruby"],
     isOnline: varStatus(),
   },
+  {
+    name: "David Jones",
+    about:
+      "I am a recent graduate with a degree in computer science. I am interested in artificial intelligence and machine learning.",
+    email: "davidjones@example.com",
+    position: "Software Engineer Intern",
+    fileAttachments: ["transcript.pdf"],
+    codingLanguages: ["Python", "Java", "TensorFlow"],
+    isOnline: varStatus(),
+  },
+  {
+    name: "Elizabeth Smith",
+    about:
+      "I am a web developer with 3 years of experience. I am interested in front-end development and user experience.",
+    email: "elizabethsmith@example.com",
+    position: "Web Developer",
+    fileAttachments: ["portfolio.pdf"],
+    codingLanguages: ["HTML", "CSS", "JavaScript", "React"],
+    isOnline: varStatus(),
+  },
+  {
+    name: "Michael Brown",
+    about:
+      "I am a full-stack developer with 5 years of experience. I am interested in back-end development and cloud computing.",
+    email: "michaelbrown@example.com",
+    position: "Full-Stack Developer",
+    fileAttachments: ["resume.pdf"],
+    codingLanguages: ["Java", "Python", "Node.js", "AWS"],
+    isOnline: varStatus(),
+  },
 ];
 
 // Questions
@@ -125,6 +161,41 @@ export const questions: Question[] = [
       { user: users[4], contributionTime: "10:55 AM" },
       { user: users[0], contributionTime: "11:00 AM" },
       { user: users[1], contributionTime: "11:05 AM" },
+    ],
+  },
+  {
+    question: "How do I create a mobile app?",
+    asker: users[5],
+    time: "11:00 AM",
+    date: "July 23, 2023",
+    isAnswered: varStatus(),
+    contributors: [
+      { user: users[2], contributionTime: "11:05 AM" },
+      { user: users[6], contributionTime: "11:10 AM" },
+      { user: users[0], contributionTime: "11:15 AM" },
+    ],
+  },
+  {
+    question: "How do I deploy a website to the cloud?",
+    asker: users[6],
+    time: "11:15 AM",
+    date: "July 23, 2023",
+    isAnswered: varStatus(),
+    contributors: [
+      { user: users[5], contributionTime: "11:20 AM" },
+      { user: users[3], contributionTime: "11:25 AM" },
+    ],
+  },
+  {
+    question: "How do I create a database?",
+    asker: users[7],
+    time: "11:20 AM",
+    date: "July 23, 2023",
+    isAnswered: varStatus(),
+    contributors: [
+      { user: users[1], contributionTime: "11:25 AM" },
+      { user: users[7], contributionTime: "11:30 AM" },
+      { user: users[4], contributionTime: "11:35 AM" },
     ],
   },
 ];
