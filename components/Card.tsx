@@ -6,7 +6,13 @@ import Image from "next/image";
 import Avatar from "../public/avatar.png";
 import Banner from "../public/banner.png";
 
-const Card = () => {
+interface CardProps {
+  name: string;
+  position: string;
+  isOnline: boolean;
+}
+
+const Card = ({ name, position, isOnline }: CardProps) => {
   return (
     <>
       <div className="flex flex-col justify-center items-center mt-2">
@@ -27,16 +33,31 @@ const Card = () => {
           </div>
           <div className="mt-16 flex flex-col items-center bg-white">
             <h4 className="text-xl font-bold text-navy-700 bg-white dark:text-white">
-              Adela Parkson
+              {name}
             </h4>
             <p className="text-base font-normal bg-white text-gray-600">
-              Product Manager
+              {position}
             </p>
             <div className="mt-1 flex items-center bg-white gap-x-1.5">
-              <div className="flex-none rounded-full bg-white bg-emerald-500/20 p-1">
-                <div className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-              </div>
-              <p className="text-xs leading-5 text-gray-500 bg-white">Online</p>
+              {isOnline ? (
+                <>
+                  <div className="flex-none rounded-full bg-white bg-emerald-500/20 p-1">
+                    <div className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                  </div>
+                  <p className="text-xs leading-5 text-gray-500 bg-white">
+                    Online
+                  </p>
+                </>
+              ) : (
+                <>
+                  <div className="flex-none rounded-full bg-white bg-emerald-500/20 p-1">
+                    <div className="h-1.5 w-1.5 rounded-full bg-red-500" />
+                  </div>
+                  <p className="text-xs leading-5 text-gray-500 bg-white">
+                    Offline
+                  </p>
+                </>
+              )}
             </div>
           </div>
           <div className="mt-6 mb-3 flex gap-14 bg-white md:!gap-14">
