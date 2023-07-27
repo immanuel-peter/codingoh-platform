@@ -98,10 +98,10 @@ const Navbar = () => {
             )}
           </button>
           <Link href="/" className="ml-3 p-3">
-            <FaRegCircleUser className="text-3xl text-cyan-600" />
+            <FaInbox className="text-3xl" />
           </Link>
           <Link href="/" className="ml-3 p-3">
-            <FaInbox className="text-3xl" />
+            <FaRegCircleUser className="text-3xl text-cyan-600" />
           </Link>
         </nav>
       </header>

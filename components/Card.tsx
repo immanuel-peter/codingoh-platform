@@ -2,20 +2,40 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
+import CircularProgress from "@mui/material/CircularProgress";
 
 import Avatar from "../public/avatar.png";
 import Banner from "../public/banner.png";
+import { getTopLanguages } from "@/utils";
+import { Proficiency } from "@/dummy/questions";
 
 interface CardProps {
   name: string;
   position: string;
   isOnline: boolean;
+  languages?: Proficiency[];
+  extraStyles?: string;
 }
 
-const Card = ({ name, position, isOnline }: CardProps) => {
+const Card = ({
+  name,
+  position,
+  isOnline,
+  languages,
+  extraStyles,
+}: CardProps) => {
+  let filteredLanguages: Proficiency[];
+  if (!languages || languages.length === 0) {
+    return false;
+  } else {
+    filteredLanguages = getTopLanguages(languages);
+  }
+
   return (
     <>
-      <div className="flex flex-col justify-center items-center mt-2">
+      <div
+        className={`flex flex-col justify-center items-center mt-2 ${extraStyles}`}
+      >
         <div className="relative flex flex-col items-center rounded-[20px] w-[300px] mx-auto p-4 bg-white bg-clip-border shadow-3xl shadow-shadow-500 dark:!bg-navy-800 dark:text-white dark:!shadow-none">
           <div className="relative flex h-32 w-full justify-center rounded-xl bg-cover">
             <Image
@@ -61,12 +81,17 @@ const Card = ({ name, position, isOnline }: CardProps) => {
             </div>
           </div>
           <div className="mt-6 mb-3 flex gap-14 bg-white md:!gap-14">
-            <div className="flex flex-col items-center justify-center bg-inherit">
-              <p className="text-2xl font-bold text-navy-700 bg-inherit dark:text-white">
+            <div className="flex flex-col items-center justify-center bg-white">
+              <CircularProgress
+                variant="determinate"
+                value={filteredLanguages[0].proficiency}
+                sx={{ bgcolor: "text.primary" }}
+              />
+              {/* <p className="text-2xl font-bold text-navy-700 bg-inherit dark:text-white">
                 17
-              </p>
+              </p> */}
               <p className="text-sm font-normal bg-inherit text-gray-600">
-                Posts
+                {filteredLanguages[0].language}
               </p>
             </div>
             <div className="flex flex-col items-center justify-center bg-inherit">

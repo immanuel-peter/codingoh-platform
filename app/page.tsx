@@ -1,5 +1,5 @@
 import React from "react";
-import Image from "next/image";
+import Link from "next/link";
 
 import { Navbar, Card, Question } from "@/components";
 import { users, questions } from "@/dummy/questions";
@@ -33,12 +33,16 @@ export default function Home() {
             <div>
               <h1 className="flex items-center justify-center font-bold mt-3 text-emerald-600">{`${onlineUsers.length} online users`}</h1>
               {onlineUsers.map((user, index) => (
-                <Card
-                  key={index}
-                  name={user.name}
-                  position={user.position}
-                  isOnline={user.isOnline}
-                />
+                <Link href={`/users/${user.id}`}>
+                  <Card
+                    key={index}
+                    name={user.name}
+                    position={user.position}
+                    languages={user.codingLanguages}
+                    isOnline={user.isOnline}
+                    extraStyles="last-of-type:mb-3"
+                  />
+                </Link>
               ))}
             </div>
           ) : (
