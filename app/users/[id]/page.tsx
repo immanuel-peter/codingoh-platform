@@ -1,6 +1,7 @@
 import React from "react";
 
-import { users, questions, User } from "@/dummy/questions";
+import { users, questions } from "@/dummy/questions";
+import { User } from "@/types";
 import { stringifyList } from "@/utils";
 import { Navbar, Card } from "@/components";
 
@@ -21,9 +22,11 @@ const UserPage = ({ params }: { params: { id: string } }) => {
           <Card
             name={user.name}
             position={user.position}
+            languages={user.codingLanguages}
             isOnline={user.isOnline}
           />
         </div>
+        {}
       </main>
     </>
   );

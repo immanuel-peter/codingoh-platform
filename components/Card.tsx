@@ -2,7 +2,8 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
-import CircularProgress from "@mui/material/CircularProgress";
+import { CircularProgress } from "@mui/material";
+import { palette } from "@mui/system";
 
 import Avatar from "../public/avatar.png";
 import Banner from "../public/banner.png";
@@ -26,7 +27,7 @@ const Card = ({
 }: CardProps) => {
   let filteredLanguages: Proficiency[];
   if (!languages || languages.length === 0) {
-    return false;
+    return "No languages";
   } else {
     filteredLanguages = getTopLanguages(languages);
   }
@@ -36,7 +37,7 @@ const Card = ({
       <div
         className={`flex flex-col justify-center items-center mt-2 ${extraStyles}`}
       >
-        <div className="relative flex flex-col items-center rounded-[20px] w-[300px] mx-auto p-4 bg-white bg-clip-border shadow-3xl shadow-shadow-500 dark:!bg-navy-800 dark:text-white dark:!shadow-none">
+        <div className="relative flex flex-col items-center rounded-[20px] w-[300px] mx-auto p-4 border-2 border-slate-300 border-solid bg-white bg-clip-border shadow-3xl shadow-shadow-500 dark:!bg-navy-800 dark:text-white dark:!shadow-none">
           <div className="relative flex h-32 w-full justify-center rounded-xl bg-cover">
             <Image
               src={Banner}
@@ -82,33 +83,40 @@ const Card = ({
           </div>
           <div className="mt-6 mb-3 flex gap-14 bg-white md:!gap-14">
             <div className="flex flex-col items-center justify-center bg-white">
-              <CircularProgress
-                variant="determinate"
-                value={filteredLanguages[0].proficiency}
-                sx={{ bgcolor: "text.primary" }}
-              />
-              {/* <p className="text-2xl font-bold text-navy-700 bg-inherit dark:text-white">
-                17
-              </p> */}
+              <p className="text-2xl font-bold text-navy-700 bg-inherit dark:text-white">
+                <CircularProgress
+                  color="error"
+                  variant="determinate"
+                  value={filteredLanguages[0].proficiency}
+                />
+              </p>
               <p className="text-sm font-normal bg-inherit text-gray-600">
                 {filteredLanguages[0].language}
               </p>
             </div>
             <div className="flex flex-col items-center justify-center bg-inherit">
               <p className="text-2xl font-bold text-navy-700 bg-inherit dark:text-white">
-                9.7K
+                <CircularProgress
+                  color="success"
+                  variant="determinate"
+                  value={filteredLanguages[1].proficiency}
+                />
               </p>
               <p className="text-sm font-normal text-gray-600 bg-inherit">
-                Followers
+                {filteredLanguages[1].language}
               </p>
             </div>
 
             <div className="flex flex-col items-center justify-center bg-inherit">
               <p className="text-2xl font-bold text-navy-700 bg-inherit dark:text-white">
-                434
+                <CircularProgress
+                  color="info"
+                  variant="determinate"
+                  value={filteredLanguages[2].proficiency}
+                />
               </p>
               <p className="text-sm font-normal text-gray-600 bg-inherit">
-                Following
+                {filteredLanguages[2].language}
               </p>
             </div>
           </div>

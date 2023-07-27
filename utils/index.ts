@@ -1,4 +1,4 @@
-import e from "express";
+import { Proficiency, Question, User } from "@/types";
 
 export function varStatus() {
   return Math.random() > 0.5;
@@ -66,9 +66,7 @@ export function stringifyList(array: string[] | number[]): any {
   }
 }
 
-export const getTopLanguages = (
-  languages: [{ language: string; proficiency: number }]
-) => {
+export const getTopLanguages = (languages: Proficiency[]) => {
   // Sort the codingLanguages array based on proficiency in descending order
   const sortedLanguages = languages.sort(
     (a, b) => b.proficiency - a.proficiency
@@ -76,4 +74,40 @@ export const getTopLanguages = (
 
   // Take the first 3 elements (highest proficiency) from the sorted array
   return sortedLanguages.slice(0, 3);
+};
+
+// Function to sort questions and contributions based on users
+export const sortQuestionsAndContributions = (
+  questions: Question[],
+  users: User[]
+) => {
+  const userMap: {
+    [userId: number]: {
+      name: string;
+      askedQuestions: Question[];
+      contributedQuestions: Question[];
+    };
+  } = {};
+
+  // Initialize the user map with empty arrays for each user
+  users.forEach((user) => {
+    userMap[user.id] = {
+      name: user.name,
+      askedQuestions: [],
+      contributedQuestions: [],
+    };
+  });
+
+  // Iterate through the questions and populate the user map
+  questions.forEach((question) => {
+    const askerId = question.asker.id;
+    userMap[askerId].askedQuestions.push(question);
+
+    question.contributors.forEach((contributor) => {
+      const contributorId = contributor.user.id;
+      userMap[contributorId].contributedQuestions.push(question);
+    });
+  });
+
+  return userMap;
 };

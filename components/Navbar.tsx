@@ -62,9 +62,14 @@ const Navbar = () => {
         <nav className="p-3">
           <Link href="/" className="flex flex-row items-center ml-[10px]">
             <FaCode className="text-3xl" />
-            <span className="text-2xl text-blue-700 font-bold ml-2">
-              CodingOH
-            </span>
+            <div className="flex flex-col">
+              <span className="text-2xl text-blue-700 font-bold ml-2">
+                CodingOH
+              </span>
+              <span className="text-[10.5px] ml-2">
+                Stack Overflow in Real Time
+              </span>
+            </div>
           </Link>
         </nav>
         <div className="relative w-7/12">
