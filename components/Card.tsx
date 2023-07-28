@@ -8,7 +8,7 @@ import { palette } from "@mui/system";
 import Avatar from "../public/avatar.png";
 import Banner from "../public/banner.png";
 import { getTopLanguages } from "@/utils";
-import { Proficiency } from "@/dummy/questions";
+import { Proficiency } from "@/types";
 
 interface CardProps {
   name: string;

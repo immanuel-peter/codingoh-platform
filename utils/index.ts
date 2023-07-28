@@ -28,7 +28,7 @@ export function parseDateString(dateString: string): Date {
   return new Date(year, month, day);
 }
 
-export function daysBetweenDateAndToday(dateString: string): number {
+export function daysBetweenDateAndToday(dateString: string): string {
   const oneDayInMilliseconds = 24 * 60 * 60 * 1000; // Number of milliseconds in a day
 
   // Get the current date (today) and reset time to midnight
@@ -47,7 +47,7 @@ export function daysBetweenDateAndToday(dateString: string): number {
     Math.round(timeDifference / oneDayInMilliseconds)
   );
 
-  return daysDifference;
+  return daysDifference !== 0 ? `${daysDifference} d` : "Today";
 }
 
 export function stringifyList(array: string[] | number[]): any {

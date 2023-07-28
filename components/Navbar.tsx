@@ -10,7 +10,8 @@ import {
 } from "react-icons/fa6";
 import Link from "next/link";
 
-import { Question, questions } from "@/dummy/questions";
+import { questions } from "@/dummy/questions";
+import { Question } from "@/types";
 
 const Navbar = () => {
   const [query, setQuery] = useState("");

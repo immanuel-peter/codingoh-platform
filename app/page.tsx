@@ -1,5 +1,7 @@
 import React from "react";
 import Link from "next/link";
+import { FaLightbulb, FaPlus } from "react-icons/fa6";
+import { Tooltip } from "@mui/material";
 
 import { Navbar, Card, Question } from "@/components";
 import { users, questions } from "@/dummy/questions";
@@ -17,13 +19,18 @@ export default function Home() {
         <div className="basis-3/4 px-3">
           <ul role="list" className="divide-y divide-gray-600">
             {unansweredQuestions.map((question, index) => (
-              <li key={index} className="flex justify-between gap-x-6 py-5">
-                <Question
-                  question={question.question}
-                  asker={question.asker.name}
-                  contributors={question.contributors.length}
-                  date={question.date}
-                />
+              <li key={index}>
+                <Link
+                  href={`/questions/${question.id}`}
+                  className="flex justify-between gap-x-6 py-5"
+                >
+                  <Question
+                    question={question.question}
+                    asker={question.asker.name}
+                    contributors={question.contributors}
+                    date={question.date}
+                  />
+                </Link>
               </li>
             ))}
           </ul>
@@ -53,8 +60,16 @@ export default function Home() {
         </div>
       </div>
       <button className="fixed bottom-4 left-4 bg-blue-500 hover:bg-blue-600 text-white rounded-full p-3 shadow-md">
-        Help CodingOH
+        <div className="flex flex-row items-center justify-center bg-inherit text-inherit">
+          <FaLightbulb className="bg-inherit text-inherit mr-2" />
+          Help CodingOH
+        </div>
       </button>
+      <Tooltip title="Add Question" placement="left">
+        <button className="fixed bottom-4 right-4 bg-blue-500 hover:bg-blue-600 text-white rounded-full p-5 shadow-md">
+          <FaPlus className="bg-inherit text-inherit text-2xl" />
+        </button>
+      </Tooltip>
     </main>
   );
 }
