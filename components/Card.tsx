@@ -83,9 +83,8 @@ const Card = ({
           </div>
           <div className="mt-6 mb-3 flex gap-14 bg-white md:!gap-14">
             <div className="flex flex-col items-center justify-center bg-white">
-              <p className="text-2xl font-bold text-navy-700 bg-inherit dark:text-white">
+              <p className="text-2xl font-bold text-navy-700 bg-inherit">
                 <CircularProgress
-                  color="error"
                   variant="determinate"
                   value={filteredLanguages[0].proficiency}
                 />
@@ -95,9 +94,8 @@ const Card = ({
               </p>
             </div>
             <div className="flex flex-col items-center justify-center bg-inherit">
-              <p className="text-2xl font-bold text-navy-700 bg-inherit dark:text-white">
+              <p className="text-2xl font-bold text-navy-700 bg-inherit">
                 <CircularProgress
-                  color="success"
                   variant="determinate"
                   value={filteredLanguages[1].proficiency}
                 />
@@ -110,7 +108,6 @@ const Card = ({
             <div className="flex flex-col items-center justify-center bg-inherit">
               <p className="text-2xl font-bold text-navy-700 bg-inherit dark:text-white">
                 <CircularProgress
-                  color="info"
                   variant="determinate"
                   value={filteredLanguages[2].proficiency}
                 />

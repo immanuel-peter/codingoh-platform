@@ -8,12 +8,16 @@ import {
   FaRegCircleUser,
   FaInbox,
 } from "react-icons/fa6";
+import { FaCheckCircle } from "react-icons/fa";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 import { questions } from "@/dummy/questions";
 import { Question } from "@/types";
 
 const Navbar = () => {
+  const router = useRouter();
+
   const [query, setQuery] = useState("");
   const [sunClicked, setSunClicked] = useState(false);
   const [suggestedQueries, setSuggestedQueries] = useState<Question[]>([]);
@@ -52,9 +56,10 @@ const Navbar = () => {
     };
   }, []);
 
-  const handleSuggestionClick = (suggestion: string) => {
+  const handleSuggestionClick = (suggestion: string, suggestionId: number) => {
     setQuery(suggestion);
     setSuggestedQueries([]);
+    router.push(`/questions/${suggestionId}`);
   };
 
   return (
@@ -82,14 +87,23 @@ const Navbar = () => {
             className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
           />
           {suggestedQueries.length > 0 && (
-            <ul className="absolute z-10 bg-white mt-2 w-full border border-gray-300 rounded-lg shadow-lg">
+            <ul className="absolute z-10 bg-white mt-2 w-full border border-gray-300 rounded-lg shadow-lg divide-y divide-slate-200">
               {suggestedQueries.map((suggestion, index) => (
                 <li
                   key={index}
-                  onClick={() => handleSuggestionClick(suggestion.question)}
-                  className="px-4 py-2 cursor-pointer hover:bg-blue-50"
+                  onClick={() =>
+                    handleSuggestionClick(suggestion.question, suggestion.id)
+                  }
+                  className={`px-4 py-2 cursor-pointer hover:bg-blue-50 ${
+                    suggestion.isAnswered
+                      ? "flex flex-row justify-between items-center"
+                      : ""
+                  }`}
                 >
                   {suggestion.question}
+                  {suggestion.isAnswered ? (
+                    <FaCheckCircle className="text-green-500 bg-inherit" />
+                  ) : null}
                 </li>
               ))}
             </ul>

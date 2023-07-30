@@ -43,6 +43,7 @@ const Question = ({
         <div className="flex -space-x-1 overflow-hidden">
           {contributors.map((contributor) => (
             <Image
+              key={contributor.user.id}
               src={Avatar}
               alt="contributor"
               className="inline-block h-6 w-6 rounded-full ring-2 ring-white"
@@ -58,10 +59,10 @@ const Question = ({
       {!answered ? (
         <div className="flex flex-col basis-2/12 items-center justify-center">
           <Link href="/">
-            <div className="text-base font-medium p-3 items-center justify-between flex flex-row border-solid border-blue-600 border-[1px] bg-blue-500 rounded-md">
+            <button className="text-base font-medium p-3 items-center justify-between flex flex-row border-solid border-blue-600 border-[1px] bg-blue-500 rounded-md">
               <FaVideo className="bg-blue-500 text-slate-200 mr-3" />
               <p className="bg-blue-500 text-slate-200">Schedule</p>
-            </div>
+            </button>
           </Link>
         </div>
       ) : (
