@@ -29,7 +29,7 @@ const Card = ({
   if (!languages || languages.length === 0) {
     return "No languages";
   } else {
-    filteredLanguages = getTopLanguages(languages);
+    filteredLanguages = getTopLanguages(languages, 3);
   }
 
   return (

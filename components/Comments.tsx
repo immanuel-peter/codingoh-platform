@@ -1,4 +1,8 @@
 import React from "react";
+import Image from "next/image";
+
+import { Contributor } from "@/types";
+import Avatar from "@/public/avatar.png";
 
 interface Comment {
   id: number;
@@ -76,12 +80,28 @@ const CommentsSection = () => {
   );
 };
 
-const Comments = () => {
+const Comments = ({ contributors }: { contributors: Contributor[] }) => {
   return (
     <>
       <main>
         <div className="mx-auto max-w-5xl">
-          <h1 className="text-2xl font-bold mt-4">Comments</h1>
+          <div className="mt-4 flex flex-row justify-between items-center">
+            <h1 className="text-2xl font-bold">Comments</h1>
+            <div className="flex flex-row justify-between items-center">
+              <span className="mr-2">Contributors</span>
+              <div className="flex -space-x-1 overflow-hidden">
+                {contributors.map((contributor) => (
+                  <Image
+                    key={contributor.user.id}
+                    src={Avatar}
+                    alt="contributor"
+                    className="inline-block h-6 w-6 rounded-full ring-2 ring-white"
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+
           <hr className="border-solid border-black border-[1px]" />
           <textarea
             id="comments"

@@ -15,6 +15,7 @@ interface QuestionProps {
   contributors: Contributor[];
   date: string;
   answered?: boolean;
+  extraStyles?: string[];
 }
 
 const Question = ({
@@ -23,10 +24,15 @@ const Question = ({
   contributors,
   date,
   answered,
+  extraStyles,
 }: QuestionProps) => {
   return (
     <>
-      <div className="flex gap-x-4 basis-1/2 justify-items-center">
+      <div
+        className={`flex gap-x-4 basis-1/2 justify-items-center ${
+          extraStyles ? extraStyles[0] : null
+        }`}
+      >
         <div className="min-w-0 flex-auto">
           <p className="text-sm font-semibold leading-6 text-gray-900">
             {question}
@@ -36,7 +42,11 @@ const Question = ({
           </p>
         </div>
       </div>
-      <div className="flex flex-col items-end basis-4/12">
+      <div
+        className={`flex flex-col items-end basis-4/12 ${
+          extraStyles ? extraStyles[0] : null
+        }`}
+      >
         {/* <p className="text-sm leading-6 text-gray-900">
           
         </p> */}
@@ -57,7 +67,11 @@ const Question = ({
         </p>
       </div>
       {!answered ? (
-        <div className="flex flex-col basis-2/12 items-center justify-center">
+        <div
+          className={`flex flex-col basis-2/12 items-center justify-center ${
+            extraStyles ? extraStyles[0] : null
+          }`}
+        >
           <Link href="/">
             <button className="text-base font-medium p-3 items-center justify-between flex flex-row border-solid border-blue-600 border-[1px] bg-blue-500 rounded-md">
               <FaVideo className="bg-blue-500 text-slate-200 mr-3" />
@@ -66,7 +80,11 @@ const Question = ({
           </Link>
         </div>
       ) : (
-        <div className="flex flex-col basis-2/12 items-center justify-center">
+        <div
+          className={`flex flex-col basis-2/12 items-center justify-center ${
+            extraStyles ? extraStyles[0] : null
+          }`}
+        >
           <div className="text-base font-medium p-3 items-center justify-between flex flex-row border-solid border-green-600 border-[1px] bg-green-500 rounded-md">
             <FaCheck className="bg-green-500 text-slate-200 mr-3" />
             <p className="bg-green-500 text-slate-200">Answered</p>

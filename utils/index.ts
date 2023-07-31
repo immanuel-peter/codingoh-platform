@@ -1,4 +1,5 @@
-import { Proficiency, Question, User } from "@/types";
+import { questions, users } from "@/dummy/questions";
+import { Proficiency, Question, User, Contributor } from "@/types";
 
 export function varStatus() {
   return Math.random() > 0.5;
@@ -66,14 +67,14 @@ export function stringifyList(array: string[] | number[]): any {
   }
 }
 
-export const getTopLanguages = (languages: Proficiency[]) => {
+export const getTopLanguages = (languages: Proficiency[], rank: number) => {
   // Sort the codingLanguages array based on proficiency in descending order
   const sortedLanguages = languages.sort(
     (a, b) => b.proficiency - a.proficiency
   );
 
   // Take the first 3 elements (highest proficiency) from the sorted array
-  return sortedLanguages.slice(0, 3);
+  return sortedLanguages.slice(0, rank);
 };
 
 // Function to sort questions and contributions based on users

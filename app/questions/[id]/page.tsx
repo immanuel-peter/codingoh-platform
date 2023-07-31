@@ -166,7 +166,7 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
           ></ReactMarkdown>
         )}
       </div>
-      <Comments />
+      <Comments contributors={question.contributors} />
 
       <button className="fixed bottom-4 left-4 bg-blue-500 hover:bg-blue-600 text-white rounded-full p-3 shadow-md">
         <div className="flex flex-row items-center justify-center bg-inherit text-inherit">

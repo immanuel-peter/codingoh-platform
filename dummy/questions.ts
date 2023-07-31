@@ -210,6 +210,7 @@ export const users: User[] = [
       { language: "CSS", proficiency: 75 },
       { language: "JavaScript", proficiency: 70 },
       { language: "Figma", proficiency: 80 },
+      { language: "React", proficiency: 50 },
     ],
     isOnline: varStatus(),
     location: "Seattle",
