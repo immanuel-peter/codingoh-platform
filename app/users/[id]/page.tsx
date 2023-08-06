@@ -109,7 +109,6 @@ import { sortQuestionsAndContributions } from "@/utils";
 import Banner from "@/public/banner.png";
 import Avatar from "@/public/avatar.png";
 import { allIcons } from "@/utils/icons";
-import { platform } from "os";
 
 // export const allIcons: { [name: string]: React.ReactNode } = {
 //   JavaScript: <JavascriptOriginal size={25} />,
@@ -247,8 +246,8 @@ const UserPage = ({ params }: { params: { id: string } }) => {
               <h1 className="text-xl font-bold">{user.name}</h1>
               <span className="text-lg font-normal">{user.position}</span>
               <div className="flex flex-row gap-2">
-                {user.platforms?.map((platform) => (
-                  <SocialIcon network={platform} />
+                {user.platforms?.map((platform, index) => (
+                  <SocialIcon key={index} network={platform} />
                 ))}
               </div>
             </div>
@@ -566,10 +565,13 @@ const UserPage = ({ params }: { params: { id: string } }) => {
                 skillsOpen ? "block" : "hidden"
               }`}
             >
-              {user.skills.map((skill) => (
+              {user.skills.map((skill, index) => (
                 <>
                   <dt></dt>
-                  <dd className="text-base text-gray-700 bg-gray-100 p-[2px] sm:flex-1 sm:text-center">
+                  <dd
+                    key={index}
+                    className="text-base text-gray-700 bg-gray-100 p-[2px] sm:flex-1 sm:text-center"
+                  >
                     {skill}
                   </dd>
                 </>
