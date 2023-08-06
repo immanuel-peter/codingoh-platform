@@ -87,7 +87,7 @@ export default function Home() {
       </button>
       <button
         onClick={scrollToTop}
-        className={`fixed bottom-4 left-1/2 z-10 bg-gray-500 opacity-50 text-white font-semibold w-8 h-8 rounded-full flex items-center justify-center ${
+        className={`fixed bottom-4 left-1/2 z-10 bg-gray-500 opacity-50 text-white font-semibold w-8 h-8 rounded-full flex items-center justify-center animate-bounce ${
           showScrollTopButton ? "visible" : "invisible"
         }`}
       >

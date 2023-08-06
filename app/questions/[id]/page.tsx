@@ -10,6 +10,7 @@ import { Question, User, Contributor } from "@/types";
 import { Navbar } from "@/components";
 import { daysBetweenDateAndToday } from "@/utils";
 import { Comments } from "@/components";
+import Link from "next/link";
 
 const getQuestion = (userId: string): Question | undefined => {
   return questions.find((question) => question.id === Number(userId));
@@ -118,7 +119,11 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
             )}
           </div>
           <div className="flex flex-row justify-between items-center my-2 bg-inherit">
-            <span className="bg-inherit">{question.asker.name}</span>
+            <Link href={`/users/${question.asker.id}`}>
+              <span className="bg-inherit hover:underline">
+                {question.asker.name}
+              </span>
+            </Link>
             <span className="bg-inherit">
               {question.date}, {question.time}
             </span>

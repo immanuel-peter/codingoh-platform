@@ -22,6 +22,7 @@ export interface User {
   company: string;
   skills: string[];
   education: string;
+  platforms?: string[];
 }
 
 export interface Proficiency {

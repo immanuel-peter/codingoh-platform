@@ -8,6 +8,7 @@ import { FaVideo, FaCheck } from "react-icons/fa6";
 import { daysBetweenDateAndToday } from "@/utils";
 import Avatar from "../public/avatar.png";
 import { Contributor } from "@/types";
+import { ellipsis } from "@/utils";
 
 interface QuestionProps {
   question: string;
@@ -35,7 +36,7 @@ const Question = ({
       >
         <div className="min-w-0 flex-auto">
           <p className="text-sm font-semibold leading-6 text-gray-900">
-            {question}
+            {ellipsis(question, 120)}
           </p>
           <p className="mt-1 truncate text-xs leading-5 text-gray-500">
             {asker} · {daysBetweenDateAndToday(date)}

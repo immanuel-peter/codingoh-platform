@@ -88,17 +88,21 @@ const Comments = ({ contributors }: { contributors: Contributor[] }) => {
           <div className="mt-4 flex flex-row justify-between items-center">
             <h1 className="text-2xl font-bold">Comments</h1>
             <div className="flex flex-row justify-between items-center">
-              <span className="mr-2">Contributors</span>
-              <div className="flex -space-x-1 overflow-hidden">
-                {contributors.map((contributor) => (
-                  <Image
-                    key={contributor.user.id}
-                    src={Avatar}
-                    alt="contributor"
-                    className="inline-block h-6 w-6 rounded-full ring-2 ring-white"
-                  />
-                ))}
-              </div>
+              {contributors.length > 0 ? (
+                <>
+                  <span className="mr-2">Contributors</span>
+                  <div className="flex -space-x-1 overflow-hidden">
+                    {contributors.map((contributor) => (
+                      <Image
+                        key={contributor.user.id}
+                        src={Avatar}
+                        alt="contributor"
+                        className="inline-block h-6 w-6 rounded-full ring-2 ring-white"
+                      />
+                    ))}
+                  </div>
+                </>
+              ) : null}
             </div>
           </div>
 

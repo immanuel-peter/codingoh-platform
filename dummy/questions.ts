@@ -1,6 +1,8 @@
 import { varStatus } from "@/utils";
 import { Question, User } from "@/types";
 
+// { name: "John Doe", platforms: ["Facebook", "Instagram", "Twitter", "GitHub", "YouTube"]}
+
 // Users
 export const users: User[] = [
   {
@@ -21,6 +23,7 @@ export const users: User[] = [
     company: "ABC Tech",
     skills: ["Web Development", "Machine Learning", "Software Engineering"],
     education: "XYZ University",
+    platforms: ["Facebook", "TikTok", "YouTube", "Discord", "Instagram"],
   },
   {
     id: 2425855,
@@ -40,6 +43,7 @@ export const users: User[] = [
     company: "XYZ University",
     skills: ["Front-end Development", "Web Design"],
     education: "ABC College",
+    platforms: ["Facebook", "Twitter", "Stack Overflow", "TikTok", "Dropbox"],
   },
   {
     id: 6436184,
@@ -59,6 +63,7 @@ export const users: User[] = [
     company: "Tech Solutions Inc.",
     skills: ["Distributed Systems", "Cloud Computing", "Java"],
     education: "XYZ University",
+    platforms: ["Twitter", "YouTube", "TikTok", "Reddit", "Codepen"],
   },
   {
     id: 5460166,
@@ -78,6 +83,7 @@ export const users: User[] = [
     company: "Tech Innovators",
     skills: ["Mobile Development", "Big Data", "Swift"],
     education: "ABC College",
+    platforms: ["Reddit", "Twitter", "Dropbox", "Twitch", "GitHub"],
   },
   {
     id: 8973098,
@@ -97,6 +103,7 @@ export const users: User[] = [
     company: "OpenSource Solutions",
     skills: ["Full-Stack Development", "Open Source", "JavaScript"],
     education: "XYZ University",
+    platforms: ["Reddit", "Discord", "Dropbox", "Twitch", "Codepen"],
   },
   {
     id: 8446183,
@@ -116,6 +123,7 @@ export const users: User[] = [
     company: "AI Solutions",
     skills: ["Artificial Intelligence", "Machine Learning", "Python"],
     education: "ABC College",
+    platforms: ["Dropbox", "Facebook", "GitHub", "Stack Overflow", "TikTok"],
   },
   {
     id: 5681446,
@@ -136,6 +144,7 @@ export const users: User[] = [
     company: "Web Creators",
     skills: ["Front-end Development", "User Experience", "React"],
     education: "XYZ University",
+    platforms: ["LinkedIn", "Discord", "YouTube", "Dropbox", "Instagram"],
   },
   {
     id: 7658604,
@@ -156,6 +165,7 @@ export const users: User[] = [
     company: "Cloud Solutions Ltd.",
     skills: ["Full-Stack Development", "Back-end Development", "Java"],
     education: "ABC College",
+    platforms: ["Twitch", "Discord", "Codepen", "Twitter", "Medium"],
   },
   {
     id: 1691053,
@@ -176,6 +186,7 @@ export const users: User[] = [
     company: "UI Designers Inc.",
     skills: ["Front-end Development", "User Interface Design", "React"],
     education: "XYZ University",
+    platforms: ["Twitch", "Twitter", "LinkedIn", "YouTube", "TikTok"],
   },
   {
     id: 9601998,
@@ -196,6 +207,7 @@ export const users: User[] = [
     company: "Server Solutions",
     skills: ["Back-end Development", "Server-side Applications", "Python"],
     education: "ABC College",
+    platforms: ["GitHub", "Facebook", "LinkedIn", "Twitch", "Medium"],
   },
   {
     id: 9100672,
@@ -217,6 +229,7 @@ export const users: User[] = [
     company: "Design Studios",
     skills: ["UX Design", "UI Design", "Figma"],
     education: "XYZ University",
+    platforms: ["TikTok", "Instagram", "Twitch", "LinkedIn", "Discord"],
   },
   {
     id: 3012944,
@@ -237,6 +250,7 @@ export const users: User[] = [
     company: "Data Insights",
     skills: ["Data Science", "Data Analysis", "Python"],
     education: "ABC College",
+    platforms: ["Stack Overflow", "Medium", "TikTok", "LinkedIn", "Facebook"],
   },
   {
     id: 6081524,
@@ -257,6 +271,62 @@ export const users: User[] = [
     company: "DevOps Solutions",
     skills: ["DevOps", "Automation", "Python"],
     education: "XYZ University",
+    platforms: ["LinkedIn", "TikTok", "Dropbox", "Facebook", "Reddit"],
+  },
+  {
+    id: 8734925,
+    name: "Isabella David",
+    about:
+      "I'm a coding enthusiast who loves crafting clean and efficient code. I'm constantly exploring new challenges and learning more about the tech world. You can often find me contributing to open-source projects and sharing my coding insights on forums. Let's connect and learn together on this exciting coding journey!",
+    email: "isabelladavis@example.com",
+    position: "Full Stack Developer",
+    fileAttachments: ["cv.pdf"],
+    codingLanguages: [
+      { language: "JavaScript", proficiency: 90 },
+      { language: "Python", proficiency: 85 },
+      { language: "React", proficiency: 80 },
+      { language: "Node.js", proficiency: 75 },
+      { language: "HTML", proficiency: 95 },
+      { language: "CSS", proficiency: 90 },
+      { language: "Java", proficiency: 70 },
+      { language: "SQL", proficiency: 65 },
+      { language: "TypeScript", proficiency: 85 },
+      { language: "Express.js", proficiency: 70 },
+      { language: "Flask", proficiency: 60 },
+      { language: "MongoDB", proficiency: 80 },
+      { language: "Git", proficiency: 85 },
+      { language: "AWS", proficiency: 75 },
+      { language: "Azure", proficiency: 70 },
+      { language: "Google Cloud", proficiency: 70 },
+      { language: "TensorFlow", proficiency: 75 },
+    ],
+    isOnline: varStatus(),
+    location: "San Francisco",
+    company: "TechSprint Solutions",
+    skills: [
+      "Frontend Development",
+      "React and React Native",
+      "Backend Development",
+      "Python Programming",
+      "Database Management",
+      "Full Stack Web Development",
+      "TypeScript",
+      "UI/UX Design",
+      "Version Control",
+      "Test-Driven Development",
+      "RESTful APIs",
+      "DevOps and CI/CD",
+      "Cloud Services",
+      "Data Analysis and Visualization",
+      "Mobile App Development",
+      "Agile Software Development",
+      "Docker and Containerization",
+      "Machine Learning",
+      "Cybersecurity Fundamentals",
+      "Software Architecture and Design Patterns",
+    ],
+    education: "Stanford University",
+    platforms: ["Twitch", "GitHub", "YouTube", "Discord", "Medium"],
   },
 ];
 
@@ -437,7 +507,10 @@ export const questions: Question[] = [
     time: "12:20 PM",
     date: "July 23, 2023",
     isAnswered: varStatus(),
-    contributors: [{ user: users[3], contributionTime: "12:25 PM" }],
+    contributors: [
+      { user: users[3], contributionTime: "12:25 PM" },
+      { user: users[13], contributionTime: "12:30 PM" },
+    ],
   },
   {
     id: 2966252,
@@ -463,5 +536,25 @@ export const questions: Question[] = [
       { user: users[5], contributionTime: "12:35 PM" },
       { user: users[1], contributionTime: "12:40 PM" },
     ],
+  },
+  {
+    id: 4598371,
+    question:
+      "I'm trying to implement a sorting algorithm in Python for a large dataset, but it seems to be taking forever to process. What are some efficient techniques or optimizations I can apply to improve the performance of my sorting algorithm and handle large data sets more efficiently?",
+    asker: users[13],
+    time: "12:35 PM",
+    date: "August 4, 2023",
+    isAnswered: varStatus(),
+    contributors: [{ user: users[4], contributionTime: "12:40 PM" }],
+  },
+  {
+    id: 9784531,
+    question:
+      "How can I dynamically update the contents of a select dropdown based on the selected value of another select dropdown using JavaScript?",
+    asker: users[0],
+    time: "12:40 PM",
+    date: "August 5, 2023",
+    isAnswered: varStatus(),
+    contributors: [],
   },
 ];

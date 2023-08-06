@@ -85,8 +85,10 @@ export const sortQuestionsAndContributions = (
   const userMap: {
     [userId: number]: {
       name: string;
+      allQuestions: Question[];
       askedQuestions: Question[];
       contributedQuestions: Question[];
+      addedQuestionIds: Set<number>;
     };
   } = {};
 
@@ -94,21 +96,70 @@ export const sortQuestionsAndContributions = (
   users.forEach((user) => {
     userMap[user.id] = {
       name: user.name,
+      allQuestions: [],
       askedQuestions: [],
       contributedQuestions: [],
+      addedQuestionIds: new Set<number>(),
     };
   });
 
   // Iterate through the questions and populate the user map
   questions.forEach((question) => {
     const askerId = question.asker.id;
-    userMap[askerId].askedQuestions.push(question);
+    if (!userMap[askerId].addedQuestionIds.has(question.id)) {
+      userMap[askerId].allQuestions.push(question);
+      userMap[askerId].askedQuestions.push(question);
+      userMap[askerId].addedQuestionIds.add(question.id);
+    }
 
     question.contributors.forEach((contributor) => {
       const contributorId = contributor.user.id;
-      userMap[contributorId].contributedQuestions.push(question);
+      if (!userMap[contributorId].addedQuestionIds.has(question.id)) {
+        userMap[contributorId].allQuestions.push(question);
+        userMap[contributorId].contributedQuestions.push(question);
+        userMap[contributorId].addedQuestionIds.add(question.id);
+      } else {
+        userMap[contributorId].contributedQuestions.push(question);
+      }
     });
   });
 
+  for (const userId in userMap) {
+    userMap[userId].allQuestions.sort((a, b) => {
+      const aDateTime = new Date(a.date + " " + a.time).getTime();
+      const bDateTime = new Date(b.date + " " + b.time).getTime();
+      return bDateTime - aDateTime;
+    });
+
+    userMap[userId].askedQuestions.sort((a, b) => {
+      const aDateTime = new Date(a.date + " " + a.time).getTime();
+      const bDateTime = new Date(b.date + " " + b.time).getTime();
+      return bDateTime - aDateTime;
+    });
+
+    userMap[userId].contributedQuestions.sort((a, b) => {
+      const aDateTime = new Date(a.date + " " + a.time).getTime();
+      const bDateTime = new Date(b.date + " " + b.time).getTime();
+      return bDateTime - aDateTime;
+    });
+  }
+
   return userMap;
+};
+
+export const getTopQuestions = (questions: Question[], rank: number) => {
+  return questions.slice(0, rank);
+};
+
+export const ellipsis = (text: string, maxChars: number): string => {
+  if (text.length <= maxChars) {
+    return text;
+  } else {
+    const trimmedText = text.substring(0, maxChars); // Trim the text to maxChars characters
+    const lastSpaceIndex = trimmedText.lastIndexOf(" "); // Find the index of the last space
+    const displayedText = trimmedText.substring(0, lastSpaceIndex); // Get the text until the last space
+    const remainingText = text.substring(lastSpaceIndex); // Get the remaining text after the last space
+    const lastWords = remainingText.split(" ").slice(-4).join(" "); // Get the last 4 words
+    return `${displayedText} ... ${lastWords}`;
+  }
 };
