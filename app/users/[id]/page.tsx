@@ -101,10 +101,10 @@ import Link from "next/link";
 import { Dialog, Transition } from "@headlessui/react";
 import { SocialIcon } from "react-social-icons";
 
-import { users, questions } from "@/dummy/questions";
+import { users, questions, projects } from "@/dummy/questions";
 import { User } from "@/types";
 import { getTopLanguages, stringifyList, getTopQuestions } from "@/utils";
-import { Navbar, Card, Question } from "@/components";
+import { Navbar, Card, Question, Project } from "@/components";
 import { sortQuestionsAndContributions } from "@/utils";
 import Banner from "@/public/banner.png";
 import Avatar from "@/public/avatar.png";
@@ -210,6 +210,11 @@ const UserPage = ({ params }: { params: { id: string } }) => {
   const [isStackOpen, setIsStackOpen] = useState(false);
   const [isQuestionsOpen, setIsQuestionsOpen] = useState(false);
   const [skillsOpen, setSkillsOpen] = useState(false);
+  const [isProjectGithubHovered, setIsProjectGithubHovered] = useState(
+    new Array(6).fill(false)
+  );
+  const [projectTypeMode, setProjectTypeMode] = useState("all");
+  const [isProjectsOpen, setIsProjectsOpen] = useState(false);
 
   const user = getUser(params.id);
 
@@ -219,6 +224,18 @@ const UserPage = ({ params }: { params: { id: string } }) => {
   const userQuestionsAndContributions = userMap[user.id];
 
   const topLanguages = getTopLanguages(user.codingLanguages, 5);
+
+  const handleIconMouseEnter = (index: number) => {
+    const updatedState = [...isProjectGithubHovered];
+    updatedState[index] = true;
+    setIsProjectGithubHovered(updatedState);
+  };
+
+  const handleIconMouseLeave = (index: number) => {
+    const updatedState = [...isProjectGithubHovered];
+    updatedState[index] = false;
+    setIsProjectGithubHovered(updatedState);
+  };
 
   return (
     <>
@@ -246,9 +263,16 @@ const UserPage = ({ params }: { params: { id: string } }) => {
               <h1 className="text-xl font-bold">{user.name}</h1>
               <span className="text-lg font-normal">{user.position}</span>
               <div className="flex flex-row gap-2">
-                {user.platforms?.map((platform, index) => (
-                  <SocialIcon key={index} network={platform} />
-                ))}
+                {user.platforms
+                  ? user.platforms.map((platform, index) => (
+                      <SocialIcon
+                        key={index}
+                        network={platform.toLowerCase()}
+                        url="https://www.google.com/"
+                        style={{ height: 35, width: 35, marginTop: "10px" }}
+                      />
+                    ))
+                  : null}
               </div>
             </div>
           </div>
@@ -265,7 +289,7 @@ const UserPage = ({ params }: { params: { id: string } }) => {
           className="h-2 w-full rounded-xl"
         />
       </div>
-      <main className="p-3 m-0 grid grid-cols-4 grid-flow-row gap-4">
+      <main className="p-3 m-0 grid grid-cols-4 grid-flow-dense gap-4">
         <div className="row-span-3 border border-solid border-gray-300 rounded-xl h-fit">
           <h1 className="p-2 ml-3 text-2xl font-bold rounded-t-xl">Stack</h1>
           <hr className="border-solid border border-black mb-4" />
@@ -312,7 +336,7 @@ const UserPage = ({ params }: { params: { id: string } }) => {
             <h1 className="text-2xl font-bold ml-3 p-2 rounded-tl-xl">
               Questions
             </h1>
-            <div className="flex flex-row justify-between items-center gap-1 mr-2 rounded-tr-xl">
+            <div className="flex flex-row justify-between items-center gap-2 mr-3 rounded-tr-xl">
               <button
                 className={`mr-2 text-sm text-black bg-red-400 hover:bg-red-600 hover:text-white hover:scale-110 p-1 border border-solid border-red-500 rounded-full h-5 w-5 flex items-center justify-center ${
                   questionTypeMode === "all" ? "invisible" : null
@@ -321,36 +345,38 @@ const UserPage = ({ params }: { params: { id: string } }) => {
               >
                 x
               </button>
-              <Button
-                type="default"
-                className={`rounded-full ${
+              <button
+                className={`p-2 rounded-full border border-solid border-sky-500 text-sky-500 ${
                   questionTypeMode === "asked" ? "bg-blue-300" : null
                 }`}
                 onClick={() => setQuestionTypeMode("asked")}
               >
                 <span
                   className={`${
-                    questionTypeMode === "asked" ? "bg-blue-300" : null
+                    questionTypeMode === "asked"
+                      ? "bg-blue-300 text-white"
+                      : null
                   }`}
                 >
                   Asked Questions
                 </span>
-              </Button>
-              <Button
-                type="default"
-                className={`rounded-full ${
+              </button>
+              <button
+                className={`p-2 rounded-full border border-solid border-sky-500 text-sky-500 ${
                   questionTypeMode === "contributed" ? "bg-blue-300" : null
                 }`}
                 onClick={() => setQuestionTypeMode("contributed")}
               >
                 <span
                   className={`${
-                    questionTypeMode === "contributed" ? "bg-blue-300" : null
+                    questionTypeMode === "contributed"
+                      ? "bg-blue-300 text-white"
+                      : null
                   }`}
                 >
                   Contributed Questions
                 </span>
-              </Button>
+              </button>
             </div>
           </div>
           <hr className="border-solid border border-black" />
@@ -517,7 +543,7 @@ const UserPage = ({ params }: { params: { id: string } }) => {
             ) : null}
           </div>
         </div>
-        <div className="row-span-3 col-start-1 border border-solid border-gray-300 rounded-xl h-fit">
+        <div className="row-span-3 col-start-1 col-span-1 border border-solid border-gray-300 rounded-xl ">
           <h1 className="p-2 ml-3 text-2xl font-bold rounded-tr-xl">
             Metadata
           </h1>
@@ -578,6 +604,216 @@ const UserPage = ({ params }: { params: { id: string } }) => {
               ))}
             </div>
           </dl>
+        </div>
+        <div className="col-span-3 col-start-2 p-2 border border-solid border-gray-300 rounded-xl">
+          <div className="flex flex-row justify-between items-center">
+            <h1 className="text-2xl font-bold ml-3 p-2 rounded-tl-xl">
+              Projects
+            </h1>
+            <div className="flex flex-row justify-between items-center gap-2 mb-1 mr-3 rounded-tr-xl">
+              <button
+                className={`mr-2 text-sm text-black bg-red-400 hover:bg-red-600 hover:text-white hover:scale-110 p-1 border border-solid border-red-500 rounded-full h-5 w-5 flex items-center justify-center ${
+                  projectTypeMode === "all" ? "invisible" : null
+                }`}
+                onClick={() => setProjectTypeMode("all")}
+              >
+                x
+              </button>
+              <button
+                className={`p-2 rounded-full border border-solid border-amber-500 text-amber-500 ${
+                  projectTypeMode === "ongoing" ? "bg-amber-300" : null
+                }`}
+                onClick={() => setProjectTypeMode("ongoing")}
+              >
+                <span
+                  className={`${
+                    projectTypeMode === "ongoing"
+                      ? "bg-amber-300 text-white"
+                      : null
+                  }`}
+                >
+                  Ongoing
+                </span>
+              </button>
+              <button
+                className={`p-2 rounded-full border border-solid border-green-500 text-green-500 ${
+                  projectTypeMode === "completed" ? "bg-green-300" : null
+                }`}
+                onClick={() => setProjectTypeMode("completed")}
+              >
+                <span
+                  className={`${
+                    projectTypeMode === "completed"
+                      ? "bg-green-300 text-white"
+                      : null
+                  }`}
+                >
+                  Completed
+                </span>
+              </button>
+              <button
+                className={`p-2 rounded-full border border-solid border-orange-500 text-orange-500 ${
+                  projectTypeMode === "on_hold" ? "bg-orange-300" : null
+                }`}
+                onClick={() => setProjectTypeMode("on_hold")}
+              >
+                <span
+                  className={`${
+                    projectTypeMode === "on_hold"
+                      ? "bg-orange-300 text-white"
+                      : null
+                  }`}
+                >
+                  On Hold
+                </span>
+              </button>
+            </div>
+          </div>
+          <hr className="border-solid border border-black" />
+          <div className="p-2 m-2 grid grid-cols-3 grid-rows-2 gap-5">
+            {projectTypeMode === "all" && (
+              <>
+                {projects.length <= 6
+                  ? projects.map((project, index) => (
+                      <Project project={project} key={index} />
+                    ))
+                  : projects
+                      .slice(0, 6)
+                      .map((project, index) => (
+                        <Project key={index} project={project} />
+                      ))}
+              </>
+            )}
+            {projectTypeMode === "all" && projects.length > 6 ? (
+              <>
+                <div className="col-start-3 relative bottom-0 right-0 flex flex-col items-end justify-between pr-1">
+                  <button
+                    className="text-base text-blue-500 inline-flex items-center gap-1"
+                    onClick={() => setIsProjectsOpen(true)}
+                  >
+                    See More
+                    <span
+                      aria-hidden="true"
+                      className="block transition-all group-hover:ms-0.5"
+                    >
+                      &rarr;
+                    </span>
+                  </button>
+                </div>
+              </>
+            ) : null}
+          </div>
+          <div className="p-2 m-2 grid grid-cols-3 grid-rows-2 gap-5">
+            {projectTypeMode === "ongoing" && (
+              <>
+                {projects.filter((project) => project.status === "ongoing")
+                  .length <= 6
+                  ? projects
+                      .filter((project) => project.status === "ongoing")
+                      .map((project, index) => (
+                        <Project key={index} project={project} />
+                      ))
+                  : projects
+                      .filter((project) => project.status === "ongoing")
+                      .slice(0, 6)
+                      .map((project, index) => (
+                        <Project key={index} project={project} />
+                      ))}
+              </>
+            )}
+            {projectTypeMode === "ongoing" &&
+            projects.filter((project) => project.status === "ongoing").length >
+              6 ? (
+              <div className="col-start-3 relative bottom-0 right-0 flex flex-col items-end justify-between pr-1">
+                <button
+                  className="text-base text-blue-500 inline-flex items-center gap-1"
+                  onClick={() => setIsProjectsOpen(true)}
+                >
+                  See More
+                  <span
+                    aria-hidden="true"
+                    className="block transition-all group-hover:ms-0.5"
+                  >
+                    &rarr;
+                  </span>
+                </button>
+              </div>
+            ) : null}
+          </div>
+          <div className="p-2 m-2 grid grid-cols-3 grid-rows-2 gap-5">
+            {projectTypeMode === "completed" && (
+              <>
+                {projects.filter((project) => project.status === "completed")
+                  .length <= 6
+                  ? projects
+                      .filter((project) => project.status === "completed")
+                      .map((project, index) => (
+                        <Project key={index} project={project} />
+                      ))
+                  : projects
+                      .filter((project) => project.status === "completed")
+                      .slice(0, 6)
+                      .map((project, index) => (
+                        <Project key={index} project={project} />
+                      ))}
+              </>
+            )}
+            {projectTypeMode === "completed" &&
+            projects.filter((project) => project.status === "completed")
+              .length > 6 ? (
+              <div className="col-start-3 relative bottom-0 right-0 flex flex-col items-end justify-between pr-1">
+                <button
+                  className="text-base text-blue-500 inline-flex items-center gap-1"
+                  onClick={() => setIsProjectsOpen(true)}
+                >
+                  See More
+                  <span
+                    aria-hidden="true"
+                    className="block transition-all group-hover:ms-0.5"
+                  >
+                    &rarr;
+                  </span>
+                </button>
+              </div>
+            ) : null}
+          </div>
+          <div className="p-2 m-2 grid grid-cols-3 grid-rows-2 gap-5">
+            {projectTypeMode === "on_hold" && (
+              <>
+                {projects.filter((project) => project.status === "on_hold")
+                  .length <= 6
+                  ? projects
+                      .filter((project) => project.status === "on_hold")
+                      .map((project, index) => (
+                        <Project key={index} project={project} />
+                      ))
+                  : projects
+                      .filter((project) => project.status === "on_hold")
+                      .slice(0, 6)
+                      .map((project, index) => (
+                        <Project key={index} project={project} />
+                      ))}
+              </>
+            )}
+            {projectTypeMode === "on_hold" &&
+            projects.filter((project) => project.status === "on_hold").length >
+              6 ? (
+              <div className="col-start-3 relative bottom-0 right-0 flex flex-col items-end justify-between pr-1">
+                <button
+                  className="text-base text-blue-500 inline-flex items-center gap-1"
+                  onClick={() => setIsProjectsOpen(true)}
+                >
+                  See More
+                  <span
+                    aria-hidden="true"
+                    className="block transition-all group-hover:ms-0.5"
+                  >
+                    &rarr;
+                  </span>
+                </button>
+              </div>
+            ) : null}
+          </div>
         </div>
       </main>
       <Transition appear show={isStackOpen} as={Fragment}>
@@ -700,24 +936,24 @@ const UserPage = ({ params }: { params: { id: string } }) => {
                     >
                       x
                     </button>
-                    <Button
-                      type="default"
-                      className={`rounded-full ${
+                    <button
+                      className={`p-2 rounded-full border border-solid border-sky-500 text-sky-500 ${
                         questionTypeMode === "asked" ? "bg-blue-300" : null
                       }`}
                       onClick={() => setQuestionTypeMode("asked")}
                     >
                       <span
                         className={`${
-                          questionTypeMode === "asked" ? "bg-blue-300" : null
+                          questionTypeMode === "asked"
+                            ? "bg-blue-300 text-white"
+                            : null
                         }`}
                       >
                         Asked Questions
                       </span>
-                    </Button>
-                    <Button
-                      type="default"
-                      className={`rounded-full ${
+                    </button>
+                    <button
+                      className={`p-2 rounded-full border border-solid border-sky-500 text-sky-500 ${
                         questionTypeMode === "contributed"
                           ? "bg-blue-300"
                           : null
@@ -727,13 +963,13 @@ const UserPage = ({ params }: { params: { id: string } }) => {
                       <span
                         className={`${
                           questionTypeMode === "contributed"
-                            ? "bg-blue-300"
+                            ? "bg-blue-300 text-white"
                             : null
                         }`}
                       >
                         Contributed Questions
                       </span>
-                    </Button>
+                    </button>
                   </div>
                   <div className="p-3 overflow-auto flex flex-col text-left justify-between">
                     <div
@@ -830,6 +1066,66 @@ const UserPage = ({ params }: { params: { id: string } }) => {
                       type="button"
                       className="inline-flex flex-row justify-between items-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-base font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
                       onClick={() => setIsQuestionsOpen(false)}
+                    >
+                      Cool!
+                      <FaThumbsUp className="ml-3 text-base bg-inherit" />
+                    </button>
+                  </div>
+                </Dialog.Panel>
+              </Transition.Child>
+            </div>
+          </div>
+        </Dialog>
+      </Transition>
+      <Transition appear show={isProjectsOpen} as={Fragment}>
+        <Dialog
+          as="div"
+          className="relative z-10 overflow-auto"
+          onClose={() => setIsProjectsOpen(false)}
+        >
+          <Transition.Child
+            as={Fragment}
+            enter="ease-out duration-300"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="ease-in duration-200"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
+            <div className="fixed inset-0 bg-gray-400/75" />
+          </Transition.Child>
+
+          <div className="fixed inset-0 overflow-auto">
+            <div className="flex min-h-full items-center justify-center p-4 text-center">
+              <Transition.Child
+                as={Fragment}
+                enter="ease-out duration-300"
+                enterFrom="opacity-0 scale-95"
+                enterTo="opacity-100 scale-100"
+                leave="ease-in duration-200"
+                leaveFrom="opacity-100 scale-100"
+                leaveTo="opacity-0 scale-95"
+              >
+                <Dialog.Panel className="w-full max-w-full transform overflow-auto rounded-2xl bg-white border-slate-200 border border-solid p-6 shadow-xl transition-all">
+                  <Dialog.Title
+                    as="h1"
+                    className="p-2 text-2xl font-bold leading-6 text-gray-900"
+                  >
+                    Projects
+                  </Dialog.Title>
+                  <hr className="border-solid border-black border" />
+
+                  <div className="p-2 m-2 grid grid-cols-4 gap-5">
+                    {projects.map((project, index) => (
+                      <Project key={index} project={project} />
+                    ))}
+                  </div>
+
+                  <div className="mt-4">
+                    <button
+                      type="button"
+                      className="inline-flex flex-row justify-between items-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-base font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                      onClick={() => setIsProjectsOpen(false)}
                     >
                       Cool!
                       <FaThumbsUp className="ml-3 text-base bg-inherit" />

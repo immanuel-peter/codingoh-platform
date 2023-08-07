@@ -1,5 +1,5 @@
 import { varStatus } from "@/utils";
-import { Question, User } from "@/types";
+import { Question, User, Project } from "@/types";
 
 // { name: "John Doe", platforms: ["Facebook", "Instagram", "Twitter", "GitHub", "YouTube"]}
 
@@ -558,3 +558,127 @@ export const questions: Question[] = [
     contributors: [],
   },
 ];
+
+export const projects: Project[] = [
+  {
+    id: 1,
+    name: "React Web Application",
+    description: "Building a modern web application using React and Redux.",
+    startDate: new Date("2023-01-15"),
+    endDate: new Date("2023-04-30"),
+    status: "completed",
+  },
+  {
+    id: 2,
+    name: "Node.js API Development",
+    description: "Creating a RESTful API using Node.js, Express, and MongoDB.",
+    startDate: new Date("2023-02-10"),
+    endDate: new Date("2023-09-30"),
+    status: "ongoing",
+  },
+  {
+    id: 3,
+    name: "Python Data Analysis",
+    description: "Analyzing large datasets with Python and Pandas.",
+    startDate: new Date("2023-03-20"),
+    status: "ongoing",
+  },
+  {
+    id: 4,
+    name: "Angular E-commerce Platform",
+    description: "Developing an e-commerce platform using Angular and Firebase.",
+    startDate: new Date("2023-04-05"),
+    endDate: new Date("2023-06-30"),
+    status: "completed",
+  },
+  {
+    id: 5,
+    name: "Java Mobile App",
+    description: "Creating a mobile app for Android using Java and SQLite.",
+    startDate: new Date("2023-05-10"),
+    status: "on_hold",
+  },
+  {
+    id: 6,
+    name: "Swift iOS Game",
+    description: "Designing and coding an iOS game using Swift and SpriteKit.",
+    startDate: new Date("2023-06-25"),
+    status: "on_hold",
+  },
+  {
+    id: 7,
+    name: "Vue.js Single Page App",
+    description: "Developing a single-page application using Vue.js and Vuex.",
+    startDate: new Date("2023-07-15"),
+    status: "ongoing",
+  },
+  {
+    id: 8,
+    name: "Django Blog Platform",
+    description: "Building a blog platform using Django and PostgreSQL.",
+    startDate: new Date("2023-08-10"),
+    endDate: new Date("2023-12-31"),
+    status: "ongoing",
+  },
+  {
+    id: 9,
+    name: "C# Desktop Application",
+    description: "Creating a desktop application with C# and WinForms.",
+    startDate: new Date("2023-09-20"),
+    status: "ongoing",
+  },
+  {
+    id: 10,
+    name: "Ruby on Rails API",
+    description: "Developing a RESTful API using Ruby on Rails and MySQL.",
+    startDate: new Date("2023-10-05"),
+    endDate: new Date("2024-03-31"),
+    status: "ongoing",
+  },
+  {
+    id: 11,
+    name: "Unity3D Game Development",
+    description: "Building a 3D game using Unity3D and C# scripting.",
+    startDate: new Date("2023-11-10"),
+    status: "on_hold",
+  },
+  {
+    id: 12,
+    name: "TypeScript Library",
+    description: "Creating a reusable library in TypeScript for data manipulation.",
+    startDate: new Date("2023-12-25"),
+    endDate: new Date("2024-02-28"),
+    status: "completed",
+  },
+  {
+    id: 13,
+    name: "Machine Learning Research",
+    description: "This project aims to conduct in-depth research and experimentation in the field of machine learning. The team will explore various algorithms, models, and techniques to solve real-world problems, such as image recognition, natural language processing, and predictive analytics. The research will involve extensive data analysis, model training, and performance evaluation. The project's goal is to make advancements in machine learning and contribute to the development of intelligent systems.",
+    startDate: new Date("2023-07-15"),
+    status: "ongoing",
+  },
+  {
+    id: 14,
+    name: "IoT Home Automation System",
+    description: "In this project, we will design and implement a smart home automation system using Internet of Things (IoT) technologies. The system will integrate various IoT devices, sensors, and actuators to enable remote monitoring and control of home appliances and security features. We will develop a user-friendly mobile app that allows homeowners to manage their smart home remotely. Additionally, the project will emphasize data security and privacy to ensure that the system remains robust and protected against potential cyber threats.",
+    startDate: new Date("2023-08-10"),
+    endDate: new Date("2023-12-31"),
+    status: "ongoing",
+  },
+  {
+    id: 15,
+    name: "Blockchain-Based Supply Chain Solution",
+    description: "This project aims to create a decentralized supply chain solution using blockchain technology. The goal is to enhance transparency and traceability throughout the supply chain process, reducing fraud and ensuring the authenticity of products. We will leverage blockchain's distributed ledger to record every step of the supply chain, from raw material acquisition to the final product delivery. Smart contracts will automate contract enforcement, payment processing, and other relevant actions. The resulting platform will empower businesses and consumers with trust and reliability in the supply chain ecosystem.",
+    startDate: new Date("2023-09-20"),
+    status: "ongoing",
+  },
+  {
+    id: 16,
+    name: "Augmented Reality Game",
+    description: "In this project, we will develop an exciting augmented reality (AR) game that blends the virtual world with the real environment. The game will be compatible with AR-capable smartphones and wearable devices, offering players a unique and immersive gaming experience. Players will embark on thrilling adventures as they interact with virtual characters and objects overlaid on the real-world surroundings. Our team will focus on optimizing the game's performance, designing captivating visuals, and incorporating innovative AR interactions to captivate players and keep them engaged.",
+    startDate: new Date("2023-10-05"),
+    endDate: new Date("2024-03-31"),
+    status: "ongoing",
+  },
+];
+

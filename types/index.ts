@@ -34,3 +34,12 @@ export interface Contributor {
   user: User;
   contributionTime: string;
 }
+
+export interface Project {
+  id: number;
+  name: string;
+  description: string;
+  startDate: Date;
+  endDate?: Date;
+  status: "ongoing" | "completed" | "on_hold";
+}
