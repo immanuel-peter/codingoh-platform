@@ -1,6 +1,9 @@
+"use client";
+
 import React, { useState } from "react";
 import Link from "next/link";
 import { SocialIcon } from "react-social-icons";
+import { FaGithub } from "react-icons/fa6";
 
 import { projects } from "@/dummy/questions";
 import { Project as ProjectType } from "@/types";
@@ -70,7 +73,7 @@ const Project = ({ project }: { project: ProjectType }) => {
             onMouseEnter={() => setIsProjectGithubHovered(true)}
             onMouseLeave={() => setIsProjectGithubHovered(false)}
           >
-            <SocialIcon
+            {/* <SocialIcon
               url="https://www.github.com"
               className={`mt-4 outline-none ${getBgColor(project.status)}`}
               style={{
@@ -78,7 +81,14 @@ const Project = ({ project }: { project: ProjectType }) => {
                 width: isProjectGithubHovered ? 40 : 30,
                 transition: "height 0.3s, width 0.3s", // Add a transition for smooth animation
               }}
-            />
+            /> */}
+            <Link href="https://www.github.com">
+              <FaGithub
+                className={`${getBgColor(
+                  project.status
+                )} h-7 hover:h-10 w-7 hover:w-10 transition duration-300`}
+              />
+            </Link>
           </div>
         </div>
       </article>

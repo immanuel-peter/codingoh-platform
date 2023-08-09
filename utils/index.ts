@@ -163,3 +163,7 @@ export const ellipsis = (text: string, maxChars: number): string => {
     return `${displayedText} ... ${lastWords}`;
   }
 };
+
+export const combineText = (text1: string, text2: string): string => {
+  return text1 + "\n\n" + text2;
+}
