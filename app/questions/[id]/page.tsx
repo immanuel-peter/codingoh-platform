@@ -7,7 +7,7 @@ import ReactMarkdown from "react-markdown";
 
 import { questions, users } from "@/dummy/questions";
 import { Question, User, Contributor } from "@/types";
-import { Navbar } from "@/components";
+import { Navbar, FAB } from "@/components";
 import { daysBetweenDateAndToday } from "@/utils";
 import { Comments } from "@/components";
 import Link from "next/link";
@@ -173,17 +173,7 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
       </div>
       <Comments contributors={question.contributors} />
 
-      <button className="fixed bottom-4 left-4 bg-blue-500 hover:bg-blue-600 text-white rounded-full p-3 shadow-md">
-        <div className="flex flex-row items-center justify-center bg-inherit text-inherit">
-          <FaLightbulb className="bg-inherit text-inherit mr-2" />
-          Help CodingOH
-        </div>
-      </button>
-      <Tooltip title="Add Question" placement="left">
-        <button className="fixed bottom-4 right-4 bg-blue-500 hover:bg-blue-600 text-white rounded-full p-5 shadow-md">
-          <FaPlus className="bg-inherit text-inherit text-2xl" />
-        </button>
-      </Tooltip>
+      <FAB />
     </>
   );
 };

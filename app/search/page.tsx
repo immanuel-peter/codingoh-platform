@@ -7,7 +7,7 @@ import { Tooltip } from "@mui/material";
 import { FaPlus } from "react-icons/fa6";
 import { PiCaretDoubleUpLight } from "react-icons/pi";
 
-import { Navbar, Question } from "@/components";
+import { Navbar, Question, FAB } from "@/components";
 import { rankSearchQuestions } from "@/api/search";
 import { questions } from "@/dummy/questions";
 import { Question as QuestionType } from "@/types";
@@ -96,11 +96,7 @@ const SearchPage = () => {
       >
         <PiCaretDoubleUpLight className="bg-inherit self-center" />
       </button>
-      <Tooltip title="Add Question" placement="left">
-        <button className="fixed bottom-4 right-4 bg-blue-500 hover:bg-blue-600 text-white rounded-full p-5 shadow-md">
-          <FaPlus className="bg-inherit text-inherit text-2xl" />
-        </button>
-      </Tooltip>
+      <FAB />
     </>
   );
 };
