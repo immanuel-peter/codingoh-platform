@@ -37,6 +37,7 @@ export interface Contributor {
 
 export interface Project {
   id: number;
+  owner: User;
   name: string;
   description: string;
   startDate: Date;

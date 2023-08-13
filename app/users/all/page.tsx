@@ -6,7 +6,7 @@ import { Input } from "antd";
 import { Autocomplete } from "@mui/joy";
 import Link from "next/link";
 
-import { Navbar, Card } from "@/components";
+import { Navbar, Card, FAB } from "@/components";
 import { users } from "@/dummy/questions";
 import { allIcons } from "@/utils/icons";
 import { User } from "@/types";
@@ -116,6 +116,7 @@ const allUsers = () => {
           </>
         )}
       </div>
+      <FAB />
     </>
   );
 };

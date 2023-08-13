@@ -1,6 +1,4 @@
-"use client";
-
-import React, { useState } from "react";
+import React from "react";
 import Link from "next/link";
 import { SocialIcon } from "react-social-icons";
 import { FaGithub } from "react-icons/fa6";
@@ -22,24 +20,10 @@ const getBgColor = (status: string): string => {
 };
 
 const Project = ({ project }: { project: ProjectType }) => {
-  const [isProjectGithubHovered, setIsProjectGithubHovered] = useState(false);
-
-  //   const handleIconMouseEnter = (index: number) => {
-  //     const updatedState = [...isProjectGithubHovered];
-  //     updatedState[index] = true;
-  //     setIsProjectGithubHovered(updatedState);
-  //   };
-
-  //   const handleIconMouseLeave = (index: number) => {
-  //     const updatedState = [...isProjectGithubHovered];
-  //     updatedState[index] = false;
-  //     setIsProjectGithubHovered(updatedState);
-  //   };
-
   return (
     <>
       <article
-        className={`overflow-hidden rounded-lg border border-gray-200 ${getBgColor(
+        className={`overflow-hidden rounded-lg min-h-[350px] border border-gray-200 ${getBgColor(
           project.status
         )} shadow-sm`}
       >
@@ -69,24 +53,21 @@ const Project = ({ project }: { project: ProjectType }) => {
           </div>
 
           <div
-            className={`flex justify-end ${getBgColor(project.status)}`}
-            onMouseEnter={() => setIsProjectGithubHovered(true)}
-            onMouseLeave={() => setIsProjectGithubHovered(false)}
+            className={`flex justify-between justify-items-end items-end ${getBgColor(
+              project.status
+            )}`}
           >
-            {/* <SocialIcon
-              url="https://www.github.com"
-              className={`mt-4 outline-none ${getBgColor(project.status)}`}
-              style={{
-                height: isProjectGithubHovered ? 40 : 30,
-                width: isProjectGithubHovered ? 40 : 30,
-                transition: "height 0.3s, width 0.3s", // Add a transition for smooth animation
-              }}
-            /> */}
+            <Link
+              href={`/users/${project.owner?.id}`}
+              className="bg-inherit text-sm hover:underline"
+            >
+              {project.owner?.name}
+            </Link>
             <Link href="https://www.github.com">
               <FaGithub
                 className={`${getBgColor(
                   project.status
-                )} h-7 hover:h-10 w-7 hover:w-10 transition duration-300`}
+                )} h-7 w-7 hover:scale-150 transition duration-300`}
               />
             </Link>
           </div>

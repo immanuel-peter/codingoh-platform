@@ -104,8 +104,8 @@ import { SocialIcon } from "react-social-icons";
 import { users, questions, projects } from "@/dummy/questions";
 import { User } from "@/types";
 import { getTopLanguages, stringifyList, getTopQuestions } from "@/utils";
-import { Navbar, Card, Question, Project } from "@/components";
-import { sortQuestionsAndContributions } from "@/utils";
+import { Navbar, Card, Question, Project, FAB } from "@/components";
+import { sortQuestionsAndContributions, projectsMap } from "@/utils";
 import Banner from "@/public/banner.png";
 import Avatar from "@/public/avatar.png";
 import { allIcons } from "@/utils/icons";
@@ -224,6 +224,8 @@ const UserPage = ({ params }: { params: { id: string } }) => {
   const userQuestionsAndContributions = userMap[user.id];
 
   const topLanguages = getTopLanguages(user.codingLanguages, 5);
+
+  const userProjects = projectsMap(projects, user) || [];
 
   const handleIconMouseEnter = (index: number) => {
     const updatedState = [...isProjectGithubHovered];
@@ -670,21 +672,33 @@ const UserPage = ({ params }: { params: { id: string } }) => {
             </div>
           </div>
           <hr className="border-solid border border-black" />
-          <div className="p-2 m-2 grid grid-cols-3 grid-rows-2 gap-5">
+          <div
+            className={`p-2 m-2 ${
+              userProjects.length !== 0
+                ? "grid grid-cols-3 grid-rows-2 gap-5"
+                : "flex items-center justify-center"
+            }`}
+          >
             {projectTypeMode === "all" && (
               <>
-                {projects.length <= 6
-                  ? projects.map((project, index) => (
+                {userProjects.length !== 0 ? (
+                  userProjects.length <= 6 ? (
+                    userProjects.map((project, index) => (
                       <Project project={project} key={index} />
                     ))
-                  : projects
+                  ) : (
+                    userProjects
                       .slice(0, 6)
                       .map((project, index) => (
                         <Project key={index} project={project} />
-                      ))}
+                      ))
+                  )
+                ) : (
+                  <h1 className="text-2xl font-bold">No Projects Available</h1>
+                )}
               </>
             )}
-            {projectTypeMode === "all" && projects.length > 6 ? (
+            {projectTypeMode === "all" && userProjects.length > 6 ? (
               <>
                 <div className="col-start-3 relative bottom-0 right-0 flex flex-col items-end justify-between pr-1">
                   <button
@@ -703,63 +717,40 @@ const UserPage = ({ params }: { params: { id: string } }) => {
               </>
             ) : null}
           </div>
-          <div className="p-2 m-2 grid grid-cols-3 grid-rows-2 gap-5">
+          <div
+            className={`p-2 m-2 ${
+              userProjects.filter((project) => project.status === "ongoing")
+                .length !== 0
+                ? "grid grid-cols-3 grid-rows-2 gap-5"
+                : "flex items-center justify-center"
+            }`}
+          >
             {projectTypeMode === "ongoing" && (
               <>
-                {projects.filter((project) => project.status === "ongoing")
-                  .length <= 6
-                  ? projects
+                {userProjects.filter((project) => project.status === "ongoing")
+                  .length !== 0 ? (
+                  userProjects.filter((project) => project.status === "ongoing")
+                    .length <= 6 ? (
+                    userProjects
                       .filter((project) => project.status === "ongoing")
                       .map((project, index) => (
                         <Project key={index} project={project} />
                       ))
-                  : projects
+                  ) : (
+                    userProjects
                       .filter((project) => project.status === "ongoing")
                       .slice(0, 6)
                       .map((project, index) => (
                         <Project key={index} project={project} />
-                      ))}
+                      ))
+                  )
+                ) : (
+                  <h1 className="text-2xl font-bold">No Ongoing Projects</h1>
+                )}
               </>
             )}
             {projectTypeMode === "ongoing" &&
-            projects.filter((project) => project.status === "ongoing").length >
-              6 ? (
-              <div className="col-start-3 relative bottom-0 right-0 flex flex-col items-end justify-between pr-1">
-                <button
-                  className="text-base text-blue-500 inline-flex items-center gap-1"
-                  onClick={() => setIsProjectsOpen(true)}
-                >
-                  See More
-                  <span
-                    aria-hidden="true"
-                    className="block transition-all group-hover:ms-0.5"
-                  >
-                    &rarr;
-                  </span>
-                </button>
-              </div>
-            ) : null}
-          </div>
-          <div className="p-2 m-2 grid grid-cols-3 grid-rows-2 gap-5">
-            {projectTypeMode === "completed" && (
-              <>
-                {projects.filter((project) => project.status === "completed")
-                  .length <= 6
-                  ? projects
-                      .filter((project) => project.status === "completed")
-                      .map((project, index) => (
-                        <Project key={index} project={project} />
-                      ))
-                  : projects
-                      .filter((project) => project.status === "completed")
-                      .slice(0, 6)
-                      .map((project, index) => (
-                        <Project key={index} project={project} />
-                      ))}
-              </>
-            )}
-            {projectTypeMode === "completed" &&
-            projects.filter((project) => project.status === "completed")
+            userProjects.filter((project) => project.status === "ongoing")
               .length > 6 ? (
               <div className="col-start-3 relative bottom-0 right-0 flex flex-col items-end justify-between pr-1">
                 <button
@@ -777,27 +768,94 @@ const UserPage = ({ params }: { params: { id: string } }) => {
               </div>
             ) : null}
           </div>
-          <div className="p-2 m-2 grid grid-cols-3 grid-rows-2 gap-5">
+          <div
+            className={`p-2 m-2 ${
+              userProjects.filter((project) => project.status === "completed")
+                .length !== 0
+                ? "grid grid-cols-3 grid-rows-2 gap-5"
+                : "flex items-center justify-center"
+            }`}
+          >
+            {projectTypeMode === "completed" && (
+              <>
+                {userProjects.filter(
+                  (project) => project.status === "completed"
+                ).length !== 0 ? (
+                  userProjects.filter(
+                    (project) => project.status === "completed"
+                  ).length <= 6 ? (
+                    userProjects
+                      .filter((project) => project.status === "completed")
+                      .map((project, index) => (
+                        <Project key={index} project={project} />
+                      ))
+                  ) : (
+                    userProjects
+                      .filter((project) => project.status === "completed")
+                      .slice(0, 6)
+                      .map((project, index) => (
+                        <Project key={index} project={project} />
+                      ))
+                  )
+                ) : (
+                  <h1 className="text-2xl font-bold">No Completed Projects</h1>
+                )}
+              </>
+            )}
+            {projectTypeMode === "completed" &&
+            userProjects.filter((project) => project.status === "completed")
+              .length > 6 ? (
+              <div className="col-start-3 relative bottom-0 right-0 flex flex-col items-end justify-between pr-1">
+                <button
+                  className="text-base text-blue-500 inline-flex items-center gap-1"
+                  onClick={() => setIsProjectsOpen(true)}
+                >
+                  See More
+                  <span
+                    aria-hidden="true"
+                    className="block transition-all group-hover:ms-0.5"
+                  >
+                    &rarr;
+                  </span>
+                </button>
+              </div>
+            ) : null}
+          </div>
+          <div
+            className={`p-2 m-2 ${
+              userProjects.filter((project) => project.status === "on_hold")
+                .length !== 0
+                ? "grid grid-cols-3 grid-rows-2 gap-5"
+                : "flex items-center justify-center"
+            }`}
+          >
             {projectTypeMode === "on_hold" && (
               <>
-                {projects.filter((project) => project.status === "on_hold")
-                  .length <= 6
-                  ? projects
+                {userProjects.filter((project) => project.status === "on_hold")
+                  .length !== 0 ? (
+                  userProjects.filter((project) => project.status === "on_hold")
+                    .length <= 6 ? (
+                    userProjects
                       .filter((project) => project.status === "on_hold")
                       .map((project, index) => (
                         <Project key={index} project={project} />
                       ))
-                  : projects
+                  ) : (
+                    userProjects
                       .filter((project) => project.status === "on_hold")
                       .slice(0, 6)
                       .map((project, index) => (
                         <Project key={index} project={project} />
-                      ))}
+                      ))
+                  )
+                ) : (
+                  <h1 className="text-2xl font-bold">No Project On Hold</h1>
+                )}
               </>
             )}
             {projectTypeMode === "on_hold" &&
-            projects.filter((project) => project.status === "on_hold").length >
-              6 ? (
+            userProjects.filter((project) => project.status === "on_hold")
+              .length > 6 ? (
               <div className="col-start-3 relative bottom-0 right-0 flex flex-col items-end justify-between pr-1">
                 <button
                   className="text-base text-blue-500 inline-flex items-center gap-1"
@@ -815,6 +873,7 @@ const UserPage = ({ params }: { params: { id: string } }) => {
             ) : null}
           </div>
         </div>
+        <FAB />
       </main>
       <Transition appear show={isStackOpen} as={Fragment}>
         <Dialog

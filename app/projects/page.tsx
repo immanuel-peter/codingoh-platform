@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { Select } from "antd";
 
 import { projects } from "@/dummy/questions";
-import { Navbar, Project } from "@/components";
+import { Navbar, Project, FAB, NewFAB } from "@/components";
 import { combineText } from "@/utils";
 
 const statusOptions = [
@@ -29,13 +29,13 @@ const page = () => {
   return (
     <>
       <Navbar />
-      <div className="px-20 mt-5 flex justify-between items-center">
+      <div className="px-20 mt-5 flex justify-between items-end">
         <input
           type="text"
           value={projQuery}
           onChange={(e) => setProjQuery(e.target.value)}
           placeholder="Find a project..."
-          className="w-7/12 rounded-md border-black border-solid border p-3 pe-10 shadow-sm sm:text-sm"
+          className="w-7/12 rounded-full border-black border-solid border p-3 pe-10 shadow-sm sm:text-sm"
         />
         <Select
           defaultValue="all"
@@ -49,7 +49,11 @@ const page = () => {
         {status === "all"
           ? sortedProjects
               .filter((project) =>
-                combineText(project.name, project.description)
+                combineText(
+                  project.name,
+                  project.description,
+                  project.owner.name
+                )
                   .toLowerCase()
                   .includes(projQuery.toLowerCase())
               )
@@ -59,7 +63,11 @@ const page = () => {
           : sortedProjects
               .filter((project) => project.status === status)
               .filter((project) =>
-                combineText(project.name, project.description)
+                combineText(
+                  project.name,
+                  project.description,
+                  project.owner.name
+                )
                   .toLowerCase()
                   .includes(projQuery.toLowerCase())
               )
@@ -67,6 +75,7 @@ const page = () => {
                 <Project project={project} key={index} />
               ))}
       </div>
+      <FAB />
     </>
   );
 };

@@ -1,5 +1,5 @@
 import { questions, users } from "@/dummy/questions";
-import { Proficiency, Question, User, Contributor } from "@/types";
+import { Proficiency, Question, User, Contributor, Project } from "@/types";
 
 export function varStatus() {
   return Math.random() > 0.5;
@@ -164,6 +164,48 @@ export const ellipsis = (text: string, maxChars: number): string => {
   }
 };
 
-export const combineText = (text1: string, text2: string): string => {
-  return text1 + "\n\n" + text2;
+export const combineText = (...texts: string[]): string => {
+  return texts.join("\n\n");
+};
+
+// Function to convert date and time to a comparable format
+export function convertToComparableDate(date: string, time: string) {
+  const months: { [key: string]: number } = {
+    January: 1,
+    February: 2,
+    March: 3,
+    April: 4,
+    May: 5,
+    June: 6,
+    July: 7,
+    August: 8,
+    September: 9,
+    October: 10,
+    November: 11,
+    December: 12,
+  };
+
+  const [month, day, year] = date.split(" ");
+  const [hour, minute] = time.split(":");
+
+  const comparableDate = new Date(
+    `${months[month]} ${day}, ${year} ${hour}:${minute}`
+  );
+  return comparableDate;
 }
+
+export const projectsMap = (projects: Project[], user: User) => {
+  const userProjectsMap = new Map<number, Project[]>();
+
+  for (const project of projects) {
+    const userId = project.owner?.id;
+
+    if (userProjectsMap.has(userId)) {
+      userProjectsMap.get(userId)?.push(project);
+    } else {
+      userProjectsMap.set(userId, [project]);
+    }
+  }
+
+  return userProjectsMap.get(user.id);
+};

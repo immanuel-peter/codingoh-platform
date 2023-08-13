@@ -9,6 +9,7 @@ import {
   FaInbox,
 } from "react-icons/fa6";
 import { FaCheckCircle } from "react-icons/fa";
+import { FcPlus } from "react-icons/fc";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -127,6 +128,9 @@ const Navbar = () => {
               <FaSun className="text-xl mr-3" />
             )}
           </button>
+          <Link href="/" className="ml-3 p-3">
+            <FcPlus className="text-3xl" />
+          </Link>
           <Link href="/" className="ml-3 p-3">
             <FaInbox className="text-3xl" />
           </Link>
