@@ -5,5 +5,6 @@ import Comments from "./Comments";
 import Project from "./Project";
 import FAB from "./FAB";
 import NewFAB from "./NewFAB";
+import RenderMd from "./RenderMd";
 
-export { Navbar, Card, Question, Comments, Project, FAB, NewFAB };
+export { Navbar, Card, Question, Comments, Project, FAB, NewFAB, RenderMd };

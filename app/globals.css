@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 * {
-  @apply m-0 p-0 box-border bg-white dark:bg-slate-700;
+  @apply m-0 p-0 box-border dark:bg-slate-700;
 }
 
 /* width */

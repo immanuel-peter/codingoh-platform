@@ -62,7 +62,7 @@ const FAB = () => {
 
                   <div className="p-2 m-2 flex items-center justify-center">
                     <Link
-                      href="/"
+                      href="/questions/add"
                       className="p-2 w-1/2 h-20 rounded-xl bg-blue-300 hover:bg-blue-400 flex items-center justify-center"
                     >
                       <div className="bg-inherit flex items-center justify-center">

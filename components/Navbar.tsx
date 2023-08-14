@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Fragment } from "react";
 import {
   FaCode,
   FaSun,
@@ -8,20 +8,28 @@ import {
   FaRegCircleUser,
   FaInbox,
 } from "react-icons/fa6";
-import { FaCheckCircle } from "react-icons/fa";
+import { FaCheckCircle, FaThumbsUp } from "react-icons/fa";
+import { FaArrowUpRightFromSquare, FaCheck } from "react-icons/fa6";
 import { FcPlus } from "react-icons/fc";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { Dialog, Transition } from "@headlessui/react";
+import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 
-import { questions } from "@/dummy/questions";
+import { questions, inboxItems } from "@/dummy/questions";
 import { Question } from "@/types";
 
-const Navbar = () => {
+interface NavbarProps {
+  isProfile?: boolean;
+}
+
+const Navbar = (isProfile: NavbarProps) => {
   const router = useRouter();
 
   const [query, setQuery] = useState("");
   const [sunClicked, setSunClicked] = useState(false);
   const [suggestedQueries, setSuggestedQueries] = useState<Question[]>([]);
+  const [openInbox, setOpenInbox] = useState(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const inputValue = e.target.value;
@@ -120,27 +128,164 @@ const Navbar = () => {
             </ul>
           )}
         </div>
-        <nav className="p-3 flex flex-row items-center justify-evenly">
+        <nav className="p-3 flex flex-row items-center justify-evenly gap-6">
           <button onClick={() => setSunClicked(!sunClicked)}>
             {sunClicked ? (
-              <FaRegSun className="text-xl mr-3" />
+              <FaRegSun className="text-xl mr-1" />
             ) : (
-              <FaSun className="text-xl mr-3" />
+              <FaSun className="text-xl mr-1" />
             )}
           </button>
-          <Link href="/" className="ml-3 p-3">
-            <FcPlus className="text-3xl" />
-          </Link>
-          <Link href="/" className="ml-3 p-3">
-            <FaInbox className="text-3xl" />
-          </Link>
-          <Link href="/" className="ml-3 p-3">
-            <FaRegCircleUser className="text-3xl text-cyan-600" />
-          </Link>
+          <SignedOut>
+            <Link
+              href="/sign-in"
+              className="px-3 py-2 rounded-full font-semibold border border-solid border-black bg-gray-100 hover:bg-gray-200 text-gray-900"
+            >
+              Login
+            </Link>
+            <Link
+              href="/sign-up"
+              className="px-3 py-2 rounded-full font-semibold border border-solid border-black bg-blue-500 hover:bg-blue-600 text-white"
+            >
+              Sign Up
+            </Link>
+          </SignedOut>
+          <SignedIn>
+            <Link href="/questions/add">
+              <FcPlus className="text-3xl mx-1" />
+            </Link>
+            <div
+              className="mx-1 cursor-pointer"
+              onClick={() => setOpenInbox(true)}
+            >
+              <FaInbox className="text-3xl hover:text-amber-900" />
+            </div>
+            {!isProfile ? (
+              <Link href="/users/7094247" className="mx-1">
+                <div className="flex items-center justify-between px-3 py-2 gap-4 bg-gradient-to-r from-blue-300 to-transparent via-blue-300 border border-solid border-blue-800 rounded-full">
+                  Profile
+                  <UserButton />
+                </div>
+              </Link>
+            ) : (
+              <UserButton />
+            )}
+          </SignedIn>
         </nav>
       </header>
       <hr className="border-solid border-black border-[1px]" />
+
+      <Transition appear show={openInbox} as={Fragment}>
+        <Dialog
+          as="div"
+          className="relative z-10 overflow-auto"
+          onClose={() => setOpenInbox(false)}
+        >
+          <Transition.Child
+            as={Fragment}
+            enter="ease-out duration-300"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="ease-in duration-200"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
+            <div className="fixed inset-0 bg-gray-400/75" />
+          </Transition.Child>
+
+          <div className="fixed inset-0 overflow-auto">
+            <div className="flex min-h-full items-center justify-center p-4 text-center">
+              <Transition.Child
+                as={Fragment}
+                enter="ease-out duration-300"
+                enterFrom="opacity-0 scale-95"
+                enterTo="opacity-100 scale-100"
+                leave="ease-in duration-200"
+                leaveFrom="opacity-100 scale-100"
+                leaveTo="opacity-0 scale-95"
+              >
+                <Dialog.Panel className="w-fit max-w-full transform overflow-auto rounded-2xl bg-white border-slate-200 border border-solid p-6 shadow-xl transition-all">
+                  <Dialog.Title
+                    as="h1"
+                    className="p-2 text-2xl font-bold leading-6 text-gray-900 underline underline-offset-auto"
+                  >
+                    Inbox
+                  </Dialog.Title>
+
+                  <div className="p-3 overflow-auto flex flex-col text-left justify-between">
+                    <div className="rounded-b-xl flex flex-col justify-between">
+                      <ul
+                        role="list"
+                        className="divide-y divide-gray-500 rounded-b-xl"
+                      >
+                        {inboxItems.map((item, index) => (
+                          <li key={index}>
+                            <InboxItem
+                              item={item.item}
+                              link={item.link}
+                              unread={item.unread}
+                            />
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+
+                  <div className="mt-4">
+                    <button
+                      type="button"
+                      className="inline-flex flex-row justify-between items-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-base font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                      onClick={() => setOpenInbox(false)}
+                    >
+                      Cool!
+                      <FaThumbsUp className="ml-3 text-base bg-inherit" />
+                    </button>
+                  </div>
+                </Dialog.Panel>
+              </Transition.Child>
+            </div>
+          </div>
+        </Dialog>
+      </Transition>
     </>
+  );
+};
+
+const InboxItem = ({
+  item,
+  link,
+  unread,
+}: {
+  item: string;
+  link: string;
+  unread: boolean;
+}) => {
+  const [read, setRead] = useState(unread);
+
+  const handleChange = () => {
+    if (!read) {
+      setRead(true);
+    } else {
+      setRead(true);
+    }
+  };
+
+  return (
+    <div className="flex items-center justify-between gap-x-6 px-3 py-3">
+      <div className="flex flex-row items-center gap-3">
+        {unread ? (
+          <div className="flex-none rounded-full bg-white bg-emerald-500/20 p-1">
+            <div className="h-1.5 w-1.5 rounded-full bg-red-500" />
+          </div>
+        ) : (
+          <FaCheck className="text-green-500" />
+        )}
+        {item}
+      </div>
+      <Link href={link} onClick={() => handleChange()}>
+        <FaArrowUpRightFromSquare className="hover:text-blue-600" />
+      </Link>
+    </div>
   );
 };
 

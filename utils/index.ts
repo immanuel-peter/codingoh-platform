@@ -209,3 +209,8 @@ export const projectsMap = (projects: Project[], user: User) => {
 
   return userProjectsMap.get(user.id);
 };
+
+export const randEl = <T>(items: T[]): T => {
+  const randIndex = Math.floor(Math.random() * items.length);
+  return items[randIndex];
+}

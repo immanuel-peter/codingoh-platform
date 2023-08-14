@@ -100,6 +100,7 @@ import { MdOutlineKeyboardDoubleArrowRight } from "react-icons/md";
 import Link from "next/link";
 import { Dialog, Transition } from "@headlessui/react";
 import { SocialIcon } from "react-social-icons";
+import { SignedIn } from "@clerk/nextjs";
 
 import { users, questions, projects } from "@/dummy/questions";
 import { User } from "@/types";
@@ -241,7 +242,7 @@ const UserPage = ({ params }: { params: { id: string } }) => {
 
   return (
     <>
-      <Navbar />
+      <Navbar isProfile />
       <div className="p-3 m-0">
         <div className="relative flex h-32 w-full items-center justify-between rounded-xl bg-cover px-10 mb-4">
           <div className="flex flex-row items-center justify-between gap-x-4">
@@ -279,10 +280,12 @@ const UserPage = ({ params }: { params: { id: string } }) => {
             </div>
           </div>
           <div>
-            <button className="p-3 bg-cyan-300 hover:bg-cyan-400 border border-solid border-cyan-400 hover:border-cyan-500 items-center justify-between flex flex-row rounded-lg">
-              <FaEdit className="mr-3 bg-inherit" />
-              Edit Profile
-            </button>
+            <SignedIn>
+              <button className="p-3 bg-cyan-300 hover:bg-cyan-400 border border-solid border-cyan-400 hover:border-cyan-500 items-center justify-between flex flex-row rounded-lg">
+                <FaEdit className="mr-3 bg-inherit" />
+                Edit Profile
+              </button>
+            </SignedIn>
           </div>
         </div>
         <Image

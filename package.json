@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@ant-design/icons": "^5.2.5",
+    "@clerk/nextjs": "^4.23.2",
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
     "@headlessui/react": "^1.7.15",
@@ -22,7 +23,7 @@
     "antd": "^5.7.3",
     "autoprefixer": "10.4.14",
     "devicons-react": "^1.2.6",
-    "next": "13.4.12",
+    "next": "^13.4.13",
     "openai": "^3.3.0",
     "postcss": "8.4.27",
     "react": "18.2.0",
@@ -31,10 +32,17 @@
     "react-markdown": "^8.0.7",
     "react-social-icons": "^5.15.0",
     "react-syntax-highlighter": "^15.5.0",
+    "rehype-highlight": "^6.0.0",
+    "rehype-raw": "^6.1.1",
+    "rehype-sanitize": "^5.0.1",
+    "remark-gfm": "^3.0.1",
+    "remark-toc": "^8.0.1",
+    "sass": "^1.65.1",
     "tailwindcss": "3.3.3",
     "typescript": "5.1.6"
   },
   "devDependencies": {
-    "@types/react-syntax-highlighter": "^15.5.7"
+    "@types/react-syntax-highlighter": "^15.5.7",
+    "prettier": "^3.0.1"
   }
 }

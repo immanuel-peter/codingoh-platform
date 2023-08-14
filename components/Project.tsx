@@ -1,10 +1,16 @@
 import React from "react";
 import Link from "next/link";
-import { SocialIcon } from "react-social-icons";
+import Image from "next/image";
 import { FaGithub } from "react-icons/fa6";
+import {
+  PythonOriginal,
+  JavascriptOriginal,
+  JavaOriginal,
+} from "devicons-react";
 
 import { projects } from "@/dummy/questions";
 import { Project as ProjectType } from "@/types";
+import Avatar from "@/public/avatar.png";
 
 const getBgColor = (status: string): string => {
   switch (status) {
