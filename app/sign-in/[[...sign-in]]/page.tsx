@@ -4,7 +4,9 @@ import { SignIn } from "@clerk/nextjs";
 const SignInPage = () => {
   return (
     <>
-      <SignIn />
+      <div className="flex items-center justify-center bg-inherit text-inherit">
+        <SignIn />
+      </div>
     </>
   );
 };

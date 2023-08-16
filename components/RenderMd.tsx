@@ -1,12 +1,12 @@
-import React from 'react';
-import ReactMarkdown from 'react-markdown';
-import remarkGfm from 'remark-gfm';
-import remarkToc from 'remark-toc';
-import rehypeRaw from 'rehype-raw';
-import rehypeSanitize from 'rehype-sanitize';
-import rehypeHighlight from 'rehype-highlight';
-import SyntaxHighlighter from 'react-syntax-highlighter';
-import { docco } from 'react-syntax-highlighter/dist/esm/styles/hljs';
+import React from "react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import remarkToc from "remark-toc";
+import rehypeRaw from "rehype-raw";
+import rehypeSanitize from "rehype-sanitize";
+import rehypeHighlight from "rehype-highlight";
+import SyntaxHighlighter from "react-syntax-highlighter";
+import { docco } from "react-syntax-highlighter/dist/esm/styles/hljs";
 
 const placeholderMdText = `# Fibonacci sequence not working
 
@@ -42,7 +42,13 @@ const HLine = () => {
   return <hr className="border border-solid border-gray-300 w-full my-1" />;
 };
 
-const RenderMd = ({ markdown, className }: { markdown: string; className?: string }) => {
+const RenderMd = ({
+  markdown,
+  className,
+}: {
+  markdown: string;
+  className?: string;
+}) => {
   const H1 = ({ children }: { children: string }) => (
     <>
       <h1 className="text-2xl font-bold">{children}</h1>
@@ -55,7 +61,9 @@ const RenderMd = ({ markdown, className }: { markdown: string; className?: strin
       <HLine />
     </>
   );
-  const P = ({ children }: { children: string }) => <p className="text-base">{children}</p>;
+  const P = ({ children }: { children: string }) => (
+    <p className="text-base">{children}</p>
+  );
   const A = ({ children }: { children: URL }) => (
     <a
       className="text-base text-blue-500 cursor-pointer hover:underline hover:underline-offset-auto"
@@ -67,7 +75,9 @@ const RenderMd = ({ markdown, className }: { markdown: string; className?: strin
   const Li = ({ children }: { children: string }) => (
     <li className="text-sm list-item list-disc list-inside">{children}</li>
   );
-  const H4 = ({ children }: { children: string }) => <h4 className="text-2xl text-red-500">{children}</h4>;
+  const H4 = ({ children }: { children: string }) => (
+    <h4 className="text-2xl text-red-500">{children}</h4>
+  );
   const Hr = () => (
     <hr className="w-full h-1 mx-auto my-4 bg-gradient-to-r from-gray-300 to-transparent via-gray-300 rounded-full border-none" />
   );
@@ -86,20 +96,25 @@ const RenderMd = ({ markdown, className }: { markdown: string; className?: strin
         h4: H4,
         hr: Hr,
         code({ node, inline, className, children, ...props }) {
-          const match = /language-(\w+)/.exec(className || '');
+          const match = /language-(\w+)/.exec(className || "");
           return !inline && match ? (
-            <SyntaxHighlighter style={docco} language={match[1]} PreTag="div" {...props}>
-              {String(children).replace(/\n$/, '')}
+            <SyntaxHighlighter
+              style={docco}
+              language={match[1]}
+              PreTag="div"
+              {...props}
+            >
+              {String(children).replace(/\n$/, "")}
             </SyntaxHighlighter>
           ) : (
-            <code className="md-post-code" {...props}>
+            <code className="my-2" {...props}>
               {children}
             </code>
           );
         },
       }}
     >
-      {markdown === '' ? placeholderMdText : markdown}
+      {markdown === "" ? placeholderMdText : markdown}
     </ReactMarkdown>
   );
 };

@@ -6,5 +6,18 @@ import Project from "./Project";
 import FAB from "./FAB";
 import NewFAB from "./NewFAB";
 import RenderMd from "./RenderMd";
+import AddUserProfileImageInput from "./AddUserProfileImageInput";
+import BackgroundImageGrid from "./BackgroundImageGrid";
 
-export { Navbar, Card, Question, Comments, Project, FAB, NewFAB, RenderMd };
+export {
+  Navbar,
+  Card,
+  Question,
+  Comments,
+  Project,
+  FAB,
+  NewFAB,
+  RenderMd,
+  AddUserProfileImageInput,
+  BackgroundImageGrid,
+};

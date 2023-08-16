@@ -23,7 +23,7 @@ interface NavbarProps {
   isProfile?: boolean;
 }
 
-const Navbar = (isProfile: NavbarProps) => {
+const Navbar = ({ isProfile }: { isProfile?: boolean }) => {
   const router = useRouter();
 
   const [query, setQuery] = useState("");
@@ -105,6 +105,7 @@ const Navbar = (isProfile: NavbarProps) => {
             placeholder="What is your query?"
             className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
           />
+
           {suggestedQueries.length > 0 && (
             <ul className="absolute z-10 bg-white mt-2 w-full border border-gray-300 rounded-lg shadow-lg divide-y divide-slate-200">
               {suggestedQueries.map((suggestion, index) => (
@@ -160,7 +161,7 @@ const Navbar = (isProfile: NavbarProps) => {
             >
               <FaInbox className="text-3xl hover:text-amber-900" />
             </div>
-            {!isProfile ? (
+            {isProfile ? (
               <Link href="/users/7094247" className="mx-1">
                 <div className="flex items-center justify-between px-3 py-2 gap-4 bg-gradient-to-r from-blue-300 to-transparent via-blue-300 border border-solid border-blue-800 rounded-full">
                   Profile
@@ -260,7 +261,7 @@ const InboxItem = ({
   link: string;
   unread: boolean;
 }) => {
-  const [read, setRead] = useState(unread);
+  const [read, setRead] = useState(false);
 
   const handleChange = () => {
     if (!read) {
@@ -273,8 +274,11 @@ const InboxItem = ({
   return (
     <div className="flex items-center justify-between gap-x-6 px-3 py-3">
       <div className="flex flex-row items-center gap-3">
-        {unread ? (
-          <div className="flex-none rounded-full bg-white bg-emerald-500/20 p-1">
+        {!read ? (
+          <div
+            className="flex-none rounded-full bg-white bg-emerald-500/20 p-1 cursor-pointer"
+            onClick={() => handleChange()}
+          >
             <div className="h-1.5 w-1.5 rounded-full bg-red-500" />
           </div>
         ) : (

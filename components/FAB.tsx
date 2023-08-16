@@ -14,7 +14,12 @@ const FAB = () => {
 
   return (
     <>
-      <Tooltip title="Add Question" arrow={false} color="blue" placement="left">
+      <Tooltip
+        title="Control Center"
+        arrow={false}
+        color="blue"
+        placement="left"
+      >
         <button
           onClick={() => setIsModalOpen(true)}
           className="fixed bottom-4 right-4 bg-blue-500 hover:bg-blue-600 hover:rotate-90 text-white rounded-full p-5 shadow-md"

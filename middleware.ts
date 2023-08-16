@@ -8,6 +8,7 @@ export default authMiddleware({
     "/",
     "/users/all",
     "/users/:id*",
+    "/users/add",
     "/projects",
     "/questions/:id*",
   ],

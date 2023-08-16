@@ -14,8 +14,9 @@
     "@emotion/react": "^11.11.1",
     "@emotion/styled": "^11.11.0",
     "@headlessui/react": "^1.7.15",
+    "@mui/icons-material": "^5.14.3",
     "@mui/joy": "^5.0.0-alpha.89",
-    "@mui/material": "^5.14.1",
+    "@mui/material": "^5.14.5",
     "@next/font": "^13.4.12",
     "@types/node": "20.4.4",
     "@types/react": "18.2.15",
@@ -42,6 +43,7 @@
     "typescript": "5.1.6"
   },
   "devDependencies": {
+    "@tailwindcss/forms": "^0.5.4",
     "@types/react-syntax-highlighter": "^15.5.7",
     "prettier": "^3.0.1"
   }

@@ -7,7 +7,7 @@ import ReactMarkdown from "react-markdown";
 
 import { questions, users } from "@/dummy/questions";
 import { Question, User, Contributor } from "@/types";
-import { Navbar, FAB } from "@/components";
+import { Navbar, FAB, RenderMd } from "@/components";
 import { daysBetweenDateAndToday } from "@/utils";
 import { Comments } from "@/components";
 import Link from "next/link";
@@ -160,15 +160,23 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
           </div>
         </div>
         {activeButton === "Question" ? (
-          <ReactMarkdown
-            children={markdownQuestion}
-            className="mx-auto max-w-5xl py-3 px-3 bg-gray-200 text-justify"
-          ></ReactMarkdown>
+          // <ReactMarkdown
+          //   children={markdownQuestion}
+          //   className="mx-auto max-w-5xl py-3 px-3 bg-gray-200 text-justify"
+          // ></ReactMarkdown>
+          <RenderMd
+            markdown={markdownQuestion}
+            className="mx-auto max-w-5xl py-3 px-3 mt-3 text-justify border border-solid border-black rounded-2xl"
+          />
         ) : (
-          <ReactMarkdown
-            children={markdownAnswer}
-            className="mx-auto max-w-5xl py-3 px-3 bg-gray-200 text-justify"
-          ></ReactMarkdown>
+          // <ReactMarkdown
+          //   children={markdownAnswer}
+          //   className="mx-auto max-w-5xl py-3 px-3 bg-gray-200 text-justify"
+          // ></ReactMarkdown>
+          <RenderMd
+            markdown={markdownAnswer}
+            className="mx-auto max-w-5xl py-3 px-3 mt-3 text-justify border border-solid border-black rounded-2xl"
+          />
         )}
       </div>
       <Comments contributors={question.contributors} />

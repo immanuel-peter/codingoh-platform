@@ -1,14 +1,14 @@
-'use client';
+"use client";
 
-import React, { useState } from 'react';
-import Link from 'next/link';
-import { Select } from 'antd';
-import ReactMarkdown from 'react-markdown';
+import React, { useState } from "react";
+import Link from "next/link";
+import { Select } from "antd";
+import ReactMarkdown from "react-markdown";
 
-import { Navbar, RenderMd } from '@/components';
-import { FaArrowTurnDown, FaMarkdown } from 'react-icons/fa6';
-import { IoClose } from 'react-icons/io5';
-import { tags } from '@/dummy/questions';
+import { Navbar, RenderMd } from "@/components";
+import { FaArrowTurnDown, FaMarkdown } from "react-icons/fa6";
+import { IoClose } from "react-icons/io5";
+import { tags } from "@/dummy/questions";
 
 const placeholderMdText = `# Fibonacci sequence not working
 
@@ -59,10 +59,13 @@ const AddQuestion = () => {
       <form className="mt-5 flex items-center justify-center max-w-7xl">
         <div className="space-y-12 py-4">
           <div className="border-b border-gray-900/10 pb-12">
-            <h2 className="text-base font-semibold leading-7 text-gray-900">Add Question</h2>
+            <h2 className="text-base font-semibold leading-7 text-gray-900">
+              Add Question
+            </h2>
             <p className="mt-1 text-sm leading-6 text-gray-600">
-              Describe your problem here. If you have code in your question, the more words you add to the context of
-              the problem, the more likely youre question will be answered.
+              Describe your problem here. If you have code in your question, the
+              more words you add to the context of the problem, the more likely
+              youre question will be answered.
             </p>
 
             <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
@@ -78,13 +81,15 @@ const AddQuestion = () => {
                     type="button"
                     className={
                       !isPreviewOpen
-                        ? 'bg-blue-300 py-1 px-2 text-slate-600 border border-solid border-blue-700 hover:bg-blue-600 hover:text-white rounded-full mr-1'
-                        : 'bg-slate-50 py-1 px-2 text-black border border-solid border-red-700 hover:bg-red-400 rounded-full mr-1'
+                        ? "bg-blue-300 py-1 px-2 text-slate-600 border border-solid border-blue-700 hover:bg-blue-600 hover:text-white rounded-full mr-1"
+                        : "bg-slate-50 py-1 px-2 text-black border border-solid border-red-700 hover:bg-red-400 rounded-full mr-1"
                     }
                     onClick={() => setIsPreviewOpen(!isPreviewOpen)}
                   >
-                    {isPreviewOpen ? <IoClose className="inline-block justify-items-center bg-inherit mr-1" /> : null}
-                    {!isPreviewOpen ? 'Preview' : 'Close Preview'}
+                    {isPreviewOpen ? (
+                      <IoClose className="inline-block justify-items-center bg-inherit mr-1" />
+                    ) : null}
+                    {!isPreviewOpen ? "Preview" : "Close Preview"}
                   </button>
                 </label>
 
@@ -94,19 +99,20 @@ const AddQuestion = () => {
                       <textarea
                         id="about"
                         name="about"
-                        value={markdown === placeholderMdText ? '' : markdown}
+                        value={markdown === placeholderMdText ? "" : markdown}
                         onChange={(e) => setMarkdown(e.target.value)}
                         rows={10}
                         className="block w-full rounded-md border-0 p-1 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
                         placeholder={placeholderMdText}
-                        defaultValue={''}
+                        defaultValue={""}
                       />
                     </div>
                     <p className="flex items-center gap-2 mt-3 text-sm leading-6 text-gray-600">
-                      Write your question in Markdown <FaMarkdown className="text-base" />
+                      Write your question in Markdown{" "}
+                      <FaMarkdown className="text-base" />
                     </p>
                     <p className="mt-1 text-sm leading-6 text-gray-600">
-                      Don't know how to write in Markdown? Check out this{' '}
+                      Don't know how to write in Markdown? Check out this{" "}
                       <Link
                         href="https://www.markdownguide.org/"
                         className="text-blue-500 hover:underline hover:underline-offset-2"
@@ -118,19 +124,25 @@ const AddQuestion = () => {
                   </>
                 ) : (
                   <div className="mt-2 w-full p-2 rounded-md border border-solid border-black">
-                    <RenderMd markdown={markdown} className="bg-inherit leading-loose" />
+                    <RenderMd
+                      markdown={markdown}
+                      className="bg-inherit leading-loose"
+                    />
                   </div>
                 )}
               </div>
 
               <div className="col-span-full">
-                <label htmlFor="tags" className="text-sm font-medium leading-6 text-gray-900">
+                <label
+                  htmlFor="tags"
+                  className="text-sm font-medium leading-6 text-gray-900"
+                >
                   Tags (Optional)
                 </label>
                 <Select
                   mode="tags"
                   className="mt-2"
-                  style={{ width: '100%' }}
+                  style={{ width: "100%" }}
                   placeholder="List applicable tags"
                   onChange={handleTagChange}
                   options={tags}
@@ -140,11 +152,15 @@ const AddQuestion = () => {
           </div>
 
           <div className="border-b border-gray-900/10 pb-12">
-            <h2 className="text-base font-semibold leading-7 text-gray-900">Notifications</h2>
+            <h2 className="text-base font-semibold leading-7 text-gray-900">
+              Notifications
+            </h2>
 
             <div className="mt-5 space-y-8">
               <fieldset>
-                <legend className="text-sm font-semibold leading-6 text-gray-900">Push Notifications</legend>
+                <legend className="text-sm font-semibold leading-6 text-gray-900">
+                  Push Notifications
+                </legend>
                 <div className="mt-6 space-y-6">
                   <div className="relative flex gap-x-3">
                     <div className="flex h-6 items-center">
@@ -156,7 +172,10 @@ const AddQuestion = () => {
                       />
                     </div>
                     <div className="text-sm leading-6">
-                      <label htmlFor="email" className="font-medium text-gray-900">
+                      <label
+                        htmlFor="email"
+                        className="font-medium text-gray-900"
+                      >
                         Email
                       </label>
                     </div>
@@ -171,7 +190,10 @@ const AddQuestion = () => {
                       />
                     </div>
                     <div className="text-sm leading-6">
-                      <label htmlFor="desktop-notifications" className="font-medium text-gray-900">
+                      <label
+                        htmlFor="desktop-notifications"
+                        className="font-medium text-gray-900"
+                      >
                         Desktop Notifications
                       </label>
                     </div>
@@ -186,7 +208,10 @@ const AddQuestion = () => {
                       />
                     </div>
                     <div className="text-sm leading-6">
-                      <label htmlFor="sms" className="font-medium text-gray-900">
+                      <label
+                        htmlFor="sms"
+                        className="font-medium text-gray-900"
+                      >
                         Text Notifications
                       </label>
                     </div>
@@ -197,7 +222,10 @@ const AddQuestion = () => {
           </div>
 
           <div className="mt-2 flex items-center justify-end gap-x-6">
-            <button type="button" className="text-sm font-semibold leading-6 text-gray-900">
+            <button
+              type="button"
+              className="text-sm font-semibold leading-6 text-gray-900"
+            >
               Cancel
             </button>
             <button

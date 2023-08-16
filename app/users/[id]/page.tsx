@@ -852,7 +852,7 @@ const UserPage = ({ params }: { params: { id: string } }) => {
                       ))
                   )
                 ) : (
-                  <h1 className="text-2xl font-bold">No Project On Hold</h1>
+                  <h1 className="text-2xl font-bold">No Projects On Hold</h1>
                 )}
               </>
             )}
