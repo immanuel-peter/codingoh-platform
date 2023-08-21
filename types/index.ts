@@ -3,9 +3,11 @@ export interface Question {
   id: number;
   question: string;
   asker: User;
+  description: string;
   time: string;
   date: string;
   isAnswered: boolean;
+  answer?: string;
   contributors: Contributor[];
 }
 

@@ -1,17 +1,27 @@
 import React from "react";
 import { FaCamera, FaCircleUser } from "react-icons/fa6";
 import { HiCheckCircle } from "react-icons/hi2";
+import { IoCloseCircleOutline } from "react-icons/io5";
 import CheckIcon from "@mui/icons-material/Check";
 import { Badge, Autocomplete } from "@mui/joy";
+import { Select } from "antd";
 import { currentUser } from "@clerk/nextjs";
 import Image from "next/image";
+import { SocialIcon } from "react-social-icons";
 
 import Navbar from "@/components/Navbar";
-import AddUserProfileImageInput from "@/components/AddUserProfileImageInput";
-import BackgroundImageGrid from "@/components/BackgroundImageGrid";
+import AddUserProfileImageInput from "@/components/newuser/AddUserProfileImageInput";
+import BackgroundImageGrid from "@/components/newuser/BackgroundImageGrid";
+import LangSelect from "@/components/newuser/LangSelect";
+import SocialLinks from "@/components/newuser/SocialLinks";
 import backgrounds from "@/public/backgrounds";
+import { allIcons } from "@/utils/icons";
+import { techSkills as inDemandSkills } from "@/dummy/questions";
+import { uniqueArray, labelValues } from "@/utils";
 
 const countryList = [
+  "United Kingdom",
+  "United States of America",
   "Afghanistan",
   "Albania",
   "Algeria",
@@ -19,7 +29,6 @@ const countryList = [
   "Andorra",
   "Angola",
   "Anguilla",
-  "Antarctica",
   "Antigua and Barbuda",
   "Argentina",
   "Armenia",
@@ -38,13 +47,10 @@ const countryList = [
   "Bermuda",
   "Bhutan",
   "Bolivia",
-  "Bonaire, Sint Eustatius and Saba",
   "Bosnia and Herzegovina",
   "Botswana",
-  "Bouvet Island",
   "Brazil",
-  "British Indian Ocean Territory",
-  "Brunei Darussalam",
+  "Brunei",
   "Bulgaria",
   "Burkina Faso",
   "Burundi",
@@ -57,8 +63,6 @@ const countryList = [
   "Chad",
   "Chile",
   "China",
-  "Christmas Island",
-  "Cocos (Keeling) Islands",
   "Colombia",
   "Comoros",
   "Democratic Republic of the Congo",
@@ -89,26 +93,21 @@ const countryList = [
   "Finland",
   "France",
   "French Guiana",
-  "French Polynesia",
-  "French Southern Territories",
   "Gabon",
   "Gambia",
   "Georgia",
   "Germany",
   "Ghana",
-  "Gibraltar",
   "Greece",
   "Greenland",
   "Grenada",
   "Guadeloupe",
   "Guam",
   "Guatemala",
-  "Guernsey",
   "Guinea",
   "Guinea-Bissau",
   "Guyana",
   "Haiti",
-  "Heard Island and McDonald Islands",
   "Holy See",
   "Honduras",
   "Hong Kong",
@@ -119,12 +118,10 @@ const countryList = [
   "Iran",
   "Iraq",
   "Ireland",
-  "Isle of Man",
   "Israel",
   "Italy",
   "Jamaica",
   "Japan",
-  "Jersey",
   "Jordan",
   "Kazakhstan",
   "Kenya",
@@ -133,7 +130,7 @@ const countryList = [
   "South Korea",
   "Kuwait",
   "Kyrgyzstan",
-  "Lao People's Democratic Republic",
+  "Laos",
   "Latvia",
   "Lebanon",
   "Lesotho",
@@ -153,14 +150,12 @@ const countryList = [
   "Martinique",
   "Mauritania",
   "Mauritius",
-  "Mayotte",
   "Mexico",
   "Federated States of Micronesia",
   "Moldova",
   "Monaco",
   "Mongolia",
   "Montenegro",
-  "Montserrat",
   "Morocco",
   "Mozambique",
   "Myanmar",
@@ -168,40 +163,35 @@ const countryList = [
   "Nauru",
   "Nepal",
   "Netherlands",
-  "New Caledonia",
   "New Zealand",
   "Nicaragua",
   "Niger",
   "Nigeria",
-  "Niue",
   "Norfolk Island",
   "Northern Mariana Islands",
   "Norway",
   "Oman",
   "Pakistan",
   "Palau",
-  "Palestine, State of",
+  "Palestine",
   "Panama",
   "Papua New Guinea",
   "Paraguay",
   "Peru",
   "Philippines",
-  "Pitcairn",
   "Poland",
   "Portugal",
   "Puerto Rico",
   "Qatar",
-  "Republic of North Macedonia",
+  "North Macedonia",
   "Romania",
-  "Russian Federation",
+  "Russia",
   "Rwanda",
   "Réunion",
   "Saint Barthélemy",
-  "Saint Helena, Ascension and Tristan da Cunha",
+  "Saint Helena",
   "Saint Kitts and Nevis",
   "Saint Lucia",
-  "Saint Martin (French part)",
-  "Saint Pierre and Miquelon",
   "Saint Vincent and the Grenadines",
   "Samoa",
   "San Marino",
@@ -217,52 +207,45 @@ const countryList = [
   "Solomon Islands",
   "Somalia",
   "South Africa",
-  "South Georgia and the South Sandwich Islands",
   "South Sudan",
   "Spain",
   "Sri Lanka",
   "Sudan",
   "Suriname",
-  "Svalbard and Jan Mayen",
   "Sweden",
   "Switzerland",
-  "Syrian Arab Republic",
+  "Syria",
   "Taiwan",
   "Tajikistan",
   "Tanzania",
   "Thailand",
   "Timor-Leste",
   "Togo",
-  "Tokelau",
   "Tonga",
   "Trinidad and Tobago",
   "Tunisia",
   "Turkey",
   "Turkmenistan",
-  "Turks and Caicos Islands",
   "Tuvalu",
   "Uganda",
   "Ukraine",
   "United Arab Emirates",
-  "United Kingdom of Great Britain and Northern Ireland",
-  "United States Minor Outlying Islands",
-  "United States of America",
   "Uruguay",
   "Uzbekistan",
   "Vanuatu",
   "Venezuela",
-  "Viet Nam",
+  "Vietnam",
   "Virgin Islands",
-  "Wallis and Futuna",
   "Western Sahara",
   "Yemen",
   "Zambia",
   "Zimbabwe",
-  "Åland Islands",
 ];
 
 const NewUser = async () => {
   const currUser = await currentUser();
+
+  const userId = currUser?.id.substring("user_".length);
 
   return (
     <>
@@ -356,7 +339,43 @@ const NewUser = async () => {
 
               <div className="sm:col-span-3">
                 <label
-                  htmlFor="email"
+                  htmlFor="education"
+                  className="block text-sm font-medium leading-6 text-gray-900"
+                >
+                  Education
+                </label>
+                <div className="mt-2">
+                  <input
+                    id="education"
+                    name="education"
+                    type="text"
+                    placeholder="Princeton University"
+                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
+                  />
+                </div>
+              </div>
+
+              <div className="sm:col-span-3">
+                <label
+                  htmlFor="company"
+                  className="block text-sm font-medium leading-6 text-gray-900"
+                >
+                  Company
+                </label>
+                <div className="mt-2">
+                  <input
+                    id="company"
+                    name="company"
+                    type="text"
+                    placeholder="Computing Machine Laboratory"
+                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
+                  />
+                </div>
+              </div>
+
+              <div className="sm:col-span-3">
+                <label
+                  htmlFor="position"
                   className="block text-sm font-medium leading-6 text-gray-900"
                 >
                   Position
@@ -366,7 +385,45 @@ const NewUser = async () => {
                     id="position"
                     name="position"
                     type="text"
-                    placeholder="Senior Director, Artificial Intelligence"
+                    placeholder="AI Researcher"
+                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
+                  />
+                </div>
+              </div>
+
+              <div className="sm:col-span-2">
+                <label
+                  htmlFor="city"
+                  className="block text-sm font-medium leading-6 text-gray-900"
+                >
+                  City
+                </label>
+                <div className="mt-2">
+                  <input
+                    id="city"
+                    name="city"
+                    type="text"
+                    placeholder="London"
+                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
+                  />
+                </div>
+              </div>
+
+              <div className="sm:col-span-2">
+                <label
+                  htmlFor="state"
+                  className="text-sm font-medium leading-6 text-gray-900 flex flex-row items-center"
+                >
+                  State{" "}
+                  <span className="block ml-2 text-sm font-thin leading-6 text-gray-400">
+                    (Optional)
+                  </span>
+                </label>
+                <div className="mt-2">
+                  <input
+                    id="state"
+                    name="state"
+                    type="text"
                     className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
                   />
                 </div>
@@ -380,24 +437,35 @@ const NewUser = async () => {
                   Country
                 </label>
                 <div className="mt-2">
-                  {/* <select
+                  <select
                     id="country"
                     name="country"
                     autoComplete="country-name"
+                    placeholder="United Kingdom"
                     className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:max-w-xs sm:text-sm sm:leading-6"
                   >
-                    <option>United States</option>
-                    <option>Canada</option>
-                    <option>Mexico</option>
-                  </select> */}
-                  <Autocomplete
-                    placeholder="United States of America"
-                    options={countryList}
+                    {countryList.map((country) => (
+                      <option>{country}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="sm:col-span-1">
+                <label
+                  htmlFor="photo"
+                  className="block text-sm font-medium leading-6 text-gray-900"
+                >
+                  Photo
+                </label>
+                <div className="mt-2 flex items-center gap-x-3">
+                  <AddUserProfileImageInput
+                    currUserImgUrl={currUser?.imageUrl}
                   />
                 </div>
               </div>
 
-              <div className="col-span-full">
+              <div className="sm:col-span-5">
                 <label
                   htmlFor="about"
                   className="block text-sm font-medium leading-6 text-gray-900"
@@ -417,20 +485,6 @@ const NewUser = async () => {
                 {/* <p className="mt-3 text-sm leading-6 text-gray-600">
                   Write your canvas to showcase your passion.
                 </p> */}
-              </div>
-
-              <div className="col-span-full">
-                <label
-                  htmlFor="photo"
-                  className="block text-sm font-medium leading-6 text-gray-900"
-                >
-                  Photo
-                </label>
-                <div className="mt-2 flex items-center gap-x-3">
-                  <AddUserProfileImageInput
-                    currUserImgUrl={currUser?.imageUrl}
-                  />
-                </div>
               </div>
 
               <div className="col-span-full">
@@ -740,6 +794,30 @@ const NewUser = async () => {
               </fieldset>
             </div>
           </div> */}
+
+          <div className="border-b border-gray-900/10 pb-12">
+            <LangSelect />
+          </div>
+
+          <div className="flex flex-row justify-between border-b border-gray-900/10 pb-12">
+            <h2 className="text-base font-semibold leading-7 mb-7l text-gray-900">
+              Skills
+            </h2>
+            <Select
+              className="w-11/12"
+              mode="tags"
+              placeholder="Project Management, Kanban, Cloud Computing..."
+              options={labelValues(uniqueArray(inDemandSkills))}
+              allowClear
+              clearIcon={
+                <IoCloseCircleOutline className="text-red-300 hover:text-red-600" />
+              }
+            />
+          </div>
+
+          <div className="border-b border-gray-900/10 pb-12">
+            <SocialLinks />
+          </div>
 
           <div className="mt-6 flex items-center justify-end gap-x-6">
             <button

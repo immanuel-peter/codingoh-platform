@@ -1,8 +1,11 @@
-import React from "react";
+"use client";
+
+import React, { useState } from "react";
 import Image from "next/image";
 
 import { Contributor } from "@/types";
 import Avatar from "@/public/avatar.png";
+import { RenderMd } from ".";
 
 interface Comment {
   id: number;
@@ -16,8 +19,12 @@ interface NestedComment extends Comment {
 
 const Comment = ({ comment }: { comment: Comment }) => {
   return (
-    <div className="p-4 bg-white border rounded shadow mb-4">
-      <p className="text-gray-800">{comment.text}</p>
+    <div className="flex justify-between items-end p-4 bg-white border rounded shadow mb-4">
+      <RenderMd className="text-gray-800 basis-4/5" markdown={comment.text} />
+      <div className="flex items-center justify-center gap-2 text-gray-400 text-sm">
+        <span>John Doe</span>
+        <span>08-19-23</span>
+      </div>
     </div>
   );
 };
@@ -81,10 +88,27 @@ const CommentsSection = () => {
 };
 
 const Comments = ({ contributors }: { contributors: Contributor[] }) => {
+  const [commentId, setCommentId] = useState<number>(0);
+  const [postComments, setPostComments] = useState<Comment[]>([]);
+  const [inputValue, setInputValue] = useState<string>("");
+
+  const handleAddComment = () => {
+    setPostComments([
+      ...postComments,
+      {
+        id: commentId,
+        text: inputValue,
+        replies: [],
+      },
+    ]);
+    setCommentId(commentId + 1);
+    setInputValue("");
+  };
+
   return (
     <>
       <main>
-        <div className="mx-auto max-w-5xl">
+        <div className="mx-auto max-w-7xl">
           <div className="mt-4 flex flex-row justify-between items-center">
             <h1 className="text-2xl font-bold">Comments</h1>
             <div className="flex flex-row justify-between items-center">
@@ -109,20 +133,32 @@ const Comments = ({ contributors }: { contributors: Contributor[] }) => {
           <hr className="border-solid border-black border-[1px]" />
           <textarea
             id="comments"
-            className="mt-2 mb-2 min-w-full min-h-[100px] rounded-lg border-gray-200 border-solid border-[1px] align-top shadow-sm placeholder:p-1"
+            className="mt-2 mb-2 min-w-full min-h-[100px] rounded-lg border-gray-200 border-solid border-[1px] align-top shadow-sm"
             placeholder="Type your comment in Markdown..."
+            value={inputValue}
+            onChange={(e) => setInputValue(e.target.value)}
           />
+          <div className="flex items-end justify-end">
+            <button
+              className="p-2 rounded-md bg-blue-400 hover:bg-blue-600 text-white"
+              onClick={handleAddComment}
+            >
+              Add Comment
+            </button>
+          </div>
         </div>
-        <div className="container mx-auto max-w-5xl mt-8">
+
+        <div className="container mx-auto max-w-7xl mt-8">
           {/* Comment section */}
-          {commentsData.map((comment) => (
-            <div key={comment.id}>
-              <Comment comment={comment} />
-              {comment.replies && comment.replies.length > 0 && (
-                <NestedComments comments={comment.replies} />
-              )}
-            </div>
-          ))}
+          {postComments.length > 0 &&
+            postComments.map((comment) => (
+              <div key={comment.id}>
+                <Comment comment={comment} />
+                {comment.replies && comment.replies.length > 0 && (
+                  <NestedComments comments={comment.replies} />
+                )}
+              </div>
+            ))}
         </div>
       </main>
     </>

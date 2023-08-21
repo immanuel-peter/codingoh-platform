@@ -6,8 +6,10 @@ import Project from "./Project";
 import FAB from "./FAB";
 import NewFAB from "./NewFAB";
 import RenderMd from "./RenderMd";
-import AddUserProfileImageInput from "./AddUserProfileImageInput";
-import BackgroundImageGrid from "./BackgroundImageGrid";
+import AddUserProfileImageInput from "./newuser/AddUserProfileImageInput";
+import BackgroundImageGrid from "./newuser/BackgroundImageGrid";
+import LangSelect from "./newuser/LangSelect";
+import SocialLinks from "./newuser/SocialLinks";
 
 export {
   Navbar,
@@ -20,4 +22,5 @@ export {
   RenderMd,
   AddUserProfileImageInput,
   BackgroundImageGrid,
+  SocialLinks,
 };

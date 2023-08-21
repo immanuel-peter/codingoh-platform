@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { Select } from "antd";
 import ReactMarkdown from "react-markdown";
@@ -43,12 +43,36 @@ I'm not sure what else to try. Can anyone help me figure out what's wrong with m
 const AddQuestion = () => {
   const [markdown, setMarkdown] = useState(placeholderMdText);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [newQuestion, setNewQuestion] = useState({
+    title: "",
+    description: "",
+    tags: [] as string[],
+    notifications: {
+      email: false,
+      desktop: false,
+      sms: false,
+    },
+  });
+
+  console.log(newQuestion);
+
+  useEffect(() => {
+    setNewQuestion((prevQuestion) => ({
+      ...prevQuestion,
+      description: markdown === placeholderMdText ? "" : markdown,
+    }));
+  }, [markdown, placeholderMdText]);
 
   const handleTagChange = (value: string) => {
     const exists = tags.some((tag) => tag.value === value);
 
+    if (exists) {
+      setNewQuestion({ ...newQuestion, tags: [...newQuestion.tags, value] });
+    }
+
     if (!exists) {
       tags.push({ value, label: value });
+      setNewQuestion({ ...newQuestion, tags: [...newQuestion.tags, value] });
     }
   };
 
@@ -69,6 +93,25 @@ const AddQuestion = () => {
             </p>
 
             <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+              <div className="col-span-full">
+                <label
+                  htmlFor="title"
+                  className="flex items-center justify-between gap-2 text-sm font-medium leading-6 text-gray-900 mb-2"
+                >
+                  Question Title
+                </label>
+                <input
+                  id="title"
+                  name="title"
+                  placeholder="Fibonacci sequence not working"
+                  value={newQuestion.title}
+                  onChange={(e) =>
+                    setNewQuestion({ ...newQuestion, title: e.target.value })
+                  }
+                  className="block w-full rounded-md border-0 p-1 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
+                />
+              </div>
+
               <div className="col-span-full">
                 <label
                   htmlFor="about"
@@ -145,6 +188,7 @@ const AddQuestion = () => {
                   style={{ width: "100%" }}
                   placeholder="List applicable tags"
                   onChange={handleTagChange}
+                  onSelect={() => {}}
                   options={tags}
                 />
               </div>
@@ -168,6 +212,15 @@ const AddQuestion = () => {
                         id="email"
                         name="email"
                         type="checkbox"
+                        onChange={() =>
+                          setNewQuestion({
+                            ...newQuestion,
+                            notifications: {
+                              ...newQuestion.notifications,
+                              email: !newQuestion.notifications.email,
+                            },
+                          })
+                        }
                         className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
                       />
                     </div>
@@ -186,6 +239,15 @@ const AddQuestion = () => {
                         id="desktop-notifications"
                         name="desktop-notifications"
                         type="checkbox"
+                        onChange={() =>
+                          setNewQuestion({
+                            ...newQuestion,
+                            notifications: {
+                              ...newQuestion.notifications,
+                              desktop: !newQuestion.notifications.desktop,
+                            },
+                          })
+                        }
                         className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
                       />
                     </div>
@@ -204,6 +266,15 @@ const AddQuestion = () => {
                         id="sms"
                         name="sms"
                         type="checkbox"
+                        onChange={() =>
+                          setNewQuestion({
+                            ...newQuestion,
+                            notifications: {
+                              ...newQuestion.notifications,
+                              sms: !newQuestion.notifications.sms,
+                            },
+                          })
+                        }
                         className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
                       />
                     </div>

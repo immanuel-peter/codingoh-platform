@@ -1,9 +1,15 @@
 "use client";
 
-import React from "react";
+import React, { useState, Fragment } from "react";
 import { FaLightbulb, FaPlus, FaVideo, FaCheck } from "react-icons/fa6";
+import { MdOutlineScheduleSend } from "react-icons/md";
 import { Tooltip } from "@mui/material";
 import ReactMarkdown from "react-markdown";
+import { Transition, Dialog } from "@headlessui/react";
+import { LocalizationProvider } from "@mui/x-date-pickers-pro";
+import { DateTimePicker, renderTimeViewClock } from "@mui/x-date-pickers";
+import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
+import dayjs, { Dayjs } from "dayjs";
 
 import { questions, users } from "@/dummy/questions";
 import { Question, User, Contributor } from "@/types";
@@ -94,22 +100,42 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
 
   if (!question) return false;
 
-  const [activeButton, setActiveButton] = React.useState("Question");
-  console.log(activeButton);
+  const [activeButton, setActiveButton] = useState("Question");
+  const [isScheduleMeetOpen, setIsScheduleMeetOpen] = useState(false);
+  const [dateTime, setDateTime] = useState<Dayjs | null>(null);
+  const [didSchedule, setDidSchedule] = useState<boolean>(false);
+
+  console.log(dateTime, didSchedule);
+
+  const handleSchedule = () => {
+    setDidSchedule(true);
+    setIsScheduleMeetOpen(false);
+  };
 
   return (
     <>
       <Navbar />
       <div className="p-3 m-0">
-        <div className="mx-auto max-w-5xl py-5 px-8 border-solid border-black border-[1px] border-x-0 border-t-0">
+        <div className="mx-auto max-w-7xl py-5 px-8 border-solid border-black border-[1px] border-x-0 border-t-0">
           <div className="flex flex-row justify-between bg-inherit">
             <h1 className="flex-initial basis-10/12 shrink bg-inherit text-4xl text-left">
               {question.question}
             </h1>
             {!question.isAnswered ? (
-              <button className="basis-1/12 text-base font-medium p-3 h-14 self-center items-center justify-between flex flex-row border-solid border-blue-600 border-[1px] bg-blue-500 rounded-md">
-                <FaVideo className="bg-blue-500 text-slate-200 mr-3" />
-                <p className="bg-blue-500 text-slate-200">Schedule</p>
+              <button
+                onClick={
+                  !didSchedule ? () => setIsScheduleMeetOpen(true) : undefined
+                }
+                className={`basis-1/12 text-base font-medium p-3 h-14 self-center items-center justify-between flex flex-row border-solid border-[1px] ${
+                  !didSchedule
+                    ? "border-blue-600 hover:border-blue-800 bg-blue-500 hover:bg-blue-700"
+                    : "border-yellow-600 bg-yellow-500 cursor-text"
+                } rounded-xl`}
+              >
+                <FaVideo className="bg-inherit text-slate-200 mr-3" />
+                <p className="bg-inherit text-slate-200">
+                  {!didSchedule ? "Schedule" : "Scheduled"}
+                </p>
               </button>
             ) : (
               <button className="basis-1/12 text-base font-medium p-3 h-14 self-center items-center justify-between flex flex-row border-solid border-green-600 border-[1px] bg-green-500 rounded-md">
@@ -160,28 +186,89 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
           </div>
         </div>
         {activeButton === "Question" ? (
-          // <ReactMarkdown
-          //   children={markdownQuestion}
-          //   className="mx-auto max-w-5xl py-3 px-3 bg-gray-200 text-justify"
-          // ></ReactMarkdown>
           <RenderMd
-            markdown={markdownQuestion}
-            className="mx-auto max-w-5xl py-3 px-3 mt-3 text-justify border border-solid border-black rounded-2xl"
+            markdown={question.description}
+            className="mx-auto max-w-7xl py-3 px-3 mt-3 text-justify border border-solid border-black rounded-2xl"
           />
         ) : (
-          // <ReactMarkdown
-          //   children={markdownAnswer}
-          //   className="mx-auto max-w-5xl py-3 px-3 bg-gray-200 text-justify"
-          // ></ReactMarkdown>
           <RenderMd
-            markdown={markdownAnswer}
-            className="mx-auto max-w-5xl py-3 px-3 mt-3 text-justify border border-solid border-black rounded-2xl"
+            markdown={question.answer || markdownAnswer}
+            className="mx-auto max-w-7xl py-3 px-3 mt-3 text-justify border border-solid border-black rounded-2xl"
           />
         )}
       </div>
       <Comments contributors={question.contributors} />
 
       <FAB />
+
+      <Transition appear show={isScheduleMeetOpen} as={Fragment}>
+        <Dialog
+          as="div"
+          className="relative z-10"
+          onClose={() => setIsScheduleMeetOpen(false)}
+        >
+          <Transition.Child
+            as={Fragment}
+            enter="ease-out duration-300"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="ease-in duration-200"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
+            <div className="fixed inset-0 bg-black bg-opacity-25" />
+          </Transition.Child>
+
+          <div className="fixed inset-0 overflow-y-auto">
+            <div className="flex min-h-full items-center justify-center p-4 text-center">
+              <Transition.Child
+                as={Fragment}
+                enter="ease-out duration-300"
+                enterFrom="opacity-0 scale-95"
+                enterTo="opacity-100 scale-100"
+                leave="ease-in duration-200"
+                leaveFrom="opacity-100 scale-100"
+                leaveTo="opacity-0 scale-95"
+              >
+                <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                  <Dialog.Title
+                    as="h3"
+                    className="text-lg font-medium leading-6 text-blue-600 inline-flex items-center gap-2"
+                  >
+                    Schedule Your Meeting <FaVideo />
+                  </Dialog.Title>
+                  <div className="py-4 my-4">
+                    <LocalizationProvider dateAdapter={AdapterDayjs}>
+                      <DateTimePicker
+                        label="Choose Date and Time"
+                        viewRenderers={{
+                          hours: renderTimeViewClock,
+                          minutes: renderTimeViewClock,
+                          seconds: renderTimeViewClock,
+                        }}
+                        sx={{ width: "100%", height: "100%" }}
+                        value={dateTime}
+                        onChange={(newValue) => setDateTime(newValue)}
+                        format="lll"
+                      />
+                    </LocalizationProvider>
+                  </div>
+
+                  <div className="mt-2">
+                    <button
+                      type="button"
+                      className="inline-flex items-center justify-center gap-2 rounded-md border border-transparent bg-yellow-100 px-4 py-2 text-base font-medium text-yellow-900 hover:bg-yellow-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-yellow-500 focus-visible:ring-offset-2"
+                      onClick={handleSchedule}
+                    >
+                      Schedule <MdOutlineScheduleSend />
+                    </button>
+                  </div>
+                </Dialog.Panel>
+              </Transition.Child>
+            </div>
+          </div>
+        </Dialog>
+      </Transition>
     </>
   );
 };

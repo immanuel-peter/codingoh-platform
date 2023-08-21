@@ -4,8 +4,8 @@ import React, { Fragment, useState } from "react";
 import Image from "next/image";
 import { Badge, Chip } from "@mui/joy";
 import { palette } from "@mui/system";
-import { FaEdit, FaThumbsUp } from "react-icons/fa";
-import { FaRegCircleXmark } from "react-icons/fa6";
+import { FaEdit, FaThumbsUp, FaSave } from "react-icons/fa";
+import { FaRegCircleXmark, FaCamera, FaUpload } from "react-icons/fa6";
 // import {
 //   JavascriptOriginal,
 //   PythonOriginal,
@@ -97,6 +97,7 @@ import { FaRegCircleXmark } from "react-icons/fa6";
 // } from "devicons-react";
 import { Progress, Tooltip, Button } from "antd";
 import { MdOutlineKeyboardDoubleArrowRight } from "react-icons/md";
+import { BsFilePlusFill } from "react-icons/bs";
 import Link from "next/link";
 import { Dialog, Transition } from "@headlessui/react";
 import { SocialIcon } from "react-social-icons";
@@ -216,6 +217,18 @@ const UserPage = ({ params }: { params: { id: string } }) => {
   );
   const [projectTypeMode, setProjectTypeMode] = useState("all");
   const [isProjectsOpen, setIsProjectsOpen] = useState(false);
+  const [editStatus, setEditStatus] = useState(false);
+  const [newProjectModalOpen, setNewProjectModalOpen] = useState(false);
+  const [newProjectImage, setNewProjectImage] = useState("");
+  const [newProject, setNewProject] = useState({
+    name: "",
+    description: "",
+    status: "",
+    github: "",
+    image: newProjectImage || "",
+  });
+
+  console.log(newProject);
 
   const user = getUser(params.id);
 
@@ -227,6 +240,13 @@ const UserPage = ({ params }: { params: { id: string } }) => {
   const topLanguages = getTopLanguages(user.codingLanguages, 5);
 
   const userProjects = projectsMap(projects, user) || [];
+
+  const onImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files[0]) {
+      let img = event.target.files[0];
+      setNewProjectImage(URL.createObjectURL(img));
+    }
+  };
 
   const handleIconMouseEnter = (index: number) => {
     const updatedState = [...isProjectGithubHovered];
@@ -281,10 +301,23 @@ const UserPage = ({ params }: { params: { id: string } }) => {
           </div>
           <div>
             <SignedIn>
-              <button className="p-3 bg-cyan-300 hover:bg-cyan-400 border border-solid border-cyan-400 hover:border-cyan-500 items-center justify-between flex flex-row rounded-lg">
-                <FaEdit className="mr-3 bg-inherit" />
-                Edit Profile
-              </button>
+              {!editStatus ? (
+                <button
+                  onClick={() => setEditStatus(true)}
+                  className="p-3 bg-cyan-300 hover:bg-cyan-400 border border-solid border-cyan-400 hover:border-cyan-500 items-center justify-center flex flex-row rounded-lg"
+                >
+                  <FaEdit className="mr-3 bg-inherit" />
+                  Edit Profile
+                </button>
+              ) : (
+                <button
+                  onClick={() => setEditStatus(false)}
+                  className="p-3 w-24 bg-purple-400 hover:bg-purple-500 border border-solid border-purple-500 hover:border-purple-600 items-center justify-center flex flex-row rounded-lg"
+                >
+                  <FaSave className="mr-3 bg-inherit" />
+                  Save
+                </button>
+              )}
             </SignedIn>
           </div>
         </div>
@@ -612,9 +645,15 @@ const UserPage = ({ params }: { params: { id: string } }) => {
         </div>
         <div className="col-span-3 col-start-2 p-2 border border-solid border-gray-300 rounded-xl">
           <div className="flex flex-row justify-between items-center">
-            <h1 className="text-2xl font-bold ml-3 p-2 rounded-tl-xl">
-              Projects
-            </h1>
+            <div className="flex flex-row items-center">
+              <h1 className="text-2xl font-bold ml-3 p-2 rounded-tl-xl">
+                Projects
+              </h1>
+              <BsFilePlusFill
+                className="text-2xl hover:text-green-500 cursor-pointer"
+                onClick={() => setNewProjectModalOpen(true)}
+              />
+            </div>
             <div className="flex flex-row justify-between items-center gap-2 mb-1 mr-3 rounded-tr-xl">
               <button
                 className={`mr-2 text-sm text-black bg-red-400 hover:bg-red-600 hover:text-white hover:scale-110 p-1 border border-solid border-red-500 rounded-full h-5 w-5 flex items-center justify-center ${
@@ -1191,6 +1230,207 @@ const UserPage = ({ params }: { params: { id: string } }) => {
                     >
                       Cool!
                       <FaThumbsUp className="ml-3 text-base bg-inherit" />
+                    </button>
+                  </div>
+                </Dialog.Panel>
+              </Transition.Child>
+            </div>
+          </div>
+        </Dialog>
+      </Transition>
+      <Transition appear show={newProjectModalOpen} as={Fragment}>
+        <Dialog
+          as="div"
+          className="relative z-10 overflow-auto"
+          onClose={() => setNewProjectModalOpen(false)}
+        >
+          <Transition.Child
+            as={Fragment}
+            enter="ease-out duration-300"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="ease-in duration-200"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
+            <div className="fixed inset-0 bg-gray-400/75" />
+          </Transition.Child>
+
+          <div className="fixed inset-0 overflow-auto">
+            <div className="flex min-h-full items-center justify-center p-4 text-center">
+              <Transition.Child
+                as={Fragment}
+                enter="ease-out duration-300"
+                enterFrom="opacity-0 scale-95"
+                enterTo="opacity-100 scale-100"
+                leave="ease-in duration-200"
+                leaveFrom="opacity-100 scale-100"
+                leaveTo="opacity-0 scale-95"
+              >
+                <Dialog.Panel className="w-1/2 max-w-full transform overflow-auto rounded-2xl bg-white border-slate-200 border border-solid p-6 shadow-xl transition-all">
+                  <Dialog.Title
+                    as="h1"
+                    className="p-2 text-4xl font-bold leading-6 text-gray-900 underline underline-offset-auto"
+                  >
+                    New Project
+                  </Dialog.Title>
+
+                  <div className="p-2 m-2">
+                    <div className="flex flex-col">
+                      <label
+                        htmlFor="name"
+                        className="flex flex-col text-sm font-medium leading-6 text-gray-900 mb-1"
+                      >
+                        Project Name
+                      </label>
+                      <input
+                        id="name"
+                        name="name"
+                        type="text"
+                        placeholder="Coding OH"
+                        value={newProject.name === "" ? "" : newProject.name}
+                        onChange={(e) =>
+                          setNewProject({ ...newProject, name: e.target.value })
+                        }
+                        className="flex flex-col w-full self-center rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
+                      />
+                    </div>
+
+                    <div className="flex flex-col mt-3">
+                      <label
+                        htmlFor="description"
+                        className="flex flex-col text-sm font-medium leading-6 text-gray-900 mb-1"
+                      >
+                        Description
+                      </label>
+                      <textarea
+                        id="description"
+                        name="description"
+                        placeholder="Coding OH is this web app."
+                        rows={7}
+                        value={
+                          newProject.description === ""
+                            ? ""
+                            : newProject.description
+                        }
+                        onChange={(e) =>
+                          setNewProject({
+                            ...newProject,
+                            description: e.target.value,
+                          })
+                        }
+                        className="flex flex-col w-full self-center rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
+                      />
+                    </div>
+
+                    <div className="flex flex-col mt-3">
+                      <label
+                        htmlFor="status"
+                        className="flex flex-col text-sm font-medium leading-6 text-gray-900 mb-1"
+                      >
+                        Status
+                      </label>
+                      <div className="self-center">
+                        <select
+                          id="status"
+                          name="status"
+                          value={
+                            newProject.status === "" ? "" : newProject.status
+                          }
+                          onChange={(e) =>
+                            setNewProject({
+                              ...newProject,
+                              status: e.target.value,
+                            })
+                          }
+                          className="flex flex-col w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
+                        >
+                          <option>Ongoing</option>
+                          <option>Completed</option>
+                          <option>On Hold</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col mt-3">
+                      <label
+                        htmlFor="github"
+                        className="flex flex-col text-sm font-medium leading-6 text-gray-900 mb-1"
+                      >
+                        Github Repo
+                      </label>
+                      <input
+                        id="github"
+                        name="github"
+                        type="text"
+                        placeholder="www.github.com"
+                        value={newProject.github === "" ? "" : newProject.name}
+                        onChange={(e) =>
+                          setNewProject({
+                            ...newProject,
+                            github: e.target.value,
+                          })
+                        }
+                        className="flex flex-col w-full self-center rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
+                      />
+                    </div>
+
+                    <div className="flex flex-col mt-3">
+                      <label
+                        htmlFor="picture"
+                        className="flex flex-col text-sm font-medium leading-6 text-gray-900 mb-1"
+                      >
+                        Associated Picture
+                      </label>
+                      <div className="flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10">
+                        {newProjectImage === "" ? (
+                          <div className="text-center">
+                            <FaCamera
+                              className="mx-auto h-12 w-12 text-gray-300"
+                              aria-hidden="true"
+                            />
+                            <div className="flex text-sm leading-6 text-gray-600">
+                              <label
+                                htmlFor="file-upload"
+                                className="relative cursor-pointer rounded-md bg-white font-semibold text-indigo-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-indigo-600 focus-within:ring-offset-2 hover:text-indigo-500"
+                              >
+                                <span>Upload a file</span>
+                                <input
+                                  id="file-upload"
+                                  name="file-upload"
+                                  type="file"
+                                  className="sr-only"
+                                  value={newProject.image}
+                                  onChange={onImageChange}
+                                />
+                              </label>
+                              <p className="pl-1">or drag and drop</p>
+                            </div>
+                            <p className="text-xs leading-5 text-gray-600">
+                              PNG, JPG, GIF up to 10MB
+                            </p>
+                          </div>
+                        ) : (
+                          <Image
+                            src={newProjectImage}
+                            width={424}
+                            height={172}
+                            alt="New Project Picture"
+                            className="w-full h-full"
+                          />
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-4">
+                    <button
+                      type="button"
+                      className="inline-flex flex-row justify-between items-center rounded-md border border-transparent bg-blue-100 px-4 py-2 text-base font-medium text-blue-900 hover:bg-blue-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
+                      onClick={() => setNewProjectModalOpen(false)}
+                    >
+                      Upload
+                      <FaUpload className="ml-3 text-base bg-inherit" />
                     </button>
                   </div>
                 </Dialog.Panel>

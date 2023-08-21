@@ -213,4 +213,19 @@ export const projectsMap = (projects: Project[], user: User) => {
 export const randEl = <T>(items: T[]): T => {
   const randIndex = Math.floor(Math.random() * items.length);
   return items[randIndex];
-}
+};
+
+export const uniqueArray = <T>(items: T[]) => {
+  const set = new Set(items);
+  const unique: T[] = Array.from(set);
+  return unique;
+};
+
+export const labelValues = (
+  array: string[]
+): { label: string; value: string }[] => {
+  return array.map((item) => ({
+    label: item,
+    value: item,
+  }));
+};

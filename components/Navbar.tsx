@@ -9,8 +9,13 @@ import {
   FaInbox,
 } from "react-icons/fa6";
 import { FaCheckCircle, FaThumbsUp } from "react-icons/fa";
-import { FaArrowUpRightFromSquare, FaCheck } from "react-icons/fa6";
+import {
+  FaArrowUpRightFromSquare,
+  FaCheck,
+  FaCirclePlus,
+} from "react-icons/fa6";
 import { FcPlus } from "react-icons/fc";
+import { BsFillSunFill, BsSun, BsMoon } from "react-icons/bs";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Dialog, Transition } from "@headlessui/react";
@@ -107,7 +112,7 @@ const Navbar = ({ isProfile }: { isProfile?: boolean }) => {
           />
 
           {suggestedQueries.length > 0 && (
-            <ul className="absolute z-10 bg-white mt-2 w-full border border-gray-300 rounded-lg shadow-lg divide-y divide-slate-200">
+            <ul className="absolute z-10 bg-white mt-2 w-full border border-gray-300 rounded-lg shadow-lg divide-y divide-slate-200 max-h-[500px] overflow-y-auto">
               {suggestedQueries.map((suggestion, index) => (
                 <li
                   key={index}
@@ -132,9 +137,9 @@ const Navbar = ({ isProfile }: { isProfile?: boolean }) => {
         <nav className="p-3 flex flex-row items-center justify-evenly gap-6">
           <button onClick={() => setSunClicked(!sunClicked)}>
             {sunClicked ? (
-              <FaRegSun className="text-xl mr-1" />
+              <BsMoon className="text-xl mr-1" />
             ) : (
-              <FaSun className="text-xl mr-1" />
+              <BsSun className="text-xl mr-1" />
             )}
           </button>
           <SignedOut>
@@ -153,7 +158,7 @@ const Navbar = ({ isProfile }: { isProfile?: boolean }) => {
           </SignedOut>
           <SignedIn>
             <Link href="/questions/add">
-              <FcPlus className="text-3xl mx-1" />
+              <FaCirclePlus className="text-3xl mx-1 text-green-500 hover:text-green-700" />
             </Link>
             <div
               className="mx-1 cursor-pointer"
@@ -161,7 +166,7 @@ const Navbar = ({ isProfile }: { isProfile?: boolean }) => {
             >
               <FaInbox className="text-3xl hover:text-amber-900" />
             </div>
-            {isProfile ? (
+            {!isProfile ? (
               <Link href="/users/7094247" className="mx-1">
                 <div className="flex items-center justify-between px-3 py-2 gap-4 bg-gradient-to-r from-blue-300 to-transparent via-blue-300 border border-solid border-blue-800 rounded-full">
                   Profile
@@ -222,7 +227,9 @@ const Navbar = ({ isProfile }: { isProfile?: boolean }) => {
                         {inboxItems.map((item, index) => (
                           <li key={index}>
                             <InboxItem
-                              item={item.item}
+                              userLink={`/users/${item.randUser.id}`}
+                              name={item.randName}
+                              question={item.randQuestion}
                               link={item.link}
                               unread={item.unread}
                             />
@@ -253,14 +260,20 @@ const Navbar = ({ isProfile }: { isProfile?: boolean }) => {
 };
 
 const InboxItem = ({
-  item,
+  userLink,
+  name,
+  question,
   link,
   unread,
 }: {
-  item: string;
+  userLink: string;
+  name: string;
+  question: string;
   link: string;
   unread: boolean;
 }) => {
+  const router = useRouter();
+
   const [read, setRead] = useState(false);
 
   const handleChange = () => {
@@ -284,7 +297,15 @@ const InboxItem = ({
         ) : (
           <FaCheck className="text-green-500" />
         )}
-        {item}
+        <div className="flex flex-row items-center text-sm gap-2">
+          <span
+            className="text-blue-300 hover:underline hover:underline-offset-auto cursor-pointer"
+            onClick={() => router.push(userLink)}
+          >
+            {name}
+          </span>{" "}
+          responded to <span className="text-blue-300">{question}</span>
+        </div>
       </div>
       <Link href={link} onClick={() => handleChange()}>
         <FaArrowUpRightFromSquare className="hover:text-blue-600" />

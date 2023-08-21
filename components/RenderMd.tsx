@@ -57,12 +57,18 @@ const RenderMd = ({
   );
   const H2 = ({ children }: { children: string }) => (
     <>
-      <h2 className="mt-1 text-xl font-semibold">{children}</h2>
+      <h2 className="my-1 text-xl font-semibold">{children}</h2>
+      <HLine />
+    </>
+  );
+  const H3 = ({ children }: { children: string }) => (
+    <>
+      <h3 className="my-1 text-lg font-semibold">{children}</h3>
       <HLine />
     </>
   );
   const P = ({ children }: { children: string }) => (
-    <p className="text-base">{children}</p>
+    <p className="text-base my-1">{children}</p>
   );
   const A = ({ children }: { children: URL }) => (
     <a
@@ -72,11 +78,14 @@ const RenderMd = ({
       {`${children}`}
     </a>
   );
-  const Li = ({ children }: { children: string }) => (
-    <li className="text-sm list-item list-disc list-inside">{children}</li>
+  const Ol = ({ children }: { children: React.ReactNode }) => (
+    <ol className="text-base list-decimal list-inside my-1">{children}</ol>
+  );
+  const Li = ({ children }: { children: React.ReactNode }) => (
+    <li className="text-sm">{children}</li>
   );
   const H4 = ({ children }: { children: string }) => (
-    <h4 className="text-2xl text-red-500">{children}</h4>
+    <h4 className="text-2xl text-red-500 my-1">{children}</h4>
   );
   const Hr = () => (
     <hr className="w-full h-1 mx-auto my-4 bg-gradient-to-r from-gray-300 to-transparent via-gray-300 rounded-full border-none" />
@@ -91,7 +100,9 @@ const RenderMd = ({
       components={{
         h1: H1,
         h2: H2,
+        h3: H3,
         p: P,
+        ol: Ol,
         li: Li,
         h4: H4,
         hr: Hr,
@@ -107,7 +118,7 @@ const RenderMd = ({
               {String(children).replace(/\n$/, "")}
             </SyntaxHighlighter>
           ) : (
-            <code className="my-2" {...props}>
+            <code className="my-2 text-violet-400" {...props}>
               {children}
             </code>
           );
