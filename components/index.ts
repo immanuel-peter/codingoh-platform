@@ -10,6 +10,7 @@ import AddUserProfileImageInput from "./newuser/AddUserProfileImageInput";
 import BackgroundImageGrid from "./newuser/BackgroundImageGrid";
 import LangSelect from "./newuser/LangSelect";
 import SocialLinks from "./newuser/SocialLinks";
+import Codebot from "./Codebot";
 
 export {
   Navbar,
@@ -22,5 +23,7 @@ export {
   RenderMd,
   AddUserProfileImageInput,
   BackgroundImageGrid,
+  LangSelect,
   SocialLinks,
+  Codebot,
 };

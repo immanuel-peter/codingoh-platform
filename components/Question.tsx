@@ -88,21 +88,19 @@ const Question = ({
             extraStyles ? extraStyles[0] : null
           }`}
         >
-          <Link href="/">
-            <button
-              onClick={() => setIsScheduleMeetOpen(true)}
-              className={`text-base font-medium p-3 items-center justify-between flex flex-row border-solid border-[1px] ${
-                !didSchedule
-                  ? "border-blue-600 hover:border-blue-800 bg-blue-500 hover:bg-blue-700"
-                  : "border-yellow-500 hover:border-yellow-700 bg-yellow-400 hover:bg-yellow-600"
-              } rounded-md`}
-            >
-              <FaVideo className="bg-inherit text-slate-200 mr-3" />
-              <p className="bg-inherit text-slate-200">
-                {!didSchedule ? "Schedule" : "Scheduled"}
-              </p>
-            </button>
-          </Link>
+          <button
+            onClick={() => setIsScheduleMeetOpen(true)}
+            className={`text-base font-medium p-3 items-center justify-between flex flex-row border-solid border-[1px] ${
+              !didSchedule
+                ? "border-blue-600 hover:border-blue-800 bg-blue-500 hover:bg-blue-700"
+                : "border-yellow-500 hover:border-yellow-700 bg-yellow-400 hover:bg-yellow-600"
+            } rounded-md`}
+          >
+            <FaVideo className="bg-inherit text-slate-200 mr-3" />
+            <p className="bg-inherit text-slate-200">
+              {!didSchedule ? "Schedule" : "Scheduled"}
+            </p>
+          </button>
         </div>
       ) : (
         <div
