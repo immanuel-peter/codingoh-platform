@@ -229,3 +229,13 @@ export const labelValues = (
     value: item,
   }));
 };
+
+export const finalProfsByLangs = (data: { lang: string; prof: number }[]) => {
+  const returnArray: { [key: string]: number } = {};
+  for (const item of data) {
+    if (item.prof > 0) {
+      returnArray[item.lang] = item.prof;
+    }
+  }
+  return returnArray;
+};

@@ -1,11 +1,32 @@
-import React from "react";
-import { FaCamera, FaCircleUser } from "react-icons/fa6";
+"use client";
+
+import React, { useState, useEffect } from "react";
+import {
+  FaCamera,
+  FaCircleUser,
+  FaDiscord,
+  FaDropbox,
+  FaFacebook,
+  FaGithub,
+  FaInstagram,
+  FaLink,
+  FaLinkedin,
+  FaMedium,
+  FaReddit,
+  FaStackOverflow,
+  FaTiktok,
+  FaTwitch,
+  FaTwitter,
+  FaYoutube,
+} from "react-icons/fa6";
 import { HiCheckCircle } from "react-icons/hi2";
 import { IoCloseCircleOutline } from "react-icons/io5";
+import { BsPlusCircleFill } from "react-icons/bs";
+import { LuMinusCircle } from "react-icons/lu";
 import CheckIcon from "@mui/icons-material/Check";
-import { Badge, Autocomplete } from "@mui/joy";
-import { Select } from "antd";
-import { currentUser } from "@clerk/nextjs";
+import { Badge, Autocomplete, Slider } from "@mui/joy";
+import { Select, Tooltip, Progress } from "antd";
+import { currentUser, useUser } from "@clerk/nextjs";
 import Image from "next/image";
 import { SocialIcon } from "react-social-icons";
 
@@ -17,11 +38,11 @@ import SocialLinks from "@/components/newuser/SocialLinks";
 import backgrounds from "@/public/backgrounds";
 import { allIcons } from "@/utils/icons";
 import { techSkills as inDemandSkills } from "@/dummy/questions";
-import { uniqueArray, labelValues } from "@/utils";
+import { uniqueArray, labelValues, finalProfsByLangs } from "@/utils";
 
 const countryList = [
-  "United Kingdom",
   "United States of America",
+  "United Kingdom",
   "Afghanistan",
   "Albania",
   "Algeria",
@@ -242,10 +263,407 @@ const countryList = [
   "Zimbabwe",
 ];
 
-const NewUser = async () => {
-  const currUser = await currentUser();
+const NewUser = () => {
+  // Personal Info
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
+  const [email, setEmail] = useState("");
+  const [education, setEducation] = useState("");
+  const [company, setCompany] = useState("");
+  const [position, setPosition] = useState("");
+  const [city, setCity] = useState("");
+  const [usState, setUsState] = useState("");
+  const [country, setCountry] = useState("");
+  const [about, setAbout] = useState("");
 
-  const userId = currUser?.id.substring("user_".length);
+  // Background Banner
+  const [selectedBackgroundImage, setSelectedBackgroundImage] = useState(
+    backgrounds[0]
+  );
+
+  // Proficient Languages
+  const [inputValue, setInputValue] = useState<string>("");
+  const [filteredOptions, setFilteredOptions] = useState<string[]>([]);
+  const [showOptions, setShowOptions] = useState<boolean>(false);
+  const [userLangs, setUserLangs] = useState<string[]>([]);
+  const [selectedOption, setSelectedOption] = useState<string>("");
+  const [userProfs, setUserProfs] = useState<{ lang: string; prof: number }[]>(
+    []
+  );
+  const [finalProfs, setFinalProfs] = useState<{ [lang: string]: number }>({});
+
+  const options = Object.keys(allIcons);
+
+  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const newInputValue = event.target.value;
+    setInputValue(newInputValue);
+  };
+
+  const filterOptions = (inputValue: string) => {
+    const filtered = options.filter(
+      (option) =>
+        option.toLowerCase().includes(inputValue.toLowerCase()) &&
+        option !== selectedOption
+    );
+    setFilteredOptions(filtered);
+  };
+
+  const handleOptionClick = (option: string) => {
+    setInputValue(option);
+    setSelectedOption(option);
+    setFilteredOptions([]);
+    setShowOptions(false);
+  };
+
+  const handleAddLang = (lang: string) => {
+    setUserLangs([...userLangs, lang]);
+    setInputValue("");
+    setFilteredOptions([]);
+    setShowOptions(false);
+    setSelectedOption("");
+  };
+
+  const handleAddProf = (
+    event: React.SyntheticEvent<Element, Event> | Event,
+    value: number | number[],
+    language: string
+  ) => {
+    if (typeof value === "number") {
+      setUserProfs([
+        ...userProfs,
+        {
+          lang: language,
+          prof: value,
+        },
+      ]);
+    } else {
+      setUserProfs([
+        ...userProfs,
+        {
+          lang: language,
+          prof: value[0],
+        },
+      ]);
+    }
+    setFinalProfs(finalProfsByLangs(userProfs));
+  };
+
+  const handleDocClick = (event: MouseEvent) => {
+    const target = event.target as Element;
+    if (!target.closest("#autocomplete-wrapper")) {
+      setShowOptions(false);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener("click", handleDocClick);
+    return () => {
+      document.removeEventListener("click", handleDocClick);
+    };
+  }, []);
+
+  useEffect(() => {
+    filterOptions(inputValue);
+    setShowOptions(true);
+  }, [inputValue]);
+
+  // Skills
+  const [skills, setSkills] = useState<string[]>([]);
+
+  const handleSkillChange = (value: string) => {
+    setSkills([...skills, value]);
+  };
+
+  // Social Links
+  const [socials, setSocials] = useState<string[]>([]);
+  const [socialLinks, setSocialLinks] = useState([
+    { name: "discord", link: "" },
+    { name: "dropbox", link: "" },
+    { name: "facebook", link: "" },
+    { name: "github", link: "" },
+    { name: "instagram", link: "" },
+    { name: "linkedin", link: "" },
+    { name: "medium", link: "" },
+    { name: "reddit", link: "" },
+    { name: "stackoverflow", link: "" },
+    { name: "tiktok", link: "" },
+    { name: "twitch", link: "" },
+    { name: "twitter", link: "" },
+    { name: "youtube", link: "" },
+    { name: "personal", link: "" },
+  ]);
+  const [finalSocialLinks, setFinalSocialLinks] = useState<
+    { name: string; link: string }[]
+  >([]);
+
+  const socialIcons = [
+    {
+      name: "discord",
+      node: (
+        <>
+          <div className="flex flex-row items-center gap-4 mt-3">
+            <FaDiscord className="text-4xl text-violet-500" />
+            <input
+              className="block w-3/4 rounded-md border-0 py-1.5 text-gray-900 placeholder:text-gray-400 placeholder:italic shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:max-w-xs sm:text-sm sm:leading-6"
+              placeholder="www.discord.com"
+              value={socialLinks[0].link}
+              onChange={(e) =>
+                updateSocialLink(socialLinks[0].name, e.target.value)
+              }
+            />
+          </div>
+        </>
+      ),
+    },
+    {
+      name: "dropbox",
+      node: (
+        <>
+          <div className="flex flex-row items-center gap-4 mt-3">
+            <FaDropbox className="text-4xl text-blue-500" />
+            <input
+              className="block w-3/4 rounded-md border-0 py-1.5 text-gray-900 placeholder:text-gray-400 placeholder:italic shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:max-w-xs sm:text-sm sm:leading-6"
+              placeholder="www.dropbox.com"
+              value={socialLinks[1].link}
+              onChange={(e) =>
+                updateSocialLink(socialLinks[1].name, e.target.value)
+              }
+            />
+          </div>
+        </>
+      ),
+    },
+    {
+      name: "facebook",
+      node: (
+        <>
+          <div className="flex flex-row items-center gap-4 mt-3">
+            <FaFacebook className="text-4xl text-blue-600" />
+            <input
+              className="block w-3/4 rounded-md border-0 py-1.5 text-gray-900 placeholder:text-gray-400 placeholder:italic shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:max-w-xs sm:text-sm sm:leading-6"
+              placeholder="www.facebook.com"
+              value={socialLinks[2].link}
+              onChange={(e) =>
+                updateSocialLink(socialLinks[2].name, e.target.value)
+              }
+            />
+          </div>
+        </>
+      ),
+    },
+    {
+      name: "github",
+      node: (
+        <>
+          <div className="flex flex-row items-center gap-4 mt-3">
+            <FaGithub className="text-4xl text-black" />
+            <input
+              className="block w-3/4 rounded-md border-0 py-1.5 text-gray-900 placeholder:text-gray-400 placeholder:italic shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:max-w-xs sm:text-sm sm:leading-6"
+              placeholder="www.github.com"
+              value={socialLinks[3].link}
+              onChange={(e) =>
+                updateSocialLink(socialLinks[3].name, e.target.value)
+              }
+            />
+          </div>
+        </>
+      ),
+    },
+    {
+      name: "instagram",
+      node: (
+        <>
+          <div className="flex flex-row items-center gap-4 mt-3">
+            <FaInstagram className="text-4xl text-pink-500" />
+            <input
+              className="block w-3/4 rounded-md border-0 py-1.5 text-gray-900 placeholder:text-gray-400 placeholder:italic shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:max-w-xs sm:text-sm sm:leading-6"
+              placeholder="www.instagram.com"
+              value={socialLinks[4].link}
+              onChange={(e) =>
+                updateSocialLink(socialLinks[4].name, e.target.value)
+              }
+            />
+          </div>
+        </>
+      ),
+    },
+    {
+      name: "linkedin",
+      node: (
+        <>
+          <div className="flex flex-row items-center gap-4 mt-3">
+            <FaLinkedin className="text-4xl text-blue-500" />
+            <input
+              className="block w-3/4 rounded-md border-0 py-1.5 text-gray-900 placeholder:text-gray-400 placeholder:italic shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:max-w-xs sm:text-sm sm:leading-6"
+              placeholder="www.linkedin.com"
+              value={socialLinks[5].link}
+              onChange={(e) =>
+                updateSocialLink(socialLinks[5].name, e.target.value)
+              }
+            />
+          </div>
+        </>
+      ),
+    },
+    {
+      name: "medium",
+      node: (
+        <>
+          <div className="flex flex-row items-center gap-4 mt-3">
+            <FaMedium className="text-4xl text-black" />
+            <input
+              className="block w-3/4 rounded-md border-0 py-1.5 text-gray-900 placeholder:text-gray-400 placeholder:italic shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:max-w-xs sm:text-sm sm:leading-6"
+              placeholder="www.medium.com"
+              value={socialLinks[6].link}
+              onChange={(e) =>
+                updateSocialLink(socialLinks[6].name, e.target.value)
+              }
+            />
+          </div>
+        </>
+      ),
+    },
+    {
+      name: "reddit",
+      node: (
+        <>
+          <div className="flex flex-row items-center gap-4 mt-3">
+            <FaReddit className="text-4xl text-orange-500" />
+            <input
+              className="block w-3/4 rounded-md border-0 py-1.5 text-gray-900 placeholder:text-gray-400 placeholder:italic shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:max-w-xs sm:text-sm sm:leading-6"
+              placeholder="www.reddit.com"
+              value={socialLinks[7].link}
+              onChange={(e) =>
+                updateSocialLink(socialLinks[7].name, e.target.value)
+              }
+            />
+          </div>
+        </>
+      ),
+    },
+    {
+      name: "stackoverflow",
+      node: (
+        <>
+          <div className="flex flex-row items-center gap-4 mt-3">
+            <FaStackOverflow className="text-4xl text-orange-400" />
+            <input
+              className="block w-3/4 rounded-md border-0 py-1.5 text-gray-900 placeholder:text-gray-400 placeholder:italic shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:max-w-xs sm:text-sm sm:leading-6"
+              placeholder="www.stackoverflow.com"
+              value={socialLinks[8].link}
+              onChange={(e) =>
+                updateSocialLink(socialLinks[8].name, e.target.value)
+              }
+            />
+          </div>
+        </>
+      ),
+    },
+    {
+      name: "tiktok",
+      node: (
+        <>
+          <div className="flex flex-row items-center gap-4 mt-3">
+            <FaTiktok className="text-4xl text-black" />
+            <input
+              className="block w-3/4 rounded-md border-0 py-1.5 text-gray-900 placeholder:text-gray-400 placeholder:italic shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:max-w-xs sm:text-sm sm:leading-6"
+              placeholder="www.tiktok.com"
+              value={socialLinks[9].link}
+              onChange={(e) =>
+                updateSocialLink(socialLinks[9].name, e.target.value)
+              }
+            />
+          </div>
+        </>
+      ),
+    },
+    {
+      name: "twitch",
+      node: (
+        <>
+          <div className="flex flex-row items-center gap-4 mt-3">
+            <FaTwitch className="text-4xl text-purple-500" />
+            <input
+              className="block w-3/4 rounded-md border-0 py-1.5 text-gray-900 placeholder:text-gray-400 placeholder:italic shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:max-w-xs sm:text-sm sm:leading-6"
+              placeholder="www.twitch.com"
+              value={socialLinks[10].link}
+              onChange={(e) =>
+                updateSocialLink(socialLinks[10].name, e.target.value)
+              }
+            />
+          </div>
+        </>
+      ),
+    },
+    {
+      name: "twitter",
+      node: (
+        <>
+          <div className="flex flex-row items-center gap-4 mt-3">
+            <FaTwitter className="text-4xl text-blue-400" />
+            <input
+              className="block w-3/4 rounded-md border-0 py-1.5 text-gray-900 placeholder:text-gray-400 placeholder:italic shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:max-w-xs sm:text-sm sm:leading-6"
+              placeholder="www.twitter.com"
+              value={socialLinks[11].link}
+              onChange={(e) =>
+                updateSocialLink(socialLinks[11].name, e.target.value)
+              }
+            />
+          </div>
+        </>
+      ),
+    },
+    {
+      name: "youtube",
+      node: (
+        <>
+          <div className="flex flex-row items-center gap-4 mt-3">
+            <FaYoutube className="text-4xl text-red-500" />
+            <input
+              className="block w-3/4 rounded-md border-0 py-1.5 text-gray-900 placeholder:text-gray-400 placeholder:italic shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:max-w-xs sm:text-sm sm:leading-6"
+              placeholder="www.youtube.com"
+              value={socialLinks[12].link}
+              onChange={(e) =>
+                updateSocialLink(socialLinks[12].name, e.target.value)
+              }
+            />
+          </div>
+        </>
+      ),
+    },
+    {
+      name: "personal",
+      node: (
+        <>
+          <div className="flex flex-row items-center gap-4 mt-3">
+            <FaLink className="text-4xl text-black" />
+            <input
+              className="block w-3/4 rounded-md border-0 py-1.5 text-gray-900 placeholder:text-gray-400 placeholder:italic shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:max-w-xs sm:text-sm sm:leading-6"
+              placeholder="www.mywebsite.com"
+              value={socialLinks[13].link}
+              onChange={(e) =>
+                updateSocialLink(socialLinks[13].name, e.target.value)
+              }
+            />
+          </div>
+        </>
+      ),
+    },
+  ];
+
+  const userSocials = socialIcons.filter((icon) => socials.includes(icon.name));
+
+  const updateSocialLink = (network: string, updatedLink: string) => {
+    const updatedLinks = socialLinks.map((link) => {
+      if (link.name === network) {
+        return { ...link, link: updatedLink };
+      }
+      return link;
+    });
+
+    setSocialLinks(updatedLinks);
+    setFinalSocialLinks(socialLinks.filter((item) => item.link !== ""));
+  };
 
   return (
     <>
@@ -259,27 +677,6 @@ const NewUser = async () => {
             </h2>
 
             <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-              {/* <div className="sm:col-span-4">
-                <label
-                  htmlFor="username"
-                  className="block text-sm font-medium leading-6 text-gray-900"
-                >
-                  Username
-                </label>
-                <div className="mt-2">
-                  <div className="flex rounded-md shadow-sm ring-1 ring-inset ring-gray-300 focus-within:ring-2 focus-within:ring-inset focus-within:ring-blue-600 sm:max-w-md">
-                    <input
-                      type="text"
-                      name="username"
-                      id="username"
-                      autoComplete="username"
-                      className="block flex-1 border-0 py-1.5 pl-4 text-gray-900 bg-slate-400/10 placeholder:text-gray-400 focus:ring-0 sm:text-sm sm:leading-6"
-                      value={`${currUser?.username}`}
-                      disabled
-                    />
-                  </div>
-                </div>
-              </div> */}
               <div className="sm:col-span-3">
                 <label
                   htmlFor="first-name"
@@ -289,11 +686,13 @@ const NewUser = async () => {
                 </label>
                 <div className="mt-2">
                   <input
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
                     type="text"
                     name="first-name"
                     id="first-name"
                     autoComplete="given-name"
-                    placeholder="Alan"
+                    placeholder="Bill"
                     className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
                   />
                 </div>
@@ -308,11 +707,13 @@ const NewUser = async () => {
                 </label>
                 <div className="mt-2">
                   <input
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
                     type="text"
                     name="last-name"
                     id="last-name"
                     autoComplete="family-name"
-                    placeholder="Turing"
+                    placeholder="Gates"
                     className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
                   />
                 </div>
@@ -327,11 +728,13 @@ const NewUser = async () => {
                 </label>
                 <div className="mt-2">
                   <input
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
                     id="email"
                     name="email"
                     type="email"
                     autoComplete="email"
-                    placeholder="alan.turing@example.com"
+                    placeholder="bill.gates@example.com"
                     className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
                   />
                 </div>
@@ -346,10 +749,12 @@ const NewUser = async () => {
                 </label>
                 <div className="mt-2">
                   <input
+                    value={education}
+                    onChange={(e) => setEducation(e.target.value)}
                     id="education"
                     name="education"
                     type="text"
-                    placeholder="Princeton University"
+                    placeholder="Harvard University"
                     className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
                   />
                 </div>
@@ -364,10 +769,12 @@ const NewUser = async () => {
                 </label>
                 <div className="mt-2">
                   <input
+                    value={company}
+                    onChange={(e) => setCompany(e.target.value)}
                     id="company"
                     name="company"
                     type="text"
-                    placeholder="Computing Machine Laboratory"
+                    placeholder="Microsoft Corporation"
                     className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
                   />
                 </div>
@@ -382,10 +789,12 @@ const NewUser = async () => {
                 </label>
                 <div className="mt-2">
                   <input
+                    value={position}
+                    onChange={(e) => setPosition(e.target.value)}
                     id="position"
                     name="position"
                     type="text"
-                    placeholder="AI Researcher"
+                    placeholder="Chief Executive Officer"
                     className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
                   />
                 </div>
@@ -400,10 +809,12 @@ const NewUser = async () => {
                 </label>
                 <div className="mt-2">
                   <input
+                    value={city}
+                    onChange={(e) => setCity(e.target.value)}
                     id="city"
                     name="city"
                     type="text"
-                    placeholder="London"
+                    placeholder="Seattle"
                     className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
                   />
                 </div>
@@ -421,9 +832,12 @@ const NewUser = async () => {
                 </label>
                 <div className="mt-2">
                   <input
+                    value={usState}
+                    onChange={(e) => setUsState(e.target.value)}
                     id="state"
                     name="state"
                     type="text"
+                    placeholder="Washington"
                     className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
                   />
                 </div>
@@ -438,10 +852,12 @@ const NewUser = async () => {
                 </label>
                 <div className="mt-2">
                   <select
+                    value={country}
+                    onChange={(e) => setCountry(e.target.value)}
                     id="country"
                     name="country"
                     autoComplete="country-name"
-                    placeholder="United Kingdom"
+                    placeholder="United States"
                     className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:max-w-xs sm:text-sm sm:leading-6"
                   >
                     {countryList.map((country) => (
@@ -451,21 +867,7 @@ const NewUser = async () => {
                 </div>
               </div>
 
-              <div className="sm:col-span-1">
-                <label
-                  htmlFor="photo"
-                  className="block text-sm font-medium leading-6 text-gray-900"
-                >
-                  Photo
-                </label>
-                <div className="mt-2 flex items-center gap-x-3">
-                  <AddUserProfileImageInput
-                    currUserImgUrl={currUser?.imageUrl}
-                  />
-                </div>
-              </div>
-
-              <div className="sm:col-span-5">
+              <div className="sm:col-span-6">
                 <label
                   htmlFor="about"
                   className="block text-sm font-medium leading-6 text-gray-900"
@@ -474,17 +876,16 @@ const NewUser = async () => {
                 </label>
                 <div className="mt-2">
                   <textarea
+                    value={about}
+                    onChange={(e) => setAbout(e.target.value)}
                     id="about"
                     name="about"
                     rows={3}
                     className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
-                    placeholder="Math Lover, Code Creator, and AI Pioneer."
+                    placeholder="I'm a software engineer and philanthropist. I'm the co-founder of Microsoft, and I've been passionate about coding since I was a kid. I believe that coding is a powerful tool that can be used to solve some of the world's biggest problems. I want to learn from other programmers and share my own knowledge. I'm always looking for new ways to improve my skills, and I'm always excited to help others."
                     defaultValue={""}
                   />
                 </div>
-                {/* <p className="mt-3 text-sm leading-6 text-gray-600">
-                  Write your canvas to showcase your passion.
-                </p> */}
               </div>
 
               <div className="col-span-full">
@@ -495,308 +896,115 @@ const NewUser = async () => {
                   Background Image
                 </label>
                 <div className="mt-2 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10">
-                  <BackgroundImageGrid />
+                  <div className="grid grid-cols-4 gap-5">
+                    {backgrounds.map((img, index) => (
+                      <Badge
+                        color="success"
+                        badgeContent={<CheckIcon className="h-2 w-2" />}
+                        invisible={
+                          selectedBackgroundImage !== backgrounds[index]
+                        }
+                      >
+                        <Image
+                          src={img}
+                          alt={`Background ${index + 1}`}
+                          height={128}
+                          width={256}
+                          className="rounded-lg cursor-pointer"
+                          onClick={() =>
+                            setSelectedBackgroundImage(backgrounds[index])
+                          }
+                        />
+                      </Badge>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
-          {/* <div className="border-b border-gray-900/10 pb-12">
-            <h2 className="text-base font-semibold leading-7 text-gray-900">
-              Personal Information
-            </h2>
-            <p className="mt-1 text-sm leading-6 text-gray-600">
-              Use a permanent address where you can receive mail.
-            </p>
-
-            <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-              <div className="sm:col-span-3">
-                <label
-                  htmlFor="first-name"
-                  className="block text-sm font-medium leading-6 text-gray-900"
-                >
-                  First name
-                </label>
-                <div className="mt-2">
-                  <input
-                    type="text"
-                    name="first-name"
-                    id="first-name"
-                    autoComplete="given-name"
-                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
-                  />
-                </div>
-              </div>
-
-              <div className="sm:col-span-3">
-                <label
-                  htmlFor="last-name"
-                  className="block text-sm font-medium leading-6 text-gray-900"
-                >
-                  Last name
-                </label>
-                <div className="mt-2">
-                  <input
-                    type="text"
-                    name="last-name"
-                    id="last-name"
-                    autoComplete="family-name"
-                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
-                  />
-                </div>
-              </div>
-
-              <div className="sm:col-span-4">
-                <label
-                  htmlFor="email"
-                  className="block text-sm font-medium leading-6 text-gray-900"
-                >
-                  Email address
-                </label>
-                <div className="mt-2">
-                  <input
-                    id="email"
-                    name="email"
-                    type="email"
-                    autoComplete="email"
-                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
-                  />
-                </div>
-              </div>
-
-              <div className="sm:col-span-3">
-                <label
-                  htmlFor="country"
-                  className="block text-sm font-medium leading-6 text-gray-900"
-                >
-                  Country
-                </label>
-                <div className="mt-2">
-                  <select
-                    id="country"
-                    name="country"
-                    autoComplete="country-name"
-                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:max-w-xs sm:text-sm sm:leading-6"
-                  >
-                    <option>United States</option>
-                    <option>Canada</option>
-                    <option>Mexico</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="col-span-full">
-                <label
-                  htmlFor="street-address"
-                  className="block text-sm font-medium leading-6 text-gray-900"
-                >
-                  Street address
-                </label>
-                <div className="mt-2">
-                  <input
-                    type="text"
-                    name="street-address"
-                    id="street-address"
-                    autoComplete="street-address"
-                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
-                  />
-                </div>
-              </div>
-
-              <div className="sm:col-span-2 sm:col-start-1">
-                <label
-                  htmlFor="city"
-                  className="block text-sm font-medium leading-6 text-gray-900"
-                >
-                  City
-                </label>
-                <div className="mt-2">
-                  <input
-                    type="text"
-                    name="city"
-                    id="city"
-                    autoComplete="address-level2"
-                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
-                  />
-                </div>
-              </div>
-
-              <div className="sm:col-span-2">
-                <label
-                  htmlFor="region"
-                  className="block text-sm font-medium leading-6 text-gray-900"
-                >
-                  State / Province
-                </label>
-                <div className="mt-2">
-                  <input
-                    type="text"
-                    name="region"
-                    id="region"
-                    autoComplete="address-level1"
-                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
-                  />
-                </div>
-              </div>
-
-              <div className="sm:col-span-2">
-                <label
-                  htmlFor="postal-code"
-                  className="block text-sm font-medium leading-6 text-gray-900"
-                >
-                  ZIP / Postal code
-                </label>
-                <div className="mt-2">
-                  <input
-                    type="text"
-                    name="postal-code"
-                    id="postal-code"
-                    autoComplete="postal-code"
-                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
-                  />
-                </div>
-              </div>
-            </div>
-          </div> */}
-
-          {/* <div className="border-b border-gray-900/10 pb-12">
-            <h2 className="text-base font-semibold leading-7 text-gray-900">
-              Notifications
-            </h2>
-            <p className="mt-1 text-sm leading-6 text-gray-600">
-              We'll always let you know about important changes, but you pick
-              what else you want to hear about.
-            </p>
-
-            <div className="mt-10 space-y-10">
-              <fieldset>
-                <legend className="text-sm font-semibold leading-6 text-gray-900">
-                  By Email
-                </legend>
-                <div className="mt-6 space-y-6">
-                  <div className="relative flex gap-x-3">
-                    <div className="flex h-6 items-center">
-                      <input
-                        id="comments"
-                        name="comments"
-                        type="checkbox"
-                        className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-600"
-                      />
-                    </div>
-                    <div className="text-sm leading-6">
-                      <label
-                        htmlFor="comments"
-                        className="font-medium text-gray-900"
-                      >
-                        Comments
-                      </label>
-                      <p className="text-gray-500">
-                        Get notified when someones posts a comment on a posting.
-                      </p>
-                    </div>
-                  </div>
-                  <div className="relative flex gap-x-3">
-                    <div className="flex h-6 items-center">
-                      <input
-                        id="candidates"
-                        name="candidates"
-                        type="checkbox"
-                        className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-600"
-                      />
-                    </div>
-                    <div className="text-sm leading-6">
-                      <label
-                        htmlFor="candidates"
-                        className="font-medium text-gray-900"
-                      >
-                        Candidates
-                      </label>
-                      <p className="text-gray-500">
-                        Get notified when a candidate applies for a job.
-                      </p>
-                    </div>
-                  </div>
-                  <div className="relative flex gap-x-3">
-                    <div className="flex h-6 items-center">
-                      <input
-                        id="offers"
-                        name="offers"
-                        type="checkbox"
-                        className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-600"
-                      />
-                    </div>
-                    <div className="text-sm leading-6">
-                      <label
-                        htmlFor="offers"
-                        className="font-medium text-gray-900"
-                      >
-                        Offers
-                      </label>
-                      <p className="text-gray-500">
-                        Get notified when a candidate accepts or rejects an
-                        offer.
-                      </p>
-                    </div>
-                  </div>
-                </div>
-              </fieldset>
-              <fieldset>
-                <legend className="text-sm font-semibold leading-6 text-gray-900">
-                  Push Notifications
-                </legend>
-                <p className="mt-1 text-sm leading-6 text-gray-600">
-                  These are delivered via SMS to your mobile phone.
-                </p>
-                <div className="mt-6 space-y-6">
-                  <div className="flex items-center gap-x-3">
-                    <input
-                      id="push-everything"
-                      name="push-notifications"
-                      type="radio"
-                      className="h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-600"
-                    />
-                    <label
-                      htmlFor="push-everything"
-                      className="block text-sm font-medium leading-6 text-gray-900"
-                    >
-                      Everything
-                    </label>
-                  </div>
-                  <div className="flex items-center gap-x-3">
-                    <input
-                      id="push-email"
-                      name="push-notifications"
-                      type="radio"
-                      className="h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-600"
-                    />
-                    <label
-                      htmlFor="push-email"
-                      className="block text-sm font-medium leading-6 text-gray-900"
-                    >
-                      Same as email
-                    </label>
-                  </div>
-                  <div className="flex items-center gap-x-3">
-                    <input
-                      id="push-nothing"
-                      name="push-notifications"
-                      type="radio"
-                      className="h-4 w-4 border-gray-300 text-blue-600 focus:ring-blue-600"
-                    />
-                    <label
-                      htmlFor="push-nothing"
-                      className="block text-sm font-medium leading-6 text-gray-900"
-                    >
-                      No push notifications
-                    </label>
-                  </div>
-                </div>
-              </fieldset>
-            </div>
-          </div> */}
-
           <div className="border-b border-gray-900/10 pb-12">
-            <LangSelect />
+            <h2 className="text-base font-semibold leading-7 mb-7l text-gray-900">
+              Frameworks
+            </h2>
+
+            <div className="flex flex-row mt-10 items-start justify-between">
+              <div className="flex flex-row items-center gap-6 mb-6">
+                <div id="autocomplete-wrapper" className="relative">
+                  <input
+                    type="text"
+                    value={inputValue}
+                    onChange={handleInputChange}
+                    placeholder="Ex: Python"
+                    className="border rounded-lg p-2 w-64 h-8"
+                  />
+                  {showOptions && filteredOptions.length > 0 && (
+                    <ul className="absolute bg-white border rounded w-48 mt-1 max-h-40 overflow-y-auto">
+                      {filteredOptions.map((option) => (
+                        <li
+                          key={option}
+                          onClick={() => handleOptionClick(option)}
+                          className="cursor-pointer p-2 hover:bg-gray-100"
+                        >
+                          {option}
+                        </li>
+                      ))}
+                    </ul>
+                  )}
+                </div>
+
+                <BsPlusCircleFill
+                  className={`text-2xl ${
+                    inputValue === ""
+                      ? "disabled text-gray-500"
+                      : "cursor-pointer text-blue-400 hover:text-blue-600"
+                  }
+        `}
+                  onClick={() => handleAddLang(inputValue)}
+                />
+              </div>
+
+              <div className="flex flex-col ml-20">
+                {userLangs.length > 0 && (
+                  <>
+                    <div className="flex flex-row items-center justify-between font-bold">
+                      <h3>Language</h3>
+                      <h3>Proficiency</h3>
+                    </div>
+                    <span className="text-sm text-gray-500 text-center mb-7">
+                      If you want to delete a language, rate your skill level as{" "}
+                      <span className="font-bold text-red-400">-1</span>
+                    </span>
+                  </>
+                )}
+
+                {userLangs.length > 0 &&
+                  userLangs.map((userlang, index) => (
+                    <div className="grid grid-cols-6 justify-between m-2">
+                      <div key={index} className="col-span-1 mr-20">
+                        <Tooltip
+                          title={userlang}
+                          arrow={false}
+                          placement="right"
+                        >
+                          {allIcons[userlang]}
+                        </Tooltip>
+                      </div>
+                      <Slider
+                        size="md"
+                        color="neutral"
+                        valueLabelDisplay="on"
+                        min={-1}
+                        max={100}
+                        step={1}
+                        className="col-span-5"
+                        defaultValue={0}
+                        onChange={(e, v) => handleAddProf(e, v, userlang)}
+                      />
+                    </div>
+                  ))}
+              </div>
+            </div>
           </div>
 
           <div className="flex flex-row justify-between border-b border-gray-900/10 pb-12">
@@ -804,7 +1012,7 @@ const NewUser = async () => {
               Skills
             </h2>
             <Select
-              className="w-11/12"
+              className="w-11/12 grow-0"
               mode="tags"
               placeholder="Project Management, Kanban, Cloud Computing..."
               options={labelValues(uniqueArray(inDemandSkills))}
@@ -812,11 +1020,163 @@ const NewUser = async () => {
               clearIcon={
                 <IoCloseCircleOutline className="text-red-300 hover:text-red-600" />
               }
+              onChange={handleSkillChange}
             />
           </div>
 
           <div className="border-b border-gray-900/10 pb-12">
-            <SocialLinks />
+            <div className="flex flex-row items-center justify-between">
+              <h2 className="text-base font-semibold leading-7 text-gray-900">
+                Links
+              </h2>
+              <div className="flex flex-row items-center justify-between gap-4">
+                <FaDiscord
+                  onClick={() => setSocials([...socials, "discord"])}
+                  className={`text-violet-500 text-4xl
+              ${
+                socials.includes("discord")
+                  ? "text-opacity-20 cursor-text"
+                  : "hover:text-violet-700 hover:cursor-pointer"
+              }
+                `}
+                />
+                <FaDropbox
+                  onClick={() => setSocials([...socials, "dropbox"])}
+                  className={`text-blue-500 text-4xl
+              ${
+                socials.includes("dropbox")
+                  ? "text-opacity-20 cursor-text"
+                  : "hover:text-blue-700 hover:cursor-pointer"
+              }
+                `}
+                />
+                <FaFacebook
+                  onClick={() => setSocials([...socials, "facebook"])}
+                  className={`text-blue-600 text-4xl
+              ${
+                socials.includes("facebook")
+                  ? "text-opacity-20 cursor-text"
+                  : "hover:text-blue-900 hover:cursor-pointer"
+              }
+                `}
+                />
+                <FaGithub
+                  onClick={() => setSocials([...socials, "github"])}
+                  className={`text-black text-4xl
+              ${
+                socials.includes("github")
+                  ? "text-opacity-20 cursor-text"
+                  : "hover:text-gray-600 hover:cursor-pointer"
+              }
+                `}
+                />
+                <FaInstagram
+                  onClick={() => setSocials([...socials, "instagram"])}
+                  className={`text-pink-500 text-4xl
+              ${
+                socials.includes("instagram")
+                  ? "text-opacity-20 cursor-text"
+                  : "hover:text-pink-800 hover:cursor-pointer"
+              }
+                `}
+                />
+                <FaLinkedin
+                  onClick={() => setSocials([...socials, "linkedin"])}
+                  className={`text-blue-500 text-4xl
+              ${
+                socials.includes("linkedin")
+                  ? "text-opacity-20 cursor-text"
+                  : "hover:text-blue-700 hover:cursor-pointer"
+              }
+                `}
+                />
+                <FaMedium
+                  onClick={() => setSocials([...socials, "medium"])}
+                  className={`text-black text-4xl
+              ${
+                socials.includes("medium")
+                  ? "text-opacity-20 cursor-text"
+                  : "hover:text-gray-600 hover:cursor-pointer"
+              }
+                `}
+                />
+                <FaReddit
+                  onClick={() => setSocials([...socials, "reddit"])}
+                  className={`text-orange-500 text-4xl
+              ${
+                socials.includes("reddit")
+                  ? "text-opacity-20 cursor-text"
+                  : "hover:text-orange-600 hover:cursor-pointer"
+              }
+                `}
+                />
+                <FaStackOverflow
+                  onClick={() => setSocials([...socials, "stackoverflow"])}
+                  className={`text-orange-400 text-4xl
+              ${
+                socials.includes("stackoverflow")
+                  ? "text-opacity-20 cursor-text"
+                  : "hover:text-orange-600 hover:cursor-pointer"
+              }
+                `}
+                />
+                <FaTiktok
+                  onClick={() => setSocials([...socials, "tiktok"])}
+                  className={`text-black text-4xl
+              ${
+                socials.includes("tiktok")
+                  ? "text-opacity-20 cursor-text"
+                  : "hover:text-gray-600 hover:cursor-pointer"
+              }
+                `}
+                />
+                <FaTwitch
+                  onClick={() => setSocials([...socials, "twitch"])}
+                  className={`text-purple-500 text-4xl
+              ${
+                socials.includes("twitch")
+                  ? "text-opacity-20 cursor-text"
+                  : "hover:text-purple-700 hover:cursor-pointer"
+              }
+                `}
+                />
+                <FaTwitter
+                  onClick={() => setSocials([...socials, "twitter"])}
+                  className={`text-blue-400 text-4xl
+              ${
+                socials.includes("twitter")
+                  ? "text-opacity-20 cursor-text"
+                  : "hover:text-blue-600 hover:cursor-pointer"
+              }
+                `}
+                />
+                <FaYoutube
+                  onClick={() => setSocials([...socials, "youtube"])}
+                  className={`text-red-500 text-4xl
+              ${
+                socials.includes("youtube")
+                  ? "text-opacity-20 cursor-text"
+                  : "hover:text-red-700 hover:cursor-pointer"
+              }
+                `}
+                />
+                <FaLink
+                  onClick={() => setSocials([...socials, "personal"])}
+                  className={`text-black text-4xl
+              ${
+                socials.includes("personal")
+                  ? "text-opacity-20 cursor-text"
+                  : "hover:text-gray-600 hover:cursor-pointer"
+              }
+                `}
+                />
+              </div>
+            </div>
+            {userSocials.length > 0 && (
+              <div className="w-full mt-5 grid grid-cols-3 justify-between">
+                {userSocials.map((icon, index) => icon.node)}
+              </div>
+            )}
           </div>
 
           <div className="mt-6 flex items-center justify-end gap-x-6">
