@@ -10,6 +10,7 @@ import { LocalizationProvider } from "@mui/x-date-pickers-pro";
 import { DateTimePicker, renderTimeViewClock } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs, { Dayjs } from "dayjs";
+import { Tag } from "antd";
 
 import { questions, users } from "@/dummy/questions";
 import { Question, User, Contributor } from "@/types";
@@ -144,6 +145,9 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
               </button>
             )}
           </div>
+          <div className="flex justify-center items-center gap-3 p-3 py-5">
+            {question.tags?.map((tag) => <Tag>{tag}</Tag>)}
+          </div>
           <div className="flex flex-row justify-between items-center my-2 bg-inherit">
             <Link href={`/users/${question.asker.id}`}>
               <span className="bg-inherit hover:underline">
@@ -197,7 +201,7 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
           />
         )}
       </div>
-      <Comments contributors={question.contributors} />
+      <Comments contributors={question.contributors || []} />
 
       <FAB />
 

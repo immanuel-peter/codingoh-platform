@@ -8,7 +8,8 @@ export interface Question {
   date: string;
   isAnswered: boolean;
   answer?: string;
-  contributors: Contributor[];
+  contributors?: Contributor[];
+  tags?: string[];
 }
 
 export interface User {
@@ -45,4 +46,6 @@ export interface Project {
   startDate: Date;
   endDate?: Date;
   status: "ongoing" | "completed" | "on_hold";
+  stack?: string[];
+  needed?: string[];
 }

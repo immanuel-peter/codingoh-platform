@@ -2,6 +2,8 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
+import { AiFillHeart, AiOutlineCheck, AiFillMessage } from "react-icons/ai";
+import { Badge } from "antd";
 
 import { Contributor } from "@/types";
 import Avatar from "@/public/avatar.png";
@@ -11,32 +13,112 @@ interface Comment {
   id: number;
   text: string;
   replies?: NestedComment[];
+  level?: number;
 }
 
 interface NestedComment extends Comment {
   replies?: NestedComment[];
+  level?: number;
 }
 
-const Comment = ({ comment }: { comment: Comment }) => {
+const Comment = ({
+  comment,
+  onAddNestedComment,
+}: {
+  comment: Comment;
+  onAddNestedComment: (text: string, parentId: number) => void;
+}) => {
+  const [likeCount, setLikeCount] = useState(0);
+  const [openNewComment, setOpenNewComment] = useState(false);
+  const [newCommentText, setNewCommentText] = useState("");
+
+  const handleAddComment = () => {
+    onAddNestedComment(newCommentText, comment.id);
+    setNewCommentText("");
+    setOpenNewComment(false);
+  };
+
+  const currentDate = new Date();
+  const year = currentDate.getFullYear().toString().slice(-2);
+  const month = String(currentDate.getMonth() + 1).padStart(2, "0");
+  const day = String(currentDate.getDate()).padStart(2, "0");
+  const formattedDate = `${month}-${day}-${year}`;
+
   return (
-    <div className="flex justify-between items-end p-4 bg-white border rounded shadow mb-4">
-      <RenderMd className="text-gray-800 basis-4/5" markdown={comment.text} />
-      <div className="flex items-center justify-center gap-2 text-gray-400 text-sm">
-        <span>John Doe</span>
-        <span>08-19-23</span>
+    <>
+      <div className="flex justify-between bg-white border rounded shadow mb-4">
+        <RenderMd
+          className="text-gray-800 basis-4/5 grow-0 items-center p-4"
+          markdown={comment.text}
+        />
+        <div className="flex flex-col justify-between gap-8 p-4">
+          <div className="flex flex-row justify-between items-center text-4xl">
+            <AiOutlineCheck
+              onClick={() => {}}
+              className="text-green-500 hover:text-green-600 cursor-pointer"
+            />
+
+            <Badge count={likeCount}>
+              <AiFillHeart
+                onClick={() => setLikeCount(likeCount + 1)}
+                className="text-red-500 hover:text-red-600 cursor-pointer text-4xl"
+              />
+            </Badge>
+
+            <AiFillMessage
+              onClick={() => setOpenNewComment(!openNewComment)}
+              className="text-blue-400 hover:text-blue-500 cursor-pointer"
+            />
+          </div>
+          <div className="flex items-center justify-center gap-2 text-gray-400 text-sm">
+            <span>John Doe</span>
+            <span>{formattedDate}</span>
+          </div>
+        </div>
       </div>
-    </div>
+      {openNewComment && (
+        <div className="flex justify-end m-3">
+          <div className="w-5/6 flex justify-between items-end">
+            <textarea
+              className="w-11/12 min-h-[100px] rounded-lg border-gray-200 border-solid border-[1px] align-top shadow-sm"
+              placeholder="Add a reply..."
+              value={newCommentText}
+              onChange={(e) => setNewCommentText(e.target.value)}
+            />
+            <button
+              onClick={handleAddComment}
+              className={`p-2 px-4 rounded-md bg-blue-400 text-white ${
+                newCommentText != ""
+                  ? "hover:bg-blue-600 cursor-pointer"
+                  : "bg-opacity-75 cursor-text"
+              }`}
+            >
+              Reply
+            </button>
+          </div>
+        </div>
+      )}
+    </>
   );
 };
 
-const NestedComments = ({ comments }: { comments: NestedComment[] }) => {
+const NestedComments = ({
+  comments,
+  onAddNestedComment,
+}: {
+  comments: NestedComment[];
+  onAddNestedComment: (text: string, parentId: number) => void;
+}) => {
   return (
     <div className="ml-4 space-y-4">
       {comments.map((comment) => (
         <div key={comment.id}>
-          <Comment comment={comment} />
+          <Comment comment={comment} onAddNestedComment={onAddNestedComment} />
           {comment.replies && comment.replies.length > 0 && (
-            <NestedComments comments={comment.replies} />
+            <NestedComments
+              comments={comment.replies}
+              onAddNestedComment={onAddNestedComment}
+            />
           )}
         </div>
       ))}
@@ -71,21 +153,21 @@ const commentsData = [
   },
 ];
 
-const CommentsSection = () => {
-  return (
-    <div className="container mx-auto mt-4 px-4">
-      <h2 className="text-2xl font-bold mb-4">Comments</h2>
-      {commentsData.map((comment) => (
-        <div key={comment.id}>
-          <Comment comment={comment} />
-          {comment.replies && comment.replies.length > 0 && (
-            <NestedComments comments={comment.replies} />
-          )}
-        </div>
-      ))}
-    </div>
-  );
-};
+// const CommentsSection = () => {
+//   return (
+//     <div className="container mx-auto mt-4 px-4">
+//       <h2 className="text-2xl font-bold mb-4">Comments</h2>
+//       {commentsData.map((comment) => (
+//         <div key={comment.id}>
+//           <Comment comment={comment} />
+//           {comment.replies && comment.replies.length > 0 && (
+//             <NestedComments comments={comment.replies} />
+//           )}
+//         </div>
+//       ))}
+//     </div>
+//   );
+// };
 
 const Comments = ({ contributors }: { contributors: Contributor[] }) => {
   const [commentId, setCommentId] = useState<number>(0);
@@ -105,9 +187,71 @@ const Comments = ({ contributors }: { contributors: Contributor[] }) => {
     setInputValue("");
   };
 
+  const handleAddNestedComment = (text: string, parentId: number) => {
+    // Find the parent comment or nested comment based on parentId
+    const findComment = (comments: Comment[]): Comment | undefined => {
+      for (const comment of comments) {
+        if (comment.id === parentId) {
+          return comment;
+        }
+        if (comment.replies) {
+          const nestedComment = findComment(comment.replies);
+          if (nestedComment) {
+            return nestedComment;
+          }
+        }
+      }
+      return undefined;
+    };
+
+    const parentComment = findComment(postComments);
+
+    if (parentComment) {
+      if (!parentComment.replies) {
+        parentComment.replies = [];
+      }
+
+      const newNestedComment: Comment = {
+        id: commentId,
+        text: text,
+        replies: [],
+      };
+
+      parentComment.replies.push(newNestedComment);
+
+      setPostComments([...postComments]);
+      setCommentId(commentId + 1);
+    }
+  };
+
+  const renderComments = (comments: Comment[], level: number) => {
+    return comments.map((comment) => {
+      // Set the level property for this comment
+      comment.level = level;
+
+      return (
+        <div key={comment.id}>
+          <Comment
+            comment={comment}
+            onAddNestedComment={handleAddNestedComment}
+          />
+          {comment.replies && comment.replies.length > 0 && (
+            <div
+              className={`ml-4 space-y-4 ${
+                comment.level > 0 ? "border-l-2 pl-4" : ""
+              }`}
+            >
+              {renderComments(comment.replies, level + 1)}
+            </div>
+          )}
+        </div>
+      );
+    });
+  };
+
   return (
     <>
-      <main>
+      <main className="mb-20">
         <div className="mx-auto max-w-7xl">
           <div className="mt-4 flex flex-row justify-between items-center">
             <h1 className="text-2xl font-bold">Comments</h1>
@@ -140,7 +284,11 @@ const Comments = ({ contributors }: { contributors: Contributor[] }) => {
           />
           <div className="flex items-end justify-end">
             <button
-              className="p-2 rounded-md bg-blue-400 hover:bg-blue-600 text-white"
+              className={`p-2 rounded-md bg-blue-400 text-white ${
+                inputValue != ""
+                  ? "hover:bg-blue-600 cursor-pointer"
+                  : "bg-opacity-75 cursor-text"
+              }`}
               onClick={handleAddComment}
             >
               Add Comment
@@ -153,9 +301,15 @@ const Comments = ({ contributors }: { contributors: Contributor[] }) => {
           {postComments.length > 0 &&
             postComments.map((comment) => (
               <div key={comment.id}>
-                <Comment comment={comment} />
+                <Comment
+                  comment={comment}
+                  onAddNestedComment={handleAddNestedComment}
+                />
                 {comment.replies && comment.replies.length > 0 && (
-                  <NestedComments comments={comment.replies} />
+                  <NestedComments
+                    comments={comment.replies}
+                    onAddNestedComment={handleAddNestedComment}
+                  />
                 )}
               </div>
             ))}

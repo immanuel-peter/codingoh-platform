@@ -88,6 +88,17 @@ import {
   LinuxOriginal,
   ChromeOriginal,
   FigmaOriginal,
+  UnityOriginal,
+  RaspberrypiOriginal,
+  ArduinoOriginal,
+  PolygonPlain,
+  SolidityOriginal,
+  PrometheusOriginal,
+  BlenderOriginal,
+  MayaOriginal,
+  OpenglPlain,
+  D3jsOriginal,
+  ReduxOriginal,
 } from "devicons-react";
 
 export const allIcons: { [name: string]: React.ReactNode } = {
@@ -179,4 +190,15 @@ export const allIcons: { [name: string]: React.ReactNode } = {
   Linux: <LinuxOriginal size={25} />,
   Chrome: <ChromeOriginal size={25} />,
   Figma: <FigmaOriginal size={25} />,
+  Unity: <UnityOriginal size={25} />,
+  "Raspberry Pi": <RaspberrypiOriginal size={25} />,
+  Arduino: <ArduinoOriginal size={25} />,
+  Polygon: <PolygonPlain size={25} />,
+  Solidity: <SolidityOriginal size={25} />,
+  Prometheus: <PrometheusOriginal size={25} />,
+  Blender: <BlenderOriginal size={25} />,
+  Maya: <MayaOriginal size={25} />,
+  OpenGL: <OpenglPlain size={25} />,
+  "D3.js": <D3jsOriginal size={25} />,
+  Redux: <ReduxOriginal size={25} />,
 };

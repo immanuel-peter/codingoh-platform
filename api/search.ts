@@ -15,8 +15,8 @@ export const rankSearchQuestions = async (question: string) => {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      Authorization:
-        "Bearer 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",
+      Authorization: `Bearer ${process.env.NEXT_PUBLIC_OPENAI_API_KEY}`, // Insert own OpenAI API key
+      // Drop in API key in next.config.js
     },
     body: JSON.stringify({
       model: "gpt-4",

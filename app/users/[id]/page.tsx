@@ -290,8 +290,10 @@ const UserPage = ({ params }: { params: { id: string } }) => {
                   ? user.platforms.map((platform, index) => (
                       <SocialIcon
                         key={index}
-                        network={platform.toLowerCase()}
-                        url="https://www.google.com/"
+                        network={platform.toLowerCase().replace(/\s/g, "")}
+                        url={`https://www.${platform
+                          .toLowerCase()
+                          .replace(/\s/g, "")}.com/`}
                         style={{ height: 35, width: 35, marginTop: "10px" }}
                       />
                     ))
@@ -1364,7 +1366,9 @@ const UserPage = ({ params }: { params: { id: string } }) => {
                         name="github"
                         type="text"
                         placeholder="www.github.com"
-                        value={newProject.github === "" ? "" : newProject.name}
+                        value={
+                          newProject.github === "" ? "" : newProject.github
+                        }
                         onChange={(e) =>
                           setNewProject({
                             ...newProject,

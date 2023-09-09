@@ -358,6 +358,7 @@ export const questions: Question[] = [
 Remember to follow the forum's guidelines and etiquette while creating your thread.
     `,
     contributors: [{ user: users[0], contributionTime: "10:35 AM" }],
+    tags: ["forum", "discussion", "community", "how-to"],
   },
   {
     id: 9950463,
@@ -383,6 +384,7 @@ Some forums offer dedicated code formatting buttons. Look for a button that rese
 Always preview your post to ensure proper code formatting before submitting.
     `,
     contributors: [{ user: users[4], contributionTime: "10:40 AM" }],
+    tags: ["formatting"],
   },
   {
     id: 7687595,
@@ -405,6 +407,7 @@ In simpler terms, a class defines a category of objects, while an object is a sp
       { user: users[2], contributionTime: "10:45 AM" },
       { user: users[0], contributionTime: "10:50 AM" },
     ],
+    tags: ["oop", "object-oriented", "class", "object"],
   },
   {
     id: 5068742,
@@ -436,6 +439,7 @@ In simpler terms, a class defines a category of objects, while an object is a sp
 Remember, debugging is a skill that improves with practice. Don't hesitate to seek help from others when needed.
     `,
     contributors: [{ user: users[2], contributionTime: "10:50 AM" }],
+    tags: ["javascript", "debugging"],
   },
   {
     id: 5387555,
@@ -477,6 +481,7 @@ Remember, debugging is a skill that improves with practice. Don't hesitate to se
       { user: users[0], contributionTime: "11:00 AM" },
       { user: users[1], contributionTime: "11:05 AM" },
     ],
+    tags: ["rest-api"],
   },
   {
     id: 6100185,
@@ -531,6 +536,7 @@ Creating a mobile app requires a combination of coding skills, design expertise,
       { user: users[6], contributionTime: "11:10 AM" },
       { user: users[0], contributionTime: "11:15 AM" },
     ],
+    tags: ["mobile", "mobile-app", "app-development", "native"],
   },
   {
     id: 7010497,
@@ -592,6 +598,7 @@ Deploying to the cloud provides scalability, reliability, and accessibility to u
       { user: users[5], contributionTime: "11:20 AM" },
       { user: users[3], contributionTime: "11:25 AM" },
     ],
+    tags: ["cloud", "deployment", "web-development"],
   },
   {
     id: 5368397,
@@ -640,6 +647,7 @@ Remember, database design and management are critical to the success of your app
       { user: users[7], contributionTime: "11:30 AM" },
       { user: users[4], contributionTime: "11:35 AM" },
     ],
+    tags: ["database", "database-design"],
   },
   {
     id: 8862639,
@@ -728,6 +736,7 @@ Remember, database design and management are critical to the success of your app
 Implementing these best practices will result in a faster, more efficient website that offers a better user experience.
     `,
     contributors: [{ user: users[5], contributionTime: "11:35 AM" }],
+    tags: ["performance-optimization", "web-development", "optimization"],
   },
   {
     id: 4146265,
@@ -813,6 +822,7 @@ By following these practices, you can significantly reduce the risk of common vu
       { user: users[4], contributionTime: "11:40 AM" },
       { user: users[9], contributionTime: "11:45 AM" },
     ],
+    tags: ["security", "web-application"],
   },
   {
     id: 1299307,
@@ -869,6 +879,7 @@ building SEO-friendly and performant web applications.
 Each of these frameworks has its strengths and weaknesses, and the choice depends on factors like project requirements, team familiarity, and specific use cases.
     `,
     contributors: [{ user: users[8], contributionTime: "11:45 AM" }],
+    tags: ["frotend", "framework", "web-dev", "2023"],
   },
   {
     id: 2021284,
@@ -932,6 +943,7 @@ Choose the state management approach that best fits your project's complexity, t
       { user: users[10], contributionTime: "11:55 AM" },
       { user: users[2], contributionTime: "12:00 PM" },
     ],
+    tags: ["react", "state", "state-management"],
   },
   {
     id: 4253932,
@@ -984,6 +996,7 @@ Choose the state management approach that best fits your project's complexity, t
 These are just a few of the features introduced in ECMAScript 2021. Each new version of ECMAScript brings improvements and enhancements to the JavaScript language.
     `,
     contributors: [{ user: users[11], contributionTime: "12:05 PM" }],
+    tags: ["ecmascript", "es12"],
   },
   {
     id: 6466743,
@@ -1039,6 +1052,7 @@ Remember to balance lazy loading with providing a good user experience. Critical
       { user: users[12], contributionTime: "12:10 PM" },
       { user: users[5], contributionTime: "12:15 PM" },
     ],
+    tags: ["lazy-loading", "web-app"],
   },
   {
     id: 4458952,
@@ -1110,6 +1124,7 @@ By following these Git best practices, you'll ensure smoother collaboration, eas
       { user: users[6], contributionTime: "12:15 PM" },
       { user: users[4], contributionTime: "12:20 PM" },
     ],
+    tags: ["git", "version-control"],
   },
   {
     id: 6320035,
@@ -1174,6 +1189,14 @@ Implement real-time chat applications, live notifications, collaborative editing
     contributors: [
       { user: users[3], contributionTime: "12:25 PM" },
       { user: users[13], contributionTime: "12:30 PM" },
+    ],
+    tags: [
+      "real-time",
+      "chat",
+      "communication",
+      "web-dev",
+      "websockets",
+      "web-app",
     ],
   },
   {
@@ -1240,6 +1263,7 @@ While serverless architecture has many benefits, it may not be suitable for all 
       { user: users[2], contributionTime: "12:30 PM" },
       { user: users[6], contributionTime: "12:35 PM" },
     ],
+    tags: ["serverless", "web-dev", "architecture", "scalability", "cloud"],
   },
   {
     id: 4665325,
@@ -1304,6 +1328,12 @@ By implementing these practices and constantly monitoring your database's perfor
       { user: users[5], contributionTime: "12:35 PM" },
       { user: users[1], contributionTime: "12:40 PM" },
     ],
+    tags: [
+      "database",
+      "performance-optimization",
+      "query",
+      "database-management",
+    ],
   },
   {
     id: 4598371,
@@ -1359,6 +1389,14 @@ By implementing these practices and constantly monitoring your database's perfor
 Remember that the best approach depends on your specific use case, the characteristics of your dataset, and the constraints of your environment. Analyze your requirements and explore different strategies to find the most suitable optimization techniques for your sorting task.
     `,
     contributors: [{ user: users[4], contributionTime: "12:40 PM" }],
+    tags: [
+      "python",
+      "algorithm",
+      "sorting",
+      "performance-optimization",
+      "data-processing",
+      "big-data",
+    ],
   },
   {
     id: 9784531,
@@ -1427,6 +1465,7 @@ Remember to adjust the \`optionsMap\` object to match your specific use case and
 By following this approach, you can dynamically update the contents of a select dropdown based on the selected value of another select dropdown using JavaScript.
     `,
     contributors: [],
+    tags: ["javascript", "web-dev", "dropdown", "dynamic", "event-handler"],
   },
 ];
 
@@ -1440,6 +1479,23 @@ export const projects: Project[] = [
     startDate: new Date("2023-01-15"),
     endDate: new Date("2023-04-30"),
     status: "completed",
+    stack: ["React", "Redux", "JavaScript"],
+    needed: [
+      "Frontend Development",
+      "UI/UX Design",
+      "Responsive Design",
+      "Web Development",
+      "JavaScript",
+      "React",
+      "Redux",
+      "Test-Driven Development (TDD)",
+      "Version Control",
+      "Continuous Integration and Deployment (CI/CD)",
+      "Quality Assurance",
+      "User Interface Design",
+      "User Experience Design",
+      "Prototyping",
+    ],
   },
   {
     id: 2,
@@ -1449,6 +1505,21 @@ export const projects: Project[] = [
     startDate: new Date("2023-02-10"),
     endDate: new Date("2023-09-30"),
     status: "ongoing",
+    stack: ["Node.js", "Express.js", "MongoDB", "JavaScript"],
+    needed: [
+      "Backend Development",
+      "Node.js",
+      "Express.js",
+      "MongoDB",
+      "JavaScript",
+      "API Development",
+      "Database Management",
+      "RESTful Services",
+      "Security Auditing",
+      "Quality Assurance",
+      "Version Control",
+      "Continuous Integration and Deployment (CI/CD)",
+    ],
   },
   {
     id: 3,
@@ -1457,6 +1528,14 @@ export const projects: Project[] = [
     description: "Analyzing large datasets with Python and Pandas.",
     startDate: new Date("2023-03-20"),
     status: "ongoing",
+    stack: ["Python", "Pandas"],
+    needed: [
+      "Data Analysis",
+      "Python",
+      "Pandas",
+      "Statistical Analysis",
+      "Data Visualization",
+    ],
   },
   {
     id: 4,
@@ -1467,6 +1546,19 @@ export const projects: Project[] = [
     startDate: new Date("2023-04-05"),
     endDate: new Date("2023-06-30"),
     status: "completed",
+    stack: ["AngularJS", "Firebase", "JavaScript", "TypeScript"],
+    needed: [
+      "Frontend Development",
+      "UI/UX Design",
+      "Responsive Design",
+      "Web Development",
+      "JavaScript",
+      "TypeScript",
+      "AngularJS",
+      "Firebase",
+      "Quality Assurance",
+      "Version Control",
+    ],
   },
   {
     id: 5,
@@ -1475,6 +1567,8 @@ export const projects: Project[] = [
     description: "Creating a mobile app for Android using Java and SQLite.",
     startDate: new Date("2023-05-10"),
     status: "on_hold",
+    stack: ["Java", "SQLite"],
+    needed: ["Mobile App Development", "Java", "SQLite", "UI/UX Design"],
   },
   {
     id: 6,
@@ -1483,6 +1577,13 @@ export const projects: Project[] = [
     description: "Designing and coding an iOS game using Swift and SpriteKit.",
     startDate: new Date("2023-06-25"),
     status: "on_hold",
+    stack: ["Swift"],
+    needed: [
+      "Mobile App Development",
+      "Swift",
+      "Game Development",
+      "UI/UX Design",
+    ],
   },
   {
     id: 7,
@@ -1491,6 +1592,18 @@ export const projects: Project[] = [
     description: "Developing a single-page application using Vue.js and Vuex.",
     startDate: new Date("2023-07-15"),
     status: "ongoing",
+    stack: ["Vue.js", "JavaScript"],
+    needed: [
+      "Frontend Development",
+      "UI/UX Design",
+      "Responsive Design",
+      "Web Development",
+      "JavaScript",
+      "Vue.js",
+      "State Management",
+      "Quality Assurance",
+      "Version Control",
+    ],
   },
   {
     id: 8,
@@ -1500,6 +1613,19 @@ export const projects: Project[] = [
     startDate: new Date("2023-08-10"),
     endDate: new Date("2023-12-31"),
     status: "ongoing",
+    stack: ["Django", "PostgreSQL", "Python"],
+    needed: [
+      "Backend Development",
+      "Django",
+      "PostgreSQL",
+      "Python",
+      "Database Management",
+      "Web Development",
+      "Security Auditing",
+      "Quality Assurance",
+      "Version Control",
+      "Continuous Integration and Deployment (CI/CD)",
+    ],
   },
   {
     id: 9,
@@ -1508,6 +1634,8 @@ export const projects: Project[] = [
     description: "Creating a desktop application with C# and WinForms.",
     startDate: new Date("2023-09-20"),
     status: "ongoing",
+    stack: ["C#"],
+    needed: ["Desktop App Development", "C#", "WinForms"],
   },
   {
     id: 10,
@@ -1517,6 +1645,17 @@ export const projects: Project[] = [
     startDate: new Date("2023-10-05"),
     endDate: new Date("2024-03-31"),
     status: "ongoing",
+    stack: ["MySQL", "Ruby"],
+    needed: [
+      "Backend Development",
+      "Ruby on Rails",
+      "MySQL",
+      "API Development",
+      "Database Management",
+      "Quality Assurance",
+      "Version Control",
+      "Continuous Integration and Deployment (CI/CD)",
+    ],
   },
   {
     id: 11,
@@ -1525,6 +1664,8 @@ export const projects: Project[] = [
     description: "Building a 3D game using Unity3D and C# scripting.",
     startDate: new Date("2023-11-10"),
     status: "on_hold",
+    stack: ["Unity", "C#"],
+    needed: ["Game Development", "Unity3D", "C#", "3D Modeling"],
   },
   {
     id: 12,
@@ -1535,6 +1676,14 @@ export const projects: Project[] = [
     startDate: new Date("2023-12-25"),
     endDate: new Date("2024-02-28"),
     status: "completed",
+    stack: ["TypeScript"],
+    needed: [
+      "Software Development",
+      "TypeScript",
+      "Library Development",
+      "Quality Assurance",
+      "Version Control",
+    ],
   },
   {
     id: 13,
@@ -1544,6 +1693,15 @@ export const projects: Project[] = [
       "This project aims to conduct in-depth research and experimentation in the field of machine learning. The team will explore various algorithms, models, and techniques to solve real-world problems, such as image recognition, natural language processing, and predictive analytics. The research will involve extensive data analysis, model training, and performance evaluation. The project's goal is to make advancements in machine learning and contribute to the development of intelligent systems.",
     startDate: new Date("2023-07-15"),
     status: "ongoing",
+    stack: ["Python", "TensorFlow"],
+    needed: [
+      "Machine Learning",
+      "Python",
+      "TensorFlow",
+      "Data Analysis",
+      "Statistical Analysis",
+      "Research",
+    ],
   },
   {
     id: 14,
@@ -1554,6 +1712,33 @@ export const projects: Project[] = [
     startDate: new Date("2023-08-10"),
     endDate: new Date("2023-12-31"),
     status: "ongoing",
+    stack: [
+      "Python",
+      "JavaScript",
+      "C",
+      "C++",
+      "Java",
+      "Node.js",
+      "Raspberry Pi",
+      "Arduino",
+      "AWS",
+      "MongoDB",
+      "MySQL",
+      "AngularJS",
+    ],
+    needed: [
+      "IoT Development",
+      "Embedded Systems",
+      "Python",
+      "JavaScript",
+      "C",
+      "C++",
+      "Java",
+      "Node.js",
+      "AWS",
+      "Database Management",
+      "Security",
+    ],
   },
   {
     id: 15,
@@ -1563,6 +1748,34 @@ export const projects: Project[] = [
       "This project aims to create a decentralized supply chain solution using blockchain technology. The goal is to enhance transparency and traceability throughout the supply chain process, reducing fraud and ensuring the authenticity of products. We will leverage blockchain's distributed ledger to record every step of the supply chain, from raw material acquisition to the final product delivery. Smart contracts will automate contract enforcement, payment processing, and other relevant actions. The resulting platform will empower businesses and consumers with trust and reliability in the supply chain ecosystem.",
     startDate: new Date("2023-09-20"),
     status: "ongoing",
+    stack: [
+      "Polygon",
+      "Solidity",
+      "Go",
+      "JavaScript",
+      "Node.js",
+      "MongoDB",
+      "Express.js",
+      "React",
+      "Python",
+      "C++",
+      "Azure",
+      "Docker",
+      "Git",
+      "Prometheus",
+    ],
+    needed: [
+      "Blockchain Development",
+      "Smart Contracts",
+      "Polygon",
+      "Solidity",
+      "Go",
+      "JavaScript",
+      "Node.js",
+      "Database Management",
+      "Security",
+      "Continuous Integration and Deployment (CI/CD)",
+    ],
   },
   {
     id: 16,
@@ -1573,6 +1786,15 @@ export const projects: Project[] = [
     startDate: new Date("2023-10-05"),
     endDate: new Date("2024-03-31"),
     status: "ongoing",
+    stack: ["C#", "C++", "Unity", "Blender", "Maya", "OpenGL"],
+    needed: [
+      "Game Development",
+      "Augmented Reality",
+      "Unity",
+      "C#",
+      "C++",
+      "3D Modeling",
+    ],
   },
   {
     id: 17,
@@ -1582,6 +1804,8 @@ export const projects: Project[] = [
       "Developing a cross-platform mobile app using Flutter for iOS and Android.",
     startDate: new Date("2023-01-15"),
     status: "completed",
+    stack: ["Flutter", "Dart"],
+    needed: ["Mobile App Development", "Flutter", "Dart", "UI/UX Design"],
   },
   {
     id: 18,
@@ -1592,6 +1816,17 @@ export const projects: Project[] = [
     startDate: new Date("2023-02-10"),
     endDate: new Date("2023-09-30"),
     status: "ongoing",
+    stack: ["PHP", "MySQL"],
+    needed: [
+      "Backend Development",
+      "PHP",
+      "MySQL",
+      "Web Development",
+      "Database Management",
+      "Security",
+      "Quality Assurance",
+      "Version Control",
+    ],
   },
   {
     id: 19,
@@ -1601,6 +1836,15 @@ export const projects: Project[] = [
       "Building an interactive data visualization dashboard using D3.js and React.",
     startDate: new Date("2023-03-20"),
     status: "ongoing",
+    stack: ["D3.js", "React", "JavaScript"],
+    needed: [
+      "Frontend Development",
+      "Data Visualization",
+      "D3.js",
+      "React",
+      "JavaScript",
+      "UI/UX Design",
+    ],
   },
   {
     id: 20,
@@ -1611,6 +1855,14 @@ export const projects: Project[] = [
     startDate: new Date("2023-04-05"),
     endDate: new Date("2023-06-30"),
     status: "completed",
+    stack: ["Rust"],
+    needed: [
+      "Game Development",
+      "Rust",
+      "Engine Development",
+      "Quality Assurance",
+      "Version Control",
+    ],
   },
   {
     id: 21,
@@ -1620,6 +1872,8 @@ export const projects: Project[] = [
       "Developing a real-time chat application using WebSocket and cloud services like AWS.",
     startDate: new Date("2023-05-10"),
     status: "on_hold",
+    stack: ["AWS"],
+    needed: ["Backend Development", "AWS", "WebSocket", "Chat Application"],
   },
   {
     id: 22,
@@ -1629,6 +1883,16 @@ export const projects: Project[] = [
       "Creating an augmented reality app for interior design visualization using ARKit and ARCore.",
     startDate: new Date("2023-06-25"),
     status: "on_hold",
+    stack: ["C#", "C++", "Unity", "Blender", "Maya", "OpenGL"],
+    needed: [
+      "App Development",
+      "Augmented Reality",
+      "ARKit",
+      "ARCore",
+      "C#",
+      "C++",
+      "3D Modeling",
+    ],
   },
   {
     id: 23,
@@ -1638,6 +1902,15 @@ export const projects: Project[] = [
       "Using Jupyter Notebook to perform in-depth data analysis and generate insights.",
     startDate: new Date("2023-07-15"),
     status: "ongoing",
+    stack: ["Jupyter", "Python", "Pandas", "NumPy"],
+    needed: [
+      "Data Analysis",
+      "Jupyter Notebook",
+      "Python",
+      "Pandas",
+      "NumPy",
+      "Statistical Analysis",
+    ],
   },
   {
     id: 24,
@@ -1648,6 +1921,14 @@ export const projects: Project[] = [
     startDate: new Date("2023-08-10"),
     endDate: new Date("2023-12-31"),
     status: "ongoing",
+    stack: ["Electron", "HTML", "CSS", "JavaScript"],
+    needed: [
+      "Desktop App Development",
+      "Electron",
+      "HTML",
+      "CSS",
+      "JavaScript",
+    ],
   },
 ];
 
