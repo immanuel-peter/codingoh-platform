@@ -8,6 +8,9 @@ const nextConfig = {
       },
     ],
   },
+  env: {
+    NEXT_PUBLIC_OPENAI_API_KEY: "REPLACE_WITH_API_KEY",
+  },
 };
 
 module.exports = nextConfig;

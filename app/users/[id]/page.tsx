@@ -95,7 +95,8 @@ import { FaRegCircleXmark, FaCamera, FaUpload } from "react-icons/fa6";
 //   ChromeOriginal,
 //   FigmaOriginal,
 // } from "devicons-react";
-import { Progress, Tooltip, Button } from "antd";
+import { Progress, Tooltip, Button, Transfer, Select } from "antd";
+import type { TransferDirection, TransferListProps } from "antd/es/transfer";
 import { MdOutlineKeyboardDoubleArrowRight } from "react-icons/md";
 import { BsFilePlusFill } from "react-icons/bs";
 import Link from "next/link";
@@ -103,14 +104,22 @@ import { Dialog, Transition } from "@headlessui/react";
 import { SocialIcon } from "react-social-icons";
 import { SignedIn } from "@clerk/nextjs";
 
-import { users, questions, projects } from "@/dummy/questions";
-import { User } from "@/types";
-import { getTopLanguages, stringifyList, getTopQuestions } from "@/utils";
+import { users, questions, projects, techSkills } from "@/dummy/questions";
+import { User, RecordType, Project as ProjectType } from "@/types";
+import {
+  getTopLanguages,
+  stringifyList,
+  getTopQuestions,
+  recordTypesFromLangs,
+  uniqueArray,
+  labelValues,
+} from "@/utils";
 import { Navbar, Card, Question, Project, FAB } from "@/components";
 import { sortQuestionsAndContributions, projectsMap } from "@/utils";
 import Banner from "@/public/banner.png";
 import Avatar from "@/public/avatar.png";
 import { allIcons } from "@/utils/icons";
+import { IoCloseCircleOutline } from "react-icons/io5";
 
 // export const allIcons: { [name: string]: React.ReactNode } = {
 //   JavaScript: <JavascriptOriginal size={25} />,
@@ -220,15 +229,25 @@ const UserPage = ({ params }: { params: { id: string } }) => {
   const [editStatus, setEditStatus] = useState(false);
   const [newProjectModalOpen, setNewProjectModalOpen] = useState(false);
   const [newProjectImage, setNewProjectImage] = useState("");
-  const [newProject, setNewProject] = useState({
+  const [targetKeys, setTargetKeys] = useState<string[]>([]);
+  const [newProject, setNewProject] = useState<ProjectType>({
+    id: 0, // Provide default values or replace with actual values
+    owner: users[0],
     name: "",
     description: "",
-    status: "",
+    startDate: new Date(),
+    endDate: undefined, // or specify a default value
     github: "",
-    image: newProjectImage || "",
+    status: "ongoing",
+    image: "",
+    stack: targetKeys.map(
+      (target) => Object.keys(allIcons)[Number(target) - 1]
+    ),
+    needed: [], // Initialize as an empty array
+    application: "",
   });
 
-  console.log(newProject);
+  console.log(newProject.needed);
 
   const user = getUser(params.id);
 
@@ -246,6 +265,34 @@ const UserPage = ({ params }: { params: { id: string } }) => {
       let img = event.target.files[0];
       setNewProjectImage(URL.createObjectURL(img));
     }
+  };
+
+  const transferFilterOption = (inputValue: string, option: RecordType) =>
+    option.description.indexOf(inputValue) > -1;
+
+  const renderTransferFooter = (
+    _: TransferListProps<any>,
+    { direction }: { direction: TransferDirection }
+  ) => {
+    if (direction === "left") {
+      return (
+        <div className="flex justify-center items-center py-2 text-base font-semibold">
+          Pick from...
+        </div>
+      );
+    }
+    return (
+      <div className="flex justify-center items-center py-2 text-base font-semibold">
+        Your Stack
+      </div>
+    );
+  };
+
+  const handleSkillChange = (value: string) => {
+    setNewProject({
+      ...newProject,
+      needed: newProject.needed ? [...newProject.needed, value] : [value],
+    });
   };
 
   const handleIconMouseEnter = (index: number) => {
@@ -434,7 +481,7 @@ const UserPage = ({ params }: { params: { id: string } }) => {
                             <Question
                               question={question.question}
                               asker={question.asker.name}
-                              contributors={question.contributors}
+                              contributors={question.contributors || []}
                               date={question.date}
                               answered={question.isAnswered}
                             />
@@ -454,7 +501,7 @@ const UserPage = ({ params }: { params: { id: string } }) => {
                           <Question
                             question={question.question}
                             asker={question.asker.name}
-                            contributors={question.contributors}
+                            contributors={question.contributors || []}
                             date={question.date}
                             answered={question.isAnswered}
                           />
@@ -488,7 +535,7 @@ const UserPage = ({ params }: { params: { id: string } }) => {
                             <Question
                               question={question.question}
                               asker={question.asker.name}
-                              contributors={question.contributors}
+                              contributors={question.contributors || []}
                               date={question.date}
                               answered={question.isAnswered}
                             />
@@ -508,7 +555,7 @@ const UserPage = ({ params }: { params: { id: string } }) => {
                           <Question
                             question={question.question}
                             asker={question.asker.name}
-                            contributors={question.contributors}
+                            contributors={question.contributors || []}
                             date={question.date}
                             answered={question.isAnswered}
                           />
@@ -542,7 +589,7 @@ const UserPage = ({ params }: { params: { id: string } }) => {
                             <Question
                               question={question.question}
                               asker={question.asker.name}
-                              contributors={question.contributors}
+                              contributors={question.contributors || []}
                               date={question.date}
                               answered={question.isAnswered}
                             />
@@ -562,7 +609,7 @@ const UserPage = ({ params }: { params: { id: string } }) => {
                           <Question
                             question={question.question}
                             asker={question.asker.name}
-                            contributors={question.contributors}
+                            contributors={question.contributors || []}
                             date={question.date}
                             answered={question.isAnswered}
                           />
@@ -1093,7 +1140,7 @@ const UserPage = ({ params }: { params: { id: string } }) => {
                                   <Question
                                     question={question.question}
                                     asker={question.asker.name}
-                                    contributors={question.contributors}
+                                    contributors={question.contributors || []}
                                     date={question.date}
                                     answered={question.isAnswered}
                                   />
@@ -1122,7 +1169,7 @@ const UserPage = ({ params }: { params: { id: string } }) => {
                                   <Question
                                     question={question.question}
                                     asker={question.asker.name}
-                                    contributors={question.contributors}
+                                    contributors={question.contributors || []}
                                     date={question.date}
                                     answered={question.isAnswered}
                                   />
@@ -1151,7 +1198,7 @@ const UserPage = ({ params }: { params: { id: string } }) => {
                                   <Question
                                     question={question.question}
                                     asker={question.asker.name}
-                                    contributors={question.contributors}
+                                    contributors={question.contributors || []}
                                     date={question.date}
                                     answered={question.isAnswered}
                                   />
@@ -1336,13 +1383,14 @@ const UserPage = ({ params }: { params: { id: string } }) => {
                         <select
                           id="status"
                           name="status"
-                          value={
-                            newProject.status === "" ? "" : newProject.status
-                          }
+                          value={newProject.status}
                           onChange={(e) =>
                             setNewProject({
                               ...newProject,
-                              status: e.target.value,
+                              status: e.target.value as
+                                | "ongoing"
+                                | "completed"
+                                | "on_hold",
                             })
                           }
                           className="flex flex-col w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
@@ -1424,6 +1472,80 @@ const UserPage = ({ params }: { params: { id: string } }) => {
                           />
                         )}
                       </div>
+                    </div>
+
+                    <div className="flex flex-col mt-3">
+                      <label
+                        htmlFor="tech-stack"
+                        className="flex flex-col text-sm font-medium leading-6 text-gray-900 mb-1"
+                      >
+                        Tech Stack
+                      </label>
+                      <div className="flex flex-row justify-center items-center gap-6 w-full">
+                        <Transfer
+                          dataSource={recordTypesFromLangs()}
+                          showSearch
+                          targetKeys={targetKeys}
+                          filterOption={transferFilterOption}
+                          onChange={(newTargetKeys: string[]) =>
+                            setTargetKeys(newTargetKeys)
+                          }
+                          onSearch={(dir, value) => console.log(dir, value)}
+                          render={(item) => (
+                            <div className="flex flex-row justify-between items-center p-1">
+                              {allIcons[item.title]} {item.title}
+                            </div>
+                          )}
+                          footer={renderTransferFooter}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col mt-3">
+                      <label
+                        htmlFor="needed"
+                        className="flex flex-col text-sm font-medium leading-6 text-gray-900 mb-1"
+                      >
+                        Needed Skills for Project
+                      </label>
+                      <Select
+                        className="w-full"
+                        mode="tags"
+                        placeholder="Project Management, Kanban, Cloud Computing..."
+                        options={labelValues(uniqueArray(techSkills))}
+                        allowClear
+                        clearIcon={
+                          <IoCloseCircleOutline className="text-red-300 hover:text-red-600" />
+                        }
+                        onChange={handleSkillChange}
+                      />
+                    </div>
+
+                    <div className="flex flex-col mt-3">
+                      <label
+                        htmlFor="application"
+                        className="flex flex-col text-sm font-medium leading-6 text-gray-900 mb-1"
+                      >
+                        Application to Join Project
+                      </label>
+                      <input
+                        id="application"
+                        name="application"
+                        type="text"
+                        placeholder="www.forms.gle/application"
+                        value={
+                          newProject.application === ""
+                            ? ""
+                            : newProject.application
+                        }
+                        onChange={(e) =>
+                          setNewProject({
+                            ...newProject,
+                            application: e.target.value,
+                          })
+                        }
+                        className="flex flex-col w-full self-center rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
+                      />
                     </div>
                   </div>
 
@@ -1523,4 +1645,22 @@ export default UserPage;
             </ul>
           </div>
         </div>
+*/
+
+/*
+<input
+                          id="tech-stack"
+                          name="tech-stack"
+                          type="text"
+                          placeholder="Provide the stack necessary for your project"
+                          className="basis-3/5 self-center rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
+                        />
+                        
+                        <button
+                          type="button"
+                          className="basis-[6%] self-center rounded-full py-1.5 text-gray-900 border border-solid border-blue-400 bg-blue-300 hover:bg-blue-500 sm:text-sm sm:leading-6"
+                          onClick={() => {}}
+                        >
+                          +
+                        </button>
 */

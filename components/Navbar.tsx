@@ -7,6 +7,7 @@ import {
   FaRegSun,
   FaRegCircleUser,
   FaInbox,
+  FaHandshakeAngle,
 } from "react-icons/fa6";
 import { FaCheckCircle, FaThumbsUp } from "react-icons/fa";
 import {
@@ -135,13 +136,12 @@ const Navbar = ({ isProfile }: { isProfile?: boolean }) => {
           )}
         </div>
         <nav className="p-3 flex flex-row items-center justify-evenly gap-6">
-          <button onClick={() => setSunClicked(!sunClicked)}>
-            {sunClicked ? (
-              <BsMoon className="text-xl mr-1" />
-            ) : (
-              <BsSun className="text-xl mr-1" />
-            )}
-          </button>
+          <Link
+            href="https://successful-echium-b3f.notion.site/Support-CodingOH-67de2dbf28694086bbf3d59baa1fa10b?pvs=4"
+            target="_blank"
+          >
+            <FaHandshakeAngle className="text-3xl hover:text-blue-500 cursor-pointer" />
+          </Link>
           <SignedOut>
             <Link
               href="/sign-in"

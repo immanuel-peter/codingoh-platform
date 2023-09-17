@@ -1,5 +1,13 @@
 import { questions, users } from "@/dummy/questions";
-import { Proficiency, Question, User, Contributor, Project } from "@/types";
+import {
+  Proficiency,
+  Question,
+  User,
+  Contributor,
+  Project,
+  RecordType,
+} from "@/types";
+import { allIcons } from "./icons";
 
 export function varStatus() {
   return Math.random() > 0.5;
@@ -112,7 +120,7 @@ export const sortQuestionsAndContributions = (
       userMap[askerId].addedQuestionIds.add(question.id);
     }
 
-    question.contributors.forEach((contributor) => {
+    question.contributors?.forEach((contributor) => {
       const contributorId = contributor.user.id;
       if (!userMap[contributorId].addedQuestionIds.has(question.id)) {
         userMap[contributorId].allQuestions.push(question);
@@ -238,4 +246,19 @@ export const finalProfsByLangs = (data: { lang: string; prof: number }[]) => {
     }
   }
   return returnArray;
+};
+
+export const recordTypesFromLangs = () => {
+  let records: RecordType[] = [];
+  const allLangs = Object.keys(allIcons);
+  for (let i = 0; i < allLangs.length; i++) {
+    const data = {
+      key: (i + 1).toString(),
+      title: allLangs[i],
+      description: allLangs[i],
+      chosen: true,
+    };
+    records.push(data);
+  }
+  return records;
 };

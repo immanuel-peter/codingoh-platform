@@ -45,7 +45,18 @@ export interface Project {
   description: string;
   startDate: Date;
   endDate?: Date;
+  github: string;
   status: "ongoing" | "completed" | "on_hold";
+  image: string;
   stack?: string[];
   needed?: string[];
+  application?: string;
+}
+
+// app/users/[id]/page.tsx
+export interface RecordType {
+  key: string;
+  title: string;
+  description: string;
+  chosen: boolean;
 }
