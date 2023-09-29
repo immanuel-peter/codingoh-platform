@@ -1,17 +1,26 @@
 "use client";
 
 import React, { useState, Fragment } from "react";
-import { FaLightbulb, FaPlus, FaVideo, FaCheck } from "react-icons/fa6";
+import {
+  FaLightbulb,
+  FaPlus,
+  FaVideo,
+  FaCheck,
+  FaXmark,
+  FaCalendar,
+} from "react-icons/fa6";
 import { MdOutlineScheduleSend } from "react-icons/md";
-import { Tooltip } from "@mui/material";
+
 import ReactMarkdown from "react-markdown";
 import { Transition, Dialog } from "@headlessui/react";
 import { LocalizationProvider } from "@mui/x-date-pickers-pro";
 import { DateTimePicker, renderTimeViewClock } from "@mui/x-date-pickers";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs, { Dayjs } from "dayjs";
-import { Tag } from "antd";
+import { Tag, Tooltip } from "antd";
+import Image from "next/image";
 
+import Avatar from "@/public/avatar.png";
 import { questions, users } from "@/dummy/questions";
 import { Question, User, Contributor } from "@/types";
 import { Navbar, FAB, RenderMd } from "@/components";
@@ -241,7 +250,7 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
                   >
                     Schedule Your Meeting <FaVideo />
                   </Dialog.Title>
-                  <div className="py-4 my-4">
+                  <div className="py-4 mt-4 mb-1">
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
                       <DateTimePicker
                         label="Choose Date and Time"
@@ -258,6 +267,13 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
                     </LocalizationProvider>
                   </div>
 
+                  <div>
+                    <textarea
+                      placeholder="Explain why you want to help and what you offer"
+                      className="w-full rounded-lg placeholder:text-sm"
+                    ></textarea>
+                  </div>
+
                   <div className="mt-2">
                     <button
                       type="button"
@@ -266,6 +282,65 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
                     >
                       Schedule <MdOutlineScheduleSend />
                     </button>
+                  </div>
+
+                  <hr className="border-solid border-black border-[1px] my-5" />
+
+                  <div className="flex flex-row justify-between items-center">
+                    <div className="flex justify-start items-center gap-3 basis-1/2">
+                      <Image
+                        src={Avatar}
+                        alt="profile picture"
+                        className="h-[15%] w-[15%] rounded-full"
+                      />
+                      <div className="text-lg">Immanuel Peter</div>
+                    </div>
+                    <div className="flex flex-row gap-2 items-center">
+                      <Tooltip title="Accept" color="#4ade80" placement="left">
+                        <div className="p-2 rounded-full border border-solid border-black hover:bg-green-100 cursor-pointer">
+                          <FaCheck className="text-green-500" />
+                        </div>
+                      </Tooltip>
+                      <Tooltip title="Reject" color="#f87171" placement="top">
+                        <div className="p-2 rounded-full border border-solid border-black hover:bg-red-100 cursor-pointer">
+                          <FaXmark className="text-red-500" />
+                        </div>
+                      </Tooltip>
+                      <Tooltip
+                        title="Reschedule"
+                        color="#38bdf8"
+                        placement="right"
+                      >
+                        <div className="p-2 rounded-full border border-solid border-black hover:bg-blue-100 cursor-pointer">
+                          <FaCalendar className="text-blue-500" />
+                        </div>
+                      </Tooltip>
+                    </div>
+                  </div>
+                  <div className="mt-2 text-xs">
+                    Requested session on{" "}
+                    <span className="text-blue-400 font-bold text-sm">
+                      MM/DD/YYYY
+                    </span>{" "}
+                    @{" "}
+                    <span className="text-blue-400 font-bold text-sm">
+                      HH:MM
+                    </span>
+                    <div className="p-2 bg-gray-200 rounded-md text-sm">
+                      Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                      Vestibulum scelerisque ultrices efficitur. Phasellus porta
+                      ligula nisi, ut sagittis neque molestie nec. Donec
+                      sagittis vitae mi eu dignissim. Suspendisse scelerisque
+                      ante vitae ullamcorper volutpat. Vivamus lectus nibh,
+                      dapibus non felis in, dapibus imperdiet nisi. Cras
+                      consectetur semper arcu, quis viverra nunc maximus id.
+                    </div>
+                    <div className="mt-2">
+                      <textarea
+                        placeholder="Respond to the request here. If you want to reschedule, include the date and time you want."
+                        className="placeholder:text-sm w-full rounded-lg"
+                      ></textarea>
+                    </div>
                   </div>
                 </Dialog.Panel>
               </Transition.Child>
