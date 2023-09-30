@@ -9,7 +9,7 @@ import {
   FaInbox,
   FaHandshakeAngle,
 } from "react-icons/fa6";
-import { FaCheckCircle, FaThumbsUp } from "react-icons/fa";
+import { FaCheckCircle, FaThumbsUp, FaSearch } from "react-icons/fa";
 import {
   FaArrowUpRightFromSquare,
   FaCheck,

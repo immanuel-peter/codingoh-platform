@@ -8,9 +8,9 @@ import {
   FaCheck,
   FaXmark,
   FaCalendar,
+  FaUpload,
 } from "react-icons/fa6";
 import { MdOutlineScheduleSend } from "react-icons/md";
-
 import ReactMarkdown from "react-markdown";
 import { Transition, Dialog } from "@headlessui/react";
 import { LocalizationProvider } from "@mui/x-date-pickers-pro";
@@ -179,16 +179,8 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
               Question
             </button>
             <button
-              onClick={
-                question.isAnswered
-                  ? () => setActiveButton("Answer")
-                  : undefined
-              }
-              className={`p-4 border-solid border-green-400 border rounded-r-2xl ${
-                question.isAnswered
-                  ? "enabled hover:bg-green-400 cursor-pointer opacity-100"
-                  : "disabled cursor-text opacity-50"
-              } ${
+              onClick={() => setActiveButton("Answer")}
+              className={`p-4 border-solid border-green-400 border rounded-r-2xl hover:bg-green-400 cursor-pointer opacity-100 ${
                 activeButton === "Answer"
                   ? "bg-green-400 opacity-100"
                   : "bg-green-200"
@@ -203,11 +195,33 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
             markdown={question.description}
             className="mx-auto max-w-7xl py-3 px-3 mt-3 text-justify border border-solid border-black rounded-2xl"
           />
-        ) : (
+        ) : question.isAnswered ? (
           <RenderMd
             markdown={question.answer || markdownAnswer}
             className="mx-auto max-w-7xl py-3 px-3 mt-3 text-justify border border-solid border-black rounded-2xl"
           />
+        ) : (
+          <div className="mx-auto max-w-7xl py-3 px-3 mt-3 text-center flex flex-col justify-center border border-solid border-black rounded-2xl">
+            <h1 className="text-xl font-semibold">
+              Ready to answer this question?
+            </h1>
+            <div className="flex flex-col items-center mt-2">
+              <textarea
+                placeholder="Type the answer in Markdown"
+                className="w-[896px] rounded-xl"
+                rows={20}
+              ></textarea>
+            </div>
+            <div className="mt-2">
+              <button
+                type="button"
+                className="inline-flex items-center justify-center gap-2 rounded-md border border-transparent bg-green-100 px-4 py-2 text-base font-medium text-green-900 hover:bg-green-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2"
+                onClick={handleSchedule}
+              >
+                Upload <FaUpload />
+              </button>
+            </div>
+          </div>
         )}
       </div>
       <Comments contributors={question.contributors || []} />
@@ -353,3 +367,23 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
 };
 
 export default QuestionPage;
+
+/*
+className={`p-4 border-solid border-green-400 border rounded-r-2xl ${
+                question.isAnswered
+                  ? "enabled hover:bg-green-400 cursor-pointer opacity-100"
+                  : "disabled cursor-text opacity-50"
+              } ${
+                activeButton === "Answer"
+                  ? "bg-green-400 opacity-100"
+                  : "bg-green-200"
+              }`}
+*/
+
+/*
+onClick={
+                question.isAnswered
+                  ? () => setActiveButton("Answer")
+                  : undefined
+              }
+*/

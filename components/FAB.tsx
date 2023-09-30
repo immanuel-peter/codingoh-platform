@@ -109,7 +109,7 @@ const FAB = () => {
                   </div>
                   <div className="p-2 m-2 flex items-center justify-center">
                     <Link
-                      href="/"
+                      href="https://successful-echium-b3f.notion.site/Support-CodingOH-67de2dbf28694086bbf3d59baa1fa10b?pvs=4"
                       className="p-2 w-1/2 h-20 rounded-xl bg-blue-300 hover:bg-blue-400 flex items-center justify-center"
                     >
                       <div className="bg-inherit flex items-center justify-center">

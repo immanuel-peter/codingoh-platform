@@ -54,7 +54,7 @@ export default function Home() {
                   <Question
                     question={question.question}
                     asker={question.asker.name}
-                    contributors={question.contributors}
+                    contributors={question.contributors || []}
                     date={question.date}
                   />
                 </Link>
