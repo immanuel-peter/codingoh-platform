@@ -24,11 +24,12 @@ import { IoCloseCircleOutline } from "react-icons/io5";
 import { BsPlusCircleFill } from "react-icons/bs";
 import { LuMinusCircle } from "react-icons/lu";
 import CheckIcon from "@mui/icons-material/Check";
-import { Badge, Autocomplete, Slider } from "@mui/joy";
+import { Badge, Autocomplete, Slider, Avatar } from "@mui/joy";
 import { Select, Tooltip, Progress } from "antd";
 import { currentUser, useUser } from "@clerk/nextjs";
 import Image from "next/image";
 import { SocialIcon } from "react-social-icons";
+import moment from "moment-timezone";
 
 import Navbar from "@/components/Navbar";
 import AddUserProfileImageInput from "@/components/newuser/AddUserProfileImageInput";
@@ -39,6 +40,7 @@ import backgrounds from "@/public/backgrounds";
 import { allIcons } from "@/utils/icons";
 import { techSkills as inDemandSkills } from "@/dummy/questions";
 import { uniqueArray, labelValues, finalProfsByLangs } from "@/utils";
+import { profile } from "console";
 
 const countryList = [
   "United States of America",
@@ -263,10 +265,23 @@ const countryList = [
   "Zimbabwe",
 ];
 
+const genderOptions: string[] = [
+  "Male",
+  "Female",
+  "Non-binary",
+  "Prefer not to say",
+  "Other",
+];
+
+const gatesBday = new Date("1955-10-28");
+
 const NewUser = () => {
   // Personal Info
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
+  const [gender, setGender] = useState("");
+  const [dob, setDob] = useState<Date | string | undefined>();
+  const [timezone, setTimezone] = useState("");
   const [email, setEmail] = useState("");
   const [education, setEducation] = useState("");
   const [company, setCompany] = useState("");
@@ -274,7 +289,12 @@ const NewUser = () => {
   const [city, setCity] = useState("");
   const [usState, setUsState] = useState("");
   const [country, setCountry] = useState("");
+  const [profileImg, setProfileImg] = useState("");
   const [about, setAbout] = useState("");
+
+  const formattedDob =
+    dob instanceof Date ? dob.toISOString().split("T")[0] : "";
+  console.log(dob, timezone);
 
   // Background Banner
   const [selectedBackgroundImage, setSelectedBackgroundImage] = useState(
@@ -719,6 +739,75 @@ const NewUser = () => {
                 </div>
               </div>
 
+              <div className="sm:col-span-2">
+                <label
+                  htmlFor="gender"
+                  className="block text-sm font-medium leading-6 text-gray-900"
+                >
+                  Gender
+                </label>
+                <div className="mt-2">
+                  <select
+                    value={gender}
+                    onChange={(e) => setGender(e.target.value)}
+                    id="gender"
+                    name="gender"
+                    autoComplete="sex"
+                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:max-w-xs sm:text-sm sm:leading-6"
+                  >
+                    {genderOptions.map((gender) => (
+                      <option>{gender}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
+              <div className="sm:col-span-2">
+                <label
+                  htmlFor="dob"
+                  className="block text-sm font-medium leading-6 text-gray-900"
+                >
+                  Date of Birth
+                </label>
+                <div className="mt-2">
+                  <input
+                    value={formattedDob}
+                    onChange={(e) => {
+                      const newDate = new Date(e.target.value);
+                      setDob(isNaN(newDate.getTime()) ? undefined : newDate);
+                    }}
+                    type="date"
+                    name="dob"
+                    id="dob"
+                    autoComplete="bday"
+                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
+                  />
+                </div>
+              </div>
+
+              <div className="sm:col-span-2">
+                <label
+                  htmlFor="timezone"
+                  className="block text-sm font-medium leading-6 text-gray-900"
+                >
+                  Timezone
+                </label>
+                <div className="mt-2">
+                  <select
+                    value={timezone}
+                    onChange={(e) => setTimezone(e.target.value)}
+                    id="timezone"
+                    name="gender"
+                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:max-w-xs sm:text-sm sm:leading-6"
+                  >
+                    <option></option>
+                    {moment.tz.names().map((tz) => (
+                      <option>{tz}</option>
+                    ))}
+                  </select>
+                </div>
+              </div>
+
               <div className="sm:col-span-3">
                 <label
                   htmlFor="email"
@@ -867,7 +956,28 @@ const NewUser = () => {
                 </div>
               </div>
 
-              <div className="sm:col-span-6">
+              <div className="sm:col-span-1">
+                <label
+                  htmlFor="about"
+                  className="block text-sm font-medium leading-6 text-gray-900"
+                >
+                  Avatar
+                </label>
+                <div className="mt-2 flex flex-row justify-start gap-3 items-center">
+                  <Avatar size="lg" src={profileImg || undefined} />
+                  <label className="p-1 border border-solid rounded-lg cursor-pointer bg-white hover:bg-gray-50 shadow-sm font-medium">
+                    Change
+                    <input
+                      type="file"
+                      name="profile-img"
+                      onChange={() => {}} // need to work on this
+                      className="hidden"
+                    />
+                  </label>
+                </div>
+              </div>
+
+              <div className="sm:col-span-5">
                 <label
                   htmlFor="about"
                   className="block text-sm font-medium leading-6 text-gray-900"

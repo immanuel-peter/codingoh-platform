@@ -29,6 +29,7 @@
     "dayjs": "^1.11.9",
     "devicons-react": "^1.2.6",
     "framer-motion": "^10.16.4",
+    "moment-timezone": "^0.5.43",
     "next": "^13.4.13",
     "openai": "^3.3.0",
     "postcss": "8.4.27",

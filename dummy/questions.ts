@@ -1496,6 +1496,8 @@ export const projects: Project[] = [
       "User Experience Design",
       "Prototyping",
     ],
+    github: "www.github.com",
+    image: "",
   },
   {
     id: 2,
@@ -1520,6 +1522,8 @@ export const projects: Project[] = [
       "Version Control",
       "Continuous Integration and Deployment (CI/CD)",
     ],
+    github: "www.github.com",
+    image: "",
   },
   {
     id: 3,
@@ -1536,6 +1540,8 @@ export const projects: Project[] = [
       "Statistical Analysis",
       "Data Visualization",
     ],
+    github: "www.github.com",
+    image: "",
   },
   {
     id: 4,
@@ -1559,6 +1565,8 @@ export const projects: Project[] = [
       "Quality Assurance",
       "Version Control",
     ],
+    github: "www.github.com",
+    image: "",
   },
   {
     id: 5,
@@ -1569,7 +1577,10 @@ export const projects: Project[] = [
     status: "on_hold",
     stack: ["Java", "SQLite"],
     needed: ["Mobile App Development", "Java", "SQLite", "UI/UX Design"],
+    github: "www.github.com",
+    image: "",
   },
+
   {
     id: 6,
     owner: users[11],
@@ -1584,6 +1595,8 @@ export const projects: Project[] = [
       "Game Development",
       "UI/UX Design",
     ],
+    github: "www.github.com",
+    image: "",
   },
   {
     id: 7,
@@ -1604,6 +1617,8 @@ export const projects: Project[] = [
       "Quality Assurance",
       "Version Control",
     ],
+    github: "www.github.com",
+    image: "",
   },
   {
     id: 8,
@@ -1626,6 +1641,8 @@ export const projects: Project[] = [
       "Version Control",
       "Continuous Integration and Deployment (CI/CD)",
     ],
+    github: "www.github.com",
+    image: "",
   },
   {
     id: 9,
@@ -1636,6 +1653,8 @@ export const projects: Project[] = [
     status: "ongoing",
     stack: ["C#"],
     needed: ["Desktop App Development", "C#", "WinForms"],
+    github: "www.github.com",
+    image: "",
   },
   {
     id: 10,
@@ -1656,6 +1675,8 @@ export const projects: Project[] = [
       "Version Control",
       "Continuous Integration and Deployment (CI/CD)",
     ],
+    github: "www.github.com",
+    image: "",
   },
   {
     id: 11,
@@ -1666,6 +1687,8 @@ export const projects: Project[] = [
     status: "on_hold",
     stack: ["Unity", "C#"],
     needed: ["Game Development", "Unity3D", "C#", "3D Modeling"],
+    github: "www.github.com",
+    image: "",
   },
   {
     id: 12,
@@ -1684,6 +1707,8 @@ export const projects: Project[] = [
       "Quality Assurance",
       "Version Control",
     ],
+    github: "www.github.com",
+    image: "",
   },
   {
     id: 13,
@@ -1702,6 +1727,8 @@ export const projects: Project[] = [
       "Statistical Analysis",
       "Research",
     ],
+    github: "www.github.com",
+    image: "",
   },
   {
     id: 14,
@@ -1726,6 +1753,7 @@ export const projects: Project[] = [
       "MySQL",
       "AngularJS",
     ],
+
     needed: [
       "IoT Development",
       "Embedded Systems",
@@ -1739,6 +1767,8 @@ export const projects: Project[] = [
       "Database Management",
       "Security",
     ],
+    github: "www.github.com",
+    image: "",
   },
   {
     id: 15,
@@ -1776,6 +1806,8 @@ export const projects: Project[] = [
       "Security",
       "Continuous Integration and Deployment (CI/CD)",
     ],
+    github: "www.github.com",
+    image: "",
   },
   {
     id: 16,
@@ -1795,6 +1827,8 @@ export const projects: Project[] = [
       "C++",
       "3D Modeling",
     ],
+    github: "www.github.com",
+    image: "",
   },
   {
     id: 17,
@@ -1806,6 +1840,8 @@ export const projects: Project[] = [
     status: "completed",
     stack: ["Flutter", "Dart"],
     needed: ["Mobile App Development", "Flutter", "Dart", "UI/UX Design"],
+    github: "www.github.com",
+    image: "",
   },
   {
     id: 18,
@@ -1827,6 +1863,8 @@ export const projects: Project[] = [
       "Quality Assurance",
       "Version Control",
     ],
+    github: "www.github.com",
+    image: "",
   },
   {
     id: 19,
@@ -1845,6 +1883,8 @@ export const projects: Project[] = [
       "JavaScript",
       "UI/UX Design",
     ],
+    github: "www.github.com",
+    image: "",
   },
   {
     id: 20,
@@ -1863,6 +1903,8 @@ export const projects: Project[] = [
       "Quality Assurance",
       "Version Control",
     ],
+    github: "www.github.com",
+    image: "",
   },
   {
     id: 21,
@@ -1874,6 +1916,8 @@ export const projects: Project[] = [
     status: "on_hold",
     stack: ["AWS"],
     needed: ["Backend Development", "AWS", "WebSocket", "Chat Application"],
+    github: "www.github.com",
+    image: "",
   },
   {
     id: 22,
@@ -1893,6 +1937,8 @@ export const projects: Project[] = [
       "C++",
       "3D Modeling",
     ],
+    github: "www.github.com",
+    image: "",
   },
   {
     id: 23,
@@ -1911,6 +1957,8 @@ export const projects: Project[] = [
       "NumPy",
       "Statistical Analysis",
     ],
+    github: "www.github.com",
+    image: "",
   },
   {
     id: 24,
@@ -1929,6 +1977,8 @@ export const projects: Project[] = [
       "CSS",
       "JavaScript",
     ],
+    github: "www.github.com",
+    image: "",
   },
 ];
 
