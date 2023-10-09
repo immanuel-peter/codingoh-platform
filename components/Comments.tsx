@@ -55,19 +55,19 @@ const Comment = ({
           <div className="flex flex-row justify-between items-center text-4xl">
             <AiOutlineCheck
               onClick={() => {}}
-              className="text-green-500 hover:text-green-600 cursor-pointer"
+              className="text-green-500/50 hover:text-green-600 cursor-pointer"
             />
 
             <Badge count={likeCount}>
               <AiFillHeart
                 onClick={() => setLikeCount(likeCount + 1)}
-                className="text-red-500 hover:text-red-600 cursor-pointer text-4xl"
+                className="text-red-500/50 hover:text-red-600 cursor-pointer text-4xl"
               />
             </Badge>
 
             <AiFillMessage
               onClick={() => setOpenNewComment(!openNewComment)}
-              className="text-blue-400 hover:text-blue-500 cursor-pointer"
+              className="text-blue-400/50 hover:text-blue-500 cursor-pointer"
             />
           </div>
           <div className="flex items-center justify-center gap-2 text-gray-400 text-sm">
@@ -252,6 +252,25 @@ const Comments = ({ contributors }: { contributors: Contributor[] }) => {
   return (
     <>
       <main className="mb-20">
+        <div className="container mx-auto max-w-7xl mb-8">
+          {/* Comment section */}
+          {postComments.length > 0 &&
+            postComments.map((comment) => (
+              <div key={comment.id}>
+                <Comment
+                  comment={comment}
+                  onAddNestedComment={handleAddNestedComment}
+                />
+                {comment.replies && comment.replies.length > 0 && (
+                  <NestedComments
+                    comments={comment.replies}
+                    onAddNestedComment={handleAddNestedComment}
+                  />
+                )}
+              </div>
+            ))}
+        </div>
+
         <div className="mx-auto max-w-7xl">
           <div className="mt-4 flex flex-row justify-between items-center">
             <h1 className="text-2xl font-bold">Comments</h1>
@@ -294,25 +313,6 @@ const Comments = ({ contributors }: { contributors: Contributor[] }) => {
               Add Comment
             </button>
           </div>
-        </div>
-
-        <div className="container mx-auto max-w-7xl mt-8">
-          {/* Comment section */}
-          {postComments.length > 0 &&
-            postComments.map((comment) => (
-              <div key={comment.id}>
-                <Comment
-                  comment={comment}
-                  onAddNestedComment={handleAddNestedComment}
-                />
-                {comment.replies && comment.replies.length > 0 && (
-                  <NestedComments
-                    comments={comment.replies}
-                    onAddNestedComment={handleAddNestedComment}
-                  />
-                )}
-              </div>
-            ))}
         </div>
       </main>
     </>

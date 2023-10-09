@@ -47,10 +47,10 @@ const AddQuestion = () => {
     title: "",
     description: "",
     tags: [] as string[],
+    preferences: "text",
     notifications: {
       email: false,
       desktop: false,
-      sms: false,
     },
   });
 
@@ -197,15 +197,81 @@ const AddQuestion = () => {
 
           <div className="border-b border-gray-900/10 pb-12">
             <h2 className="text-base font-semibold leading-7 text-gray-900">
+              Preferences
+            </h2>
+
+            <div className="mt-1 space-y-8">
+              <fieldset>
+                <legend className="text-sm font-semibold leading-6 text-gray-900/75">
+                  How would you like your question answered?
+                </legend>
+                <div className="mt-3 space-y-3">
+                  <div className="relative flex gap-x-3">
+                    <div className="flex h-6 items-center">
+                      <input
+                        id="text-preference"
+                        name="text-preference"
+                        value="text"
+                        type="radio"
+                        checked={newQuestion.preferences === "text"}
+                        onChange={() =>
+                          setNewQuestion({
+                            ...newQuestion,
+                            preferences: "text",
+                          })
+                        }
+                        className="h-4 w-4 rounded-full border-gray-300 text-indigo-600 focus:ring-indigo-600"
+                      />
+                    </div>
+                    <div className="text-sm leading-6">
+                      <label
+                        htmlFor="text-preference"
+                        className="font-medium text-gray-900"
+                      >
+                        Text
+                      </label>
+                    </div>
+                  </div>
+                  <div className="relative flex gap-x-3">
+                    <div className="flex h-6 items-center">
+                      <input
+                        id="video"
+                        name="video"
+                        value="video"
+                        type="radio"
+                        checked={newQuestion.preferences === "video"}
+                        onChange={() =>
+                          setNewQuestion({
+                            ...newQuestion,
+                            preferences: "video",
+                          })
+                        }
+                        className="h-4 w-4 rounded-full border-gray-300 text-indigo-600 focus:ring-indigo-600"
+                      />
+                    </div>
+                    <div className="text-sm leading-6">
+                      <label
+                        htmlFor="video"
+                        className="font-medium text-gray-900"
+                      >
+                        Video
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </fieldset>
+            </div>
+
+            <h2 className="text-base font-semibold leading-7 text-gray-900 mt-7">
               Notifications
             </h2>
 
-            <div className="mt-5 space-y-8">
+            <div className="mt-2 space-y-8">
               <fieldset>
-                <legend className="text-sm font-semibold leading-6 text-gray-900">
+                <legend className="text-sm font-semibold leading-6 text-gray-900/75">
                   Push Notifications
                 </legend>
-                <div className="mt-6 space-y-6">
+                <div className="mt-3 space-y-3">
                   <div className="relative flex gap-x-3">
                     <div className="flex h-6 items-center">
                       <input
@@ -257,33 +323,6 @@ const AddQuestion = () => {
                         className="font-medium text-gray-900"
                       >
                         Desktop Notifications
-                      </label>
-                    </div>
-                  </div>
-                  <div className="relative flex gap-x-3">
-                    <div className="flex h-6 items-center">
-                      <input
-                        id="sms"
-                        name="sms"
-                        type="checkbox"
-                        onChange={() =>
-                          setNewQuestion({
-                            ...newQuestion,
-                            notifications: {
-                              ...newQuestion.notifications,
-                              sms: !newQuestion.notifications.sms,
-                            },
-                          })
-                        }
-                        className="h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-600"
-                      />
-                    </div>
-                    <div className="text-sm leading-6">
-                      <label
-                        htmlFor="sms"
-                        className="font-medium text-gray-900"
-                      >
-                        Text Notifications
                       </label>
                     </div>
                   </div>

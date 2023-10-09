@@ -216,6 +216,8 @@ const getUser = (userId: string): User | undefined => {
   return users.find((user) => user.id === Number(userId));
 };
 
+const { Option } = Select;
+
 const UserPage = ({ params }: { params: { id: string } }) => {
   const [questionTypeMode, setQuestionTypeMode] = useState("all");
   const [isStackOpen, setIsStackOpen] = useState(false);
@@ -240,9 +242,7 @@ const UserPage = ({ params }: { params: { id: string } }) => {
     github: "",
     status: "ongoing",
     image: "",
-    stack: targetKeys.map(
-      (target) => Object.keys(allIcons)[Number(target) - 1]
-    ),
+    stack: [],
     needed: [], // Initialize as an empty array
     application: "",
   });
@@ -286,6 +286,13 @@ const UserPage = ({ params }: { params: { id: string } }) => {
         Your Stack
       </div>
     );
+  };
+
+  const handleStackChange = (value: string[]) => {
+    setNewProject({
+      ...newProject,
+      stack: value,
+    });
   };
 
   const handleSkillChange = (value: string) => {
@@ -1482,22 +1489,21 @@ const UserPage = ({ params }: { params: { id: string } }) => {
                         Tech Stack
                       </label>
                       <div className="flex flex-row justify-center items-center gap-6 w-full">
-                        <Transfer
-                          dataSource={recordTypesFromLangs()}
-                          showSearch
-                          targetKeys={targetKeys}
-                          filterOption={transferFilterOption}
-                          onChange={(newTargetKeys: string[]) =>
-                            setTargetKeys(newTargetKeys)
-                          }
-                          onSearch={(dir, value) => console.log(dir, value)}
-                          render={(item) => (
-                            <div className="flex flex-row justify-between items-center p-1">
-                              {allIcons[item.title]} {item.title}
-                            </div>
-                          )}
-                          footer={renderTransferFooter}
-                        />
+                        <Select
+                          className="w-full"
+                          mode="multiple"
+                          placeholder="Python, TensorFlow, Pytorch, etc..."
+                          onChange={handleStackChange}
+                        >
+                          {Object.keys(allIcons).map((icon) => (
+                            <Option value={icon}>
+                              <div className="flex flex-row justify-between items-center px-3">
+                                {allIcons[icon]}
+                                {icon}
+                              </div>
+                            </Option>
+                          ))}
+                        </Select>
                       </div>
                     </div>
 

@@ -167,7 +167,7 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
               {question.date}, {question.time}
             </span>
           </div>
-          <div className="flex flex-row justify-center items-center">
+          {/* <div className="flex flex-row justify-center items-center">
             <button
               onClick={() => setActiveButton("Question")}
               className={`p-4 bg-gray-300 hover:bg-gray-400 border-solid border-gray-400 border rounded-l-2xl ${
@@ -188,9 +188,41 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
             >
               Answer
             </button>
-          </div>
+          </div> */}
         </div>
-        {activeButton === "Question" ? (
+        <RenderMd
+          markdown={question.description}
+          className="mx-auto max-w-7xl py-3 px-3 mt-3 text-justify border border-solid border-black rounded-2xl"
+        />
+        {question.isAnswered ? (
+          <RenderMd
+            markdown={question.answer || markdownAnswer}
+            className="mx-auto max-w-7xl py-3 px-3 mt-3 text-justify border border-solid border-black rounded-2xl"
+          />
+        ) : (
+          <div className="mx-auto max-w-7xl py-3 px-3 mt-3 text-center flex flex-col justify-center border border-solid border-black rounded-2xl">
+            <h1 className="text-xl font-semibold">
+              Ready to answer this question?
+            </h1>
+            <div className="flex flex-col items-center mt-2">
+              <textarea
+                placeholder="Type the answer in Markdown"
+                className="w-[896px] rounded-xl"
+                rows={20}
+              ></textarea>
+            </div>
+            <div className="mt-2">
+              <button
+                type="button"
+                className="inline-flex items-center justify-center gap-2 rounded-md border border-transparent bg-green-100 px-4 py-2 text-base font-medium text-green-900 hover:bg-green-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2"
+                onClick={handleSchedule}
+              >
+                Upload <FaUpload />
+              </button>
+            </div>
+          </div>
+        )}
+        {/* {activeButton === "Question" ? (
           <RenderMd
             markdown={question.description}
             className="mx-auto max-w-7xl py-3 px-3 mt-3 text-justify border border-solid border-black rounded-2xl"
@@ -222,7 +254,7 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
               </button>
             </div>
           </div>
-        )}
+        )} */}
       </div>
       <Comments contributors={question.contributors || []} />
 
@@ -338,7 +370,7 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
                     </span>{" "}
                     @{" "}
                     <span className="text-blue-400 font-bold text-sm">
-                      HH:MM
+                      HH:MM AP
                     </span>
                     <div className="p-2 bg-gray-200 rounded-md text-sm">
                       Lorem ipsum dolor sit amet, consectetur adipiscing elit.
@@ -386,4 +418,71 @@ onClick={
                   ? () => setActiveButton("Answer")
                   : undefined
               }
+*/
+
+/*
+<div className="mx-auto max-w-7xl py-5 px-8 border-solid border-black border-[1px] border-x-0 border-t-0">
+          <div className="flex flex-row justify-between bg-inherit">
+            <h1 className="flex-initial basis-10/12 shrink bg-inherit text-4xl text-left">
+              {question.question}
+            </h1>
+            {!question.isAnswered ? (
+              <button
+                onClick={
+                  !didSchedule ? () => setIsScheduleMeetOpen(true) : undefined
+                }
+                className={`basis-1/12 text-base font-medium p-3 h-14 self-center items-center justify-between flex flex-row border-solid border-[1px] ${
+                  !didSchedule
+                    ? "border-blue-600 hover:border-blue-800 bg-blue-500 hover:bg-blue-700"
+                    : "border-yellow-600 bg-yellow-500 cursor-text"
+                } rounded-xl`}
+              >
+                <FaVideo className="bg-inherit text-slate-200 mr-3" />
+                <p className="bg-inherit text-slate-200">
+                  {!didSchedule ? "Schedule" : "Scheduled"}
+                </p>
+              </button>
+            ) : (
+              <button className="basis-1/12 text-base font-medium p-3 h-14 self-center items-center justify-between flex flex-row border-solid border-green-600 border-[1px] bg-green-500 rounded-md">
+                <FaCheck className="bg-green-500 text-slate-200 mr-3" />
+                <p className="bg-green-500 text-slate-200">Answered</p>
+              </button>
+            )}
+          </div>
+          <div className="flex justify-center items-center gap-3 p-3 py-5">
+            {question.tags?.map((tag) => <Tag>{tag}</Tag>)}
+          </div>
+          <div className="flex flex-row justify-between items-center my-2 bg-inherit">
+            <Link href={`/users/${question.asker.id}`}>
+              <span className="bg-inherit hover:underline">
+                {question.asker.name}
+              </span>
+            </Link>
+            <span className="bg-inherit">
+              {question.date}, {question.time}
+            </span>
+          </div>
+          <div className="flex flex-row justify-center items-center">
+            <button
+              onClick={() => setActiveButton("Question")}
+              className={`p-4 bg-gray-300 hover:bg-gray-400 border-solid border-gray-400 border rounded-l-2xl ${
+                activeButton !== "Question"
+                  ? "opacity-50"
+                  : "opacity-100 bg-gray-400"
+              }`}
+            >
+              Question
+            </button>
+            <button
+              onClick={() => setActiveButton("Answer")}
+              className={`p-4 border-solid border-green-400 border rounded-r-2xl hover:bg-green-400 cursor-pointer opacity-100 ${
+                activeButton === "Answer"
+                  ? "bg-green-400 opacity-100"
+                  : "bg-green-200"
+              }`}
+            >
+              Answer
+            </button>
+          </div>
+        </div>
 */
