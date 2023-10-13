@@ -15,16 +15,16 @@ export interface Question {
 export interface User {
   id: number;
   name: string;
-  about: string;
+  about?: string;
   email: string;
-  position: string;
-  fileAttachments: string[];
-  codingLanguages: Proficiency[];
+  position?: string;
+  fileAttachments?: string[];
+  codingLanguages?: Proficiency[];
   isOnline: boolean;
-  location: string;
-  company: string;
-  skills: string[];
-  education: string;
+  location?: string;
+  company?: string;
+  skills?: string[];
+  education?: string;
   platforms?: string[];
 }
 

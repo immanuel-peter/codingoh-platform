@@ -18,6 +18,8 @@ import {
   FaTwitch,
   FaTwitter,
   FaYoutube,
+  FaXTwitter,
+  FaThreads,
 } from "react-icons/fa6";
 import { HiCheckCircle } from "react-icons/hi2";
 import { IoCloseCircleOutline } from "react-icons/io5";
@@ -30,6 +32,7 @@ import { currentUser, useUser } from "@clerk/nextjs";
 import Image from "next/image";
 import { SocialIcon } from "react-social-icons";
 import moment from "moment-timezone";
+import { useTimezoneSelect, allTimezones } from "react-timezone-select";
 
 import Navbar from "@/components/Navbar";
 import AddUserProfileImageInput from "@/components/newuser/AddUserProfileImageInput";
@@ -265,6 +268,8 @@ const countryList = [
   "Zimbabwe",
 ];
 
+const labelStyle = "abbrev";
+
 const genderOptions: string[] = [
   "Male",
   "Female",
@@ -281,7 +286,9 @@ const NewUser = () => {
   const [lastName, setLastName] = useState("");
   const [gender, setGender] = useState("");
   const [dob, setDob] = useState<Date | string | undefined>();
-  const [timezone, setTimezone] = useState("");
+  const [timezone, setTimezone] = useState(
+    Intl.DateTimeFormat().resolvedOptions().timeZone
+  );
   const [email, setEmail] = useState("");
   const [education, setEducation] = useState("");
   const [company, setCompany] = useState("");
@@ -294,7 +301,19 @@ const NewUser = () => {
 
   const formattedDob =
     dob instanceof Date ? dob.toISOString().split("T")[0] : "";
-  console.log(dob, timezone);
+  console.log(dob);
+
+  const timezones = allTimezones;
+  const { options, parseTimezone } = useTimezoneSelect({
+    labelStyle,
+    timezones,
+  });
+  const handleTzChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    e.preventDefault();
+    const data = parseTimezone(e.currentTarget.value);
+    setTimezone(data.value);
+  };
+  console.log(timezone);
 
   // Background Banner
   const [selectedBackgroundImage, setSelectedBackgroundImage] = useState(
@@ -312,7 +331,7 @@ const NewUser = () => {
   );
   const [finalProfs, setFinalProfs] = useState<{ [lang: string]: number }>({});
 
-  const options = Object.keys(allIcons);
+  const langOptions = Object.keys(allIcons);
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newInputValue = event.target.value;
@@ -320,7 +339,7 @@ const NewUser = () => {
   };
 
   const filterOptions = (inputValue: string) => {
-    const filtered = options.filter(
+    const filtered = langOptions.filter(
       (option) =>
         option.toLowerCase().includes(inputValue.toLowerCase()) &&
         option !== selectedOption
@@ -408,8 +427,9 @@ const NewUser = () => {
     { name: "stackoverflow", link: "" },
     { name: "tiktok", link: "" },
     { name: "twitch", link: "" },
-    { name: "twitter", link: "" },
+    { name: "x", link: "" },
     { name: "youtube", link: "" },
+    { name: "threads", link: "" },
     { name: "personal", link: "" },
   ]);
   const [finalSocialLinks, setFinalSocialLinks] = useState<
@@ -616,14 +636,14 @@ const NewUser = () => {
       ),
     },
     {
-      name: "twitter",
+      name: "x",
       node: (
         <>
           <div className="flex flex-row items-center gap-4 mt-3">
-            <FaTwitter className="text-4xl text-blue-400" />
+            <FaXTwitter className="text-4xl text-black" />
             <input
               className="block w-3/4 rounded-md border-0 py-1.5 text-gray-900 placeholder:text-gray-400 placeholder:italic shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:max-w-xs sm:text-sm sm:leading-6"
-              placeholder="www.twitter.com"
+              placeholder="www.x.com"
               value={socialLinks[11].link}
               onChange={(e) =>
                 updateSocialLink(socialLinks[11].name, e.target.value)
@@ -652,6 +672,24 @@ const NewUser = () => {
       ),
     },
     {
+      name: "threads",
+      node: (
+        <>
+          <div className="flex flex-row items-center gap-4 mt-3">
+            <FaThreads className="text-4xl text-black" />
+            <input
+              className="block w-3/4 rounded-md border-0 py-1.5 text-gray-900 placeholder:text-gray-400 placeholder:italic shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:max-w-xs sm:text-sm sm:leading-6"
+              placeholder="www.threads.net"
+              value={socialLinks[13].link}
+              onChange={(e) =>
+                updateSocialLink(socialLinks[13].name, e.target.value)
+              }
+            />
+          </div>
+        </>
+      ),
+    },
+    {
       name: "personal",
       node: (
         <>
@@ -660,9 +698,9 @@ const NewUser = () => {
             <input
               className="block w-3/4 rounded-md border-0 py-1.5 text-gray-900 placeholder:text-gray-400 placeholder:italic shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:max-w-xs sm:text-sm sm:leading-6"
               placeholder="www.mywebsite.com"
-              value={socialLinks[13].link}
+              value={socialLinks[14].link}
               onChange={(e) =>
-                updateSocialLink(socialLinks[13].name, e.target.value)
+                updateSocialLink(socialLinks[14].name, e.target.value)
               }
             />
           </div>
@@ -692,17 +730,20 @@ const NewUser = () => {
       <form className="mt-5 flex items-center justify-center max-w-7xl">
         <div className="space-y-12">
           <div className="border-b border-gray-900/10 pb-12">
-            <h2 className="text-base font-semibold leading-7 text-gray-900">
+            <h2 className="text-base font-semibold leading-3 text-gray-900">
               New User
             </h2>
+            <span className="text-xs">
+              <sup className="text-red-500">*</sup> Required fields
+            </span>
 
             <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-              <div className="sm:col-span-3">
+              <div className="sm:col-span-2">
                 <label
                   htmlFor="first-name"
                   className="block text-sm font-medium leading-6 text-gray-900"
                 >
-                  First name
+                  First name <sup className="text-red-500">*</sup>
                 </label>
                 <div className="mt-2">
                   <input
@@ -718,12 +759,12 @@ const NewUser = () => {
                 </div>
               </div>
 
-              <div className="sm:col-span-3">
+              <div className="sm:col-span-2">
                 <label
                   htmlFor="last-name"
                   className="block text-sm font-medium leading-6 text-gray-900"
                 >
-                  Last name
+                  Last name <sup className="text-red-500">*</sup>
                 </label>
                 <div className="mt-2">
                   <input
@@ -762,7 +803,7 @@ const NewUser = () => {
                 </div>
               </div>
 
-              <div className="sm:col-span-2">
+              <div className="sm:col-span-4">
                 <label
                   htmlFor="dob"
                   className="block text-sm font-medium leading-6 text-gray-900"
@@ -790,19 +831,19 @@ const NewUser = () => {
                   htmlFor="timezone"
                   className="block text-sm font-medium leading-6 text-gray-900"
                 >
-                  Timezone
+                  Timezone <sup className="text-red-500">*</sup>
                 </label>
                 <div className="mt-2">
                   <select
                     value={timezone}
-                    onChange={(e) => setTimezone(e.target.value)}
+                    onChange={handleTzChange}
                     id="timezone"
                     name="gender"
                     className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:max-w-xs sm:text-sm sm:leading-6"
                   >
                     <option></option>
-                    {moment.tz.names().map((tz) => (
-                      <option>{tz}</option>
+                    {options.map((option) => (
+                      <option value={option.value}>{option.label}</option>
                     ))}
                   </select>
                 </div>
@@ -813,7 +854,7 @@ const NewUser = () => {
                   htmlFor="email"
                   className="block text-sm font-medium leading-6 text-gray-900"
                 >
-                  Email address
+                  Email address <sup className="text-red-500">*</sup>
                 </label>
                 <div className="mt-2">
                   <input
@@ -1250,13 +1291,13 @@ const NewUser = () => {
               }
                 `}
                 />
-                <FaTwitter
-                  onClick={() => setSocials([...socials, "twitter"])}
-                  className={`text-blue-400 text-4xl
+                <FaXTwitter
+                  onClick={() => setSocials([...socials, "x"])}
+                  className={`text-black text-4xl
               ${
-                socials.includes("twitter")
+                socials.includes("x")
                   ? "text-opacity-20 cursor-text"
-                  : "hover:text-blue-600 hover:cursor-pointer"
+                  : "hover:text-gray-600 hover:cursor-pointer"
               }
                 `}
                 />
@@ -1267,6 +1308,16 @@ const NewUser = () => {
                 socials.includes("youtube")
                   ? "text-opacity-20 cursor-text"
                   : "hover:text-red-700 hover:cursor-pointer"
+              }
+                `}
+                />
+                <FaThreads
+                  onClick={() => setSocials([...socials, "threads"])}
+                  className={`text-black text-4xl
+              ${
+                socials.includes("threads")
+                  ? "text-opacity-20 cursor-text"
+                  : "hover:text-gray-600 hover:cursor-pointer"
               }
                 `}
                 />

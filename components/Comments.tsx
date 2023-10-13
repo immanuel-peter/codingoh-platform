@@ -28,6 +28,7 @@ const Comment = ({
   comment: Comment;
   onAddNestedComment: (text: string, parentId: number) => void;
 }) => {
+  const [isChecked, setIsChecked] = useState(false);
   const [likeCount, setLikeCount] = useState(0);
   const [openNewComment, setOpenNewComment] = useState(false);
   const [newCommentText, setNewCommentText] = useState("");
@@ -46,7 +47,11 @@ const Comment = ({
 
   return (
     <>
-      <div className="flex justify-between bg-white border rounded shadow mb-4">
+      <div
+        className={`flex justify-between border rounded shadow mb-4 ${
+          isChecked ? "bg-green-100" : "bg-white"
+        }`}
+      >
         <RenderMd
           className="text-gray-800 basis-4/5 grow-0 items-center p-4"
           markdown={comment.text}
@@ -54,8 +59,10 @@ const Comment = ({
         <div className="flex flex-col justify-between gap-8 p-4">
           <div className="flex flex-row justify-between items-center text-4xl">
             <AiOutlineCheck
-              onClick={() => {}}
-              className="text-green-500/50 hover:text-green-600 cursor-pointer"
+              onClick={() => setIsChecked(!isChecked)}
+              className={`text-green-500/50 hover:text-green-600 cursor-pointer ${
+                isChecked && "text-green-600"
+              }`}
             />
 
             <Badge count={likeCount}>

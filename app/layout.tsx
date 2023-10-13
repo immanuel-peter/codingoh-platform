@@ -6,7 +6,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 const dmsans = DM_Sans({ subsets: ["latin"], weight: ["400", "500", "700"] });
 
 export const metadata: Metadata = {
-  title: "Coding OH",
+  title: "CodingOH",
   description: "Coding Office Hours: Stack Overflow in real time",
 };
 

@@ -7,6 +7,10 @@ import rehypeSanitize from "rehype-sanitize";
 import rehypeHighlight from "rehype-highlight";
 import SyntaxHighlighter from "react-syntax-highlighter";
 import { docco } from "react-syntax-highlighter/dist/esm/styles/hljs";
+import {
+  vscDarkPlus,
+  coldarkDark,
+} from "react-syntax-highlighter/dist/esm/styles/prism";
 
 const placeholderMdText = `# Fibonacci sequence not working
 
@@ -49,25 +53,25 @@ const RenderMd = ({
   markdown: string;
   className?: string;
 }) => {
-  const H1 = ({ children }: { children: string }) => (
+  const H1 = ({ children }: { children: React.ReactNode }) => (
     <>
       <h1 className="text-2xl font-bold">{children}</h1>
       <HLine />
     </>
   );
-  const H2 = ({ children }: { children: string }) => (
+  const H2 = ({ children }: { children: React.ReactNode }) => (
     <>
       <h2 className="my-1 text-xl font-semibold">{children}</h2>
       <HLine />
     </>
   );
-  const H3 = ({ children }: { children: string }) => (
+  const H3 = ({ children }: { children: React.ReactNode }) => (
     <>
       <h3 className="my-1 text-lg font-semibold">{children}</h3>
       <HLine />
     </>
   );
-  const P = ({ children }: { children: string }) => (
+  const P = ({ children }: { children: React.ReactNode }) => (
     <p className="text-base my-1">{children}</p>
   );
   const A = ({ children }: { children: URL }) => (
@@ -78,13 +82,16 @@ const RenderMd = ({
       {`${children}`}
     </a>
   );
+  const Ul = ({ children }: React.PropsWithChildren) => (
+    <ul className="text-base list-disc list-inside my-1">{children}</ul>
+  );
   const Ol = ({ children }: { children: React.ReactNode }) => (
     <ol className="text-base list-decimal list-inside my-1">{children}</ol>
   );
   const Li = ({ children }: { children: React.ReactNode }) => (
     <li className="text-sm">{children}</li>
   );
-  const H4 = ({ children }: { children: string }) => (
+  const H4 = ({ children }: { children: React.ReactNode }) => (
     <h4 className="text-2xl text-red-500 my-1">{children}</h4>
   );
   const Hr = () => (
@@ -102,23 +109,26 @@ const RenderMd = ({
         h2: H2,
         h3: H3,
         p: P,
+        ul: Ul,
         ol: Ol,
         li: Li,
         h4: H4,
         hr: Hr,
-        code({ node, inline, className, children, ...props }) {
-          const match = /language-(\w+)/.exec(className || "");
-          return !inline && match ? (
+        code({ node, inline, children, ...props }) {
+          // const match = /language-(\w+)/.exec(className || "");
+
+          return !inline ? (
             <SyntaxHighlighter
-              style={docco}
-              language={match[1]}
-              PreTag="div"
+              style={coldarkDark}
+              language="python"
               {...props}
+              className="leading-none"
+              wrapLongLines
             >
               {String(children).replace(/\n$/, "")}
             </SyntaxHighlighter>
           ) : (
-            <code className="my-2 text-violet-400" {...props}>
+            <code className="my-2" {...props}>
               {children}
             </code>
           );

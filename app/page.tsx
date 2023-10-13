@@ -46,7 +46,7 @@ export default function Home() {
         <div className="basis-3/4 px-3">
           <ul role="list" className="divide-y divide-gray-600">
             {unansweredQuestions.map((question, index) => (
-              <li key={index}>
+              <li key={index} className="hover:bg-slate-100">
                 <Link
                   href={`/questions/${question.id}`}
                   className="flex justify-between gap-x-6 py-5"
@@ -56,6 +56,7 @@ export default function Home() {
                     asker={question.asker.name}
                     contributors={question.contributors || []}
                     date={question.date}
+                    extraStyles={["cursor-pointer"]}
                   />
                 </Link>
               </li>

@@ -4,8 +4,15 @@ import React, { Fragment, useState } from "react";
 import Image from "next/image";
 import { Badge, Chip } from "@mui/joy";
 import { palette } from "@mui/system";
-import { FaEdit, FaThumbsUp, FaSave } from "react-icons/fa";
-import { FaRegCircleXmark, FaCamera, FaUpload } from "react-icons/fa6";
+import { FaEdit, FaThumbsUp, FaSave, FaHome } from "react-icons/fa";
+import {
+  FaRegCircleXmark,
+  FaCamera,
+  FaUpload,
+  FaPlus,
+  FaXTwitter,
+  FaThreads,
+} from "react-icons/fa6";
 // import {
 //   JavascriptOriginal,
 //   PythonOriginal,
@@ -256,7 +263,9 @@ const UserPage = ({ params }: { params: { id: string } }) => {
   const userMap = sortQuestionsAndContributions(questions, users);
   const userQuestionsAndContributions = userMap[user.id];
 
-  const topLanguages = getTopLanguages(user.codingLanguages, 5);
+  const topLanguages = user.codingLanguages
+    ? getTopLanguages(user.codingLanguages, 5)
+    : [];
 
   const userProjects = projectsMap(projects, user) || [];
 
@@ -341,16 +350,32 @@ const UserPage = ({ params }: { params: { id: string } }) => {
               <span className="text-lg font-normal">{user.position}</span>
               <div className="flex flex-row gap-2">
                 {user.platforms
-                  ? user.platforms.map((platform, index) => (
-                      <SocialIcon
-                        key={index}
-                        network={platform.toLowerCase().replace(/\s/g, "")}
-                        url={`https://www.${platform
-                          .toLowerCase()
-                          .replace(/\s/g, "")}.com/`}
-                        style={{ height: 35, width: 35, marginTop: "10px" }}
-                      />
-                    ))
+                  ? user.platforms.map((platform, index) =>
+                      platform !== "X" && platform !== "Threads" ? (
+                        <SocialIcon
+                          key={index}
+                          network={platform.toLowerCase().replace(/\s/g, "")}
+                          url={`https://www.${platform
+                            .toLowerCase()
+                            .replace(/\s/g, "")}.com/`}
+                          style={{ height: 35, width: 35, marginTop: "10px" }}
+                        />
+                      ) : platform === "X" ? (
+                        <Link
+                          href="https://www.x.com"
+                          className="h-[35px] w-[35px] mt-[10px] rounded-full bg-black text-white flex items-center justify-center"
+                        >
+                          <FaXTwitter className="text-base" />
+                        </Link>
+                      ) : (
+                        <Link
+                          href="https://www.threads.net"
+                          className="h-[35px] w-[35px] mt-[10px] rounded-full bg-black text-white flex items-center justify-center"
+                        >
+                          <FaThreads className="text-base" />
+                        </Link>
+                      )
+                    )
                   : null}
               </div>
             </div>
@@ -386,46 +411,60 @@ const UserPage = ({ params }: { params: { id: string } }) => {
       <main className="p-3 m-0 grid grid-cols-4 grid-flow-dense gap-4">
         <div className="row-span-3 border border-solid border-gray-300 rounded-xl h-fit">
           <h1 className="p-2 ml-3 text-2xl font-bold rounded-t-xl">Stack</h1>
-          <hr className="border-solid border border-black mb-4" />
-          <div className="pb-3 grid grid-cols-4 gap-4 items-center content-evenly justify-evenly justify-items-center rounded-b-xl">
-            {topLanguages
-              .sort((a, b) => b.proficiency - a.proficiency)
-              .map((language, index) => (
-                <>
-                  <div key={index} className="col-span-1">
-                    <Tooltip
-                      title={language.language}
-                      arrow={false}
-                      placement="right"
-                    >
-                      {allIcons[language.language]}
-                    </Tooltip>
-                  </div>
-                  <Progress
-                    percent={language.proficiency}
-                    format={(percent) => percent}
-                    className="col-span-3"
-                  />
-                </>
-              ))}
-            {user.codingLanguages.length > 5 ? (
-              <button
-                className="col-start-3 col-span-2 text-base text-blue-500 flex flex-row right-0 self-end items-center justify-between"
-                onClick={() => setIsStackOpen(true)}
-              >
-                See More
-                <MdOutlineKeyboardDoubleArrowRight className="ml-3" />
-              </button>
-            ) : null}
-          </div>
+          <hr
+            className={`border-solid border border-black ${
+              user.codingLanguages && user.codingLanguages.length > 0
+                ? "mb-4"
+                : null
+            }`}
+          />
+          {user.codingLanguages && user.codingLanguages?.length > 0 ? (
+            <div className="pb-3 grid grid-cols-4 gap-4 items-center content-evenly justify-evenly justify-items-center rounded-b-xl">
+              {topLanguages
+                .sort((a, b) => b.proficiency - a.proficiency)
+                .map((language, index) => (
+                  <>
+                    <div key={index} className="col-span-1">
+                      <Tooltip
+                        title={language.language}
+                        arrow={false}
+                        placement="right"
+                      >
+                        {allIcons[language.language]}
+                      </Tooltip>
+                    </div>
+                    <Progress
+                      percent={language.proficiency}
+                      format={(percent) => percent}
+                      className="col-span-3"
+                    />
+                  </>
+                ))}
+              {user.codingLanguages && user.codingLanguages.length > 5 ? (
+                <button
+                  className="col-start-3 col-span-2 text-base text-blue-500 flex flex-row right-0 self-end items-center justify-between"
+                  onClick={() => setIsStackOpen(true)}
+                >
+                  See More
+                  <MdOutlineKeyboardDoubleArrowRight className="ml-3" />
+                </button>
+              ) : null}
+            </div>
+          ) : (
+            <div className="pl-2 py-5 ml-3 text-xl my-1 text-green-500">
+              Still Learning...
+            </div>
+          )}
         </div>
         <div className="col-span-3 border border-solid border-gray-300 rounded-xl p-2 h-fit">
           <h1 className="text-2xl font-bold ml-3 underline underline-offset-4">
             About
           </h1>
-          <p className="ml-3 mt-2">{user.about}</p>
+          <p className={`ml-3 mt-2 ${user.about ? null : "text-green-500"}`}>
+            {user.about || "Still Finding Myself..."}
+          </p>
         </div>
-        <div className="col-span-3 col-start-2 row-span-6 border border-solid border-gray-300 rounded-xl h-fit">
+        <div className="col-span-3 col-start-2 row-span-6 border border-solid border-gray-300 rounded-t-xl h-fit">
           <div className="flex flex-row justify-between items-center">
             <h1 className="text-2xl font-bold ml-3 p-2 rounded-tl-xl">
               Questions
@@ -474,168 +513,203 @@ const UserPage = ({ params }: { params: { id: string } }) => {
             </div>
           </div>
           <hr className="border-solid border border-black" />
-          <div className={`rounded-b-xl flex flex-col justify-between`}>
-            {questionTypeMode === "all" && (
-              <ul role="list" className="divide-y divide-gray-500 rounded-b-xl">
-                {userQuestionsAndContributions.allQuestions.length <= 5
-                  ? userQuestionsAndContributions.allQuestions.map(
-                      (question, index) => (
-                        <li key={index}>
-                          <Link
-                            href={`/questions/${question.id}`}
-                            className="flex justify-between gap-x-6 px-3 py-3"
-                          >
-                            <Question
-                              question={question.question}
-                              asker={question.asker.name}
-                              contributors={question.contributors || []}
-                              date={question.date}
-                              answered={question.isAnswered}
-                            />
-                          </Link>
-                        </li>
-                      )
-                    )
-                  : getTopQuestions(
-                      userQuestionsAndContributions.allQuestions,
-                      5
-                    ).map((question, index) => (
-                      <li key={index}>
-                        <Link
-                          href={`/questions/${question.id}`}
-                          className="flex justify-between gap-x-6 px-3 py-3"
-                        >
-                          <Question
-                            question={question.question}
-                            asker={question.asker.name}
-                            contributors={question.contributors || []}
-                            date={question.date}
-                            answered={question.isAnswered}
-                          />
-                        </Link>
-                      </li>
-                    ))}
-              </ul>
-            )}
-            {questionTypeMode === "all" &&
-            userQuestionsAndContributions.allQuestions.length > 5 ? (
-              <button
-                className="text-base text-blue-500 flex flex-row self-end items-center justify-between rounded-br-xl"
-                onClick={() => setIsQuestionsOpen(true)}
-              >
-                See More
-                <MdOutlineKeyboardDoubleArrowRight className="mx-2 my-2" />
-              </button>
-            ) : null}
-          </div>
-          <div className={`rounded-b-xl flex flex-col justify-between`}>
-            {questionTypeMode === "asked" && (
-              <ul role="list" className="divide-y divide-gray-500 rounded-b-xl">
-                {userQuestionsAndContributions.askedQuestions.length <= 5
-                  ? userQuestionsAndContributions.askedQuestions.map(
-                      (question, index) => (
-                        <li key={index}>
-                          <Link
-                            href={`/questions/${question.id}`}
-                            className="flex justify-between gap-x-6 px-3 py-3"
-                          >
-                            <Question
-                              question={question.question}
-                              asker={question.asker.name}
-                              contributors={question.contributors || []}
-                              date={question.date}
-                              answered={question.isAnswered}
-                            />
-                          </Link>
-                        </li>
-                      )
-                    )
-                  : getTopQuestions(
-                      userQuestionsAndContributions.askedQuestions,
-                      5
-                    ).map((question, index) => (
-                      <li key={index}>
-                        <Link
-                          href={`/questions/${question.id}`}
-                          className="flex justify-between gap-x-6 px-3 py-3"
-                        >
-                          <Question
-                            question={question.question}
-                            asker={question.asker.name}
-                            contributors={question.contributors || []}
-                            date={question.date}
-                            answered={question.isAnswered}
-                          />
-                        </Link>
-                      </li>
-                    ))}
-              </ul>
-            )}
-            {questionTypeMode === "asked" &&
-            userQuestionsAndContributions.askedQuestions.length > 5 ? (
-              <button
-                className="text-base text-blue-500 flex flex-row self-end items-center justify-between rounded-bl-xl"
-                onClick={() => setIsQuestionsOpen(true)}
-              >
-                See More
-                <MdOutlineKeyboardDoubleArrowRight className="mx-2 my-2" />
-              </button>
-            ) : null}
-          </div>
-          <div className={`rounded-b-xl flex flex-col justify-between`}>
-            {questionTypeMode === "contributed" && (
-              <ul role="list" className="divide-y divide-gray-500 rounded-b-xl">
-                {userQuestionsAndContributions.contributedQuestions.length <= 5
-                  ? userQuestionsAndContributions.contributedQuestions.map(
-                      (question, index) => (
-                        <li key={index}>
-                          <Link
-                            href={`/questions/${question.id}`}
-                            className="flex justify-between gap-x-6 px-3 py-3"
-                          >
-                            <Question
-                              question={question.question}
-                              asker={question.asker.name}
-                              contributors={question.contributors || []}
-                              date={question.date}
-                              answered={question.isAnswered}
-                            />
-                          </Link>
-                        </li>
-                      )
-                    )
-                  : getTopQuestions(
-                      userQuestionsAndContributions.contributedQuestions,
-                      5
-                    ).map((question, index) => (
-                      <li key={index}>
-                        <Link
-                          href={`/questions/${question.id}`}
-                          className="flex justify-between gap-x-6 px-3 py-3"
-                        >
-                          <Question
-                            question={question.question}
-                            asker={question.asker.name}
-                            contributors={question.contributors || []}
-                            date={question.date}
-                            answered={question.isAnswered}
-                          />
-                        </Link>
-                      </li>
-                    ))}
-              </ul>
-            )}
-            {questionTypeMode === "contributed" &&
-            userQuestionsAndContributions.contributedQuestions.length > 5 ? (
-              <button
-                className="text-base text-blue-500 flex flex-row self-end items-center justify-between rounded-bl-xl"
-                onClick={() => setIsQuestionsOpen(true)}
-              >
-                See More
-                <MdOutlineKeyboardDoubleArrowRight className="mx-2 my-2" />
-              </button>
-            ) : null}
-          </div>
+          {userQuestionsAndContributions.allQuestions &&
+          userQuestionsAndContributions.allQuestions.length > 0 ? (
+            <>
+              <div className={`rounded-b-xl flex flex-col justify-between`}>
+                {questionTypeMode === "all" && (
+                  <ul
+                    role="list"
+                    className="divide-y divide-gray-500 rounded-b-xl"
+                  >
+                    {userQuestionsAndContributions.allQuestions.length <= 5
+                      ? userQuestionsAndContributions.allQuestions.map(
+                          (question, index) => (
+                            <li key={index}>
+                              <Link
+                                href={`/questions/${question.id}`}
+                                className="flex justify-between gap-x-6 px-3 py-3"
+                              >
+                                <Question
+                                  question={question.question}
+                                  asker={question.asker.name}
+                                  contributors={question.contributors || []}
+                                  date={question.date}
+                                  answered={question.isAnswered}
+                                />
+                              </Link>
+                            </li>
+                          )
+                        )
+                      : getTopQuestions(
+                          userQuestionsAndContributions.allQuestions,
+                          5
+                        ).map((question, index) => (
+                          <li key={index}>
+                            <Link
+                              href={`/questions/${question.id}`}
+                              className="flex justify-between gap-x-6 px-3 py-3"
+                            >
+                              <Question
+                                question={question.question}
+                                asker={question.asker.name}
+                                contributors={question.contributors || []}
+                                date={question.date}
+                                answered={question.isAnswered}
+                              />
+                            </Link>
+                          </li>
+                        ))}
+                  </ul>
+                )}
+                {questionTypeMode === "all" &&
+                userQuestionsAndContributions.allQuestions.length > 5 ? (
+                  <button
+                    className="text-base text-blue-500 flex flex-row self-end items-center justify-between rounded-br-xl"
+                    onClick={() => setIsQuestionsOpen(true)}
+                  >
+                    See More
+                    <MdOutlineKeyboardDoubleArrowRight className="mx-2 my-2" />
+                  </button>
+                ) : null}
+              </div>
+              <div className={`rounded-b-xl flex flex-col justify-between`}>
+                {questionTypeMode === "asked" && (
+                  <ul
+                    role="list"
+                    className="divide-y divide-gray-500 rounded-b-xl"
+                  >
+                    {userQuestionsAndContributions.askedQuestions.length <= 5
+                      ? userQuestionsAndContributions.askedQuestions.map(
+                          (question, index) => (
+                            <li key={index}>
+                              <Link
+                                href={`/questions/${question.id}`}
+                                className="flex justify-between gap-x-6 px-3 py-3"
+                              >
+                                <Question
+                                  question={question.question}
+                                  asker={question.asker.name}
+                                  contributors={question.contributors || []}
+                                  date={question.date}
+                                  answered={question.isAnswered}
+                                />
+                              </Link>
+                            </li>
+                          )
+                        )
+                      : getTopQuestions(
+                          userQuestionsAndContributions.askedQuestions,
+                          5
+                        ).map((question, index) => (
+                          <li key={index}>
+                            <Link
+                              href={`/questions/${question.id}`}
+                              className="flex justify-between gap-x-6 px-3 py-3"
+                            >
+                              <Question
+                                question={question.question}
+                                asker={question.asker.name}
+                                contributors={question.contributors || []}
+                                date={question.date}
+                                answered={question.isAnswered}
+                              />
+                            </Link>
+                          </li>
+                        ))}
+                  </ul>
+                )}
+                {questionTypeMode === "asked" &&
+                userQuestionsAndContributions.askedQuestions.length > 5 ? (
+                  <button
+                    className="text-base text-blue-500 flex flex-row self-end items-center justify-between rounded-bl-xl"
+                    onClick={() => setIsQuestionsOpen(true)}
+                  >
+                    See More
+                    <MdOutlineKeyboardDoubleArrowRight className="mx-2 my-2" />
+                  </button>
+                ) : null}
+              </div>
+              <div className={`rounded-b-xl flex flex-col justify-between`}>
+                {questionTypeMode === "contributed" && (
+                  <ul
+                    role="list"
+                    className="divide-y divide-gray-500 rounded-b-xl"
+                  >
+                    {userQuestionsAndContributions.contributedQuestions
+                      .length <= 5
+                      ? userQuestionsAndContributions.contributedQuestions.map(
+                          (question, index) => (
+                            <li key={index}>
+                              <Link
+                                href={`/questions/${question.id}`}
+                                className="flex justify-between gap-x-6 px-3 py-3"
+                              >
+                                <Question
+                                  question={question.question}
+                                  asker={question.asker.name}
+                                  contributors={question.contributors || []}
+                                  date={question.date}
+                                  answered={question.isAnswered}
+                                />
+                              </Link>
+                            </li>
+                          )
+                        )
+                      : getTopQuestions(
+                          userQuestionsAndContributions.contributedQuestions,
+                          5
+                        ).map((question, index) => (
+                          <li key={index}>
+                            <Link
+                              href={`/questions/${question.id}`}
+                              className="flex justify-between gap-x-6 px-3 py-3"
+                            >
+                              <Question
+                                question={question.question}
+                                asker={question.asker.name}
+                                contributors={question.contributors || []}
+                                date={question.date}
+                                answered={question.isAnswered}
+                              />
+                            </Link>
+                          </li>
+                        ))}
+                  </ul>
+                )}
+                {questionTypeMode === "contributed" &&
+                userQuestionsAndContributions.contributedQuestions.length >
+                  5 ? (
+                  <button
+                    className="text-base text-blue-500 flex flex-row self-end items-center justify-between rounded-bl-xl"
+                    onClick={() => setIsQuestionsOpen(true)}
+                  >
+                    See More
+                    <MdOutlineKeyboardDoubleArrowRight className="mx-2 my-2" />
+                  </button>
+                ) : null}
+              </div>
+            </>
+          ) : (
+            <div className="rounded-b-xl text-center py-16">
+              <p className="text-xl underline">No Questions Yet</p>
+              <div className="flex flex-row justify-center items-center mt-2">
+                <div className="flex flex-row justify-center items-center gap-2 text-lg">
+                  Ask Question{" "}
+                  <Link href="/questions/add">
+                    <FaPlus className="text-blue-400 text-xl hover:text-blue-600 hover:scale-125" />
+                  </Link>
+                </div>
+                <div className="mx-3 scale-[2.0]">|</div>
+                <div className="flex flex-row justify-center items-center gap-2 text-lg">
+                  Contribute to Question{" "}
+                  <Link href="/">
+                    <FaHome className="text-blue-400 text-xl hover:text-blue-600 hover:scale-125" />
+                  </Link>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
         <div className="row-span-3 col-start-1 col-span-1 border border-solid border-gray-300 rounded-xl ">
           <h1 className="p-2 ml-3 text-2xl font-bold rounded-tr-xl">
@@ -648,7 +722,7 @@ const UserPage = ({ params }: { params: { id: string } }) => {
                 Education
               </dt>
               <dd className="mr-2 text-base leading-6 text-gray-700 sm:flex-1 sm:text-right">
-                {user.education}
+                {user.education || "N/A"}
               </dd>
             </div>
             <div className="p-1 sm:flex sm:items-center sm:gap-4 sm:px-0">
@@ -656,7 +730,7 @@ const UserPage = ({ params }: { params: { id: string } }) => {
                 Employer
               </dt>
               <dd className="mr-2 text-base leading-6 text-gray-700 sm:flex-1 sm:text-right">
-                {user.company}
+                {user.company || "N/A"}
               </dd>
             </div>
             <div className="p-1 sm:flex sm:items-center sm:gap-4 sm:px-0">
@@ -664,7 +738,7 @@ const UserPage = ({ params }: { params: { id: string } }) => {
                 Location
               </dt>
               <dd className="mr-2 text-base leading-6 text-gray-700 sm:flex-1 sm:text-right">
-                {user.location}
+                {user.location || "N/A"}
               </dd>
             </div>
             <div className="p-1 sm:flex sm:items-center sm:gap-4 sm:px-0">
@@ -685,17 +759,18 @@ const UserPage = ({ params }: { params: { id: string } }) => {
                 skillsOpen ? "block" : "hidden"
               }`}
             >
-              {user.skills.map((skill, index) => (
-                <>
-                  <dt></dt>
-                  <dd
-                    key={index}
-                    className="text-base text-gray-700 bg-gray-100 p-[2px] sm:flex-1 sm:text-center"
-                  >
-                    {skill}
-                  </dd>
-                </>
-              ))}
+              {user.skills &&
+                user.skills.map((skill, index) => (
+                  <>
+                    <dt></dt>
+                    <dd
+                      key={index}
+                      className="text-base text-gray-700 bg-gray-100 p-[2px] sm:flex-1 sm:text-center"
+                    >
+                      {skill}
+                    </dd>
+                  </>
+                ))}
             </div>
           </dl>
         </div>
@@ -1011,24 +1086,25 @@ const UserPage = ({ params }: { params: { id: string } }) => {
                   </Dialog.Title>
                   <hr className="border-solid border-black border" />
                   <div className="p-3 overflow-auto grid grid-cols-4 gap-4 items-center content-evenly justify-evenly justify-items-center rounded-b-xl">
-                    {user.codingLanguages.map((language, index) => (
-                      <>
-                        <div key={index} className="col-span-1">
-                          <Tooltip
-                            title={language.language}
-                            arrow={false}
-                            placement="right"
-                          >
-                            {allIcons[language.language]}
-                          </Tooltip>
-                        </div>
-                        <Progress
-                          percent={language.proficiency}
-                          format={(percent) => percent}
-                          className="col-span-3"
-                        />
-                      </>
-                    ))}
+                    {user.codingLanguages &&
+                      user.codingLanguages.map((language, index) => (
+                        <>
+                          <div key={index} className="col-span-1">
+                            <Tooltip
+                              title={language.language}
+                              arrow={false}
+                              placement="right"
+                            >
+                              {allIcons[language.language]}
+                            </Tooltip>
+                          </div>
+                          <Progress
+                            percent={language.proficiency}
+                            format={(percent) => percent}
+                            className="col-span-3"
+                          />
+                        </>
+                      ))}
                   </div>
 
                   <div className="mt-4">

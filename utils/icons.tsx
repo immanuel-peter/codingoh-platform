@@ -99,6 +99,7 @@ import {
   OpenglPlain,
   D3jsOriginal,
   ReduxOriginal,
+  GraphqlPlain,
 } from "devicons-react";
 
 export const allIcons: { [name: string]: React.ReactNode } = {
@@ -144,6 +145,7 @@ export const allIcons: { [name: string]: React.ReactNode } = {
   Heroku: <HerokuOriginal size={25} />,
   "Node.js": <NodejsOriginal size={25} />,
   React: <ReactOriginal size={25} />,
+  "React Native": <ReactOriginal size={25} />,
   jQuery: <JqueryOriginal size={25} />,
   "Express.js": <ExpressOriginal size={25} />,
   AngularJS: <AngularjsOriginal size={25} />,
@@ -201,4 +203,5 @@ export const allIcons: { [name: string]: React.ReactNode } = {
   OpenGL: <OpenglPlain size={25} />,
   "D3.js": <D3jsOriginal size={25} />,
   Redux: <ReduxOriginal size={25} />,
+  GraphQL: <GraphqlPlain size={25} />,
 };
