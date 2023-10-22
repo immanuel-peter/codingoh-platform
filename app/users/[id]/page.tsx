@@ -349,6 +349,12 @@ const UserPage = ({ params }: { params: { id: string } }) => {
               <h1 className="text-xl font-bold">{user.name}</h1>
               <span className="text-lg font-normal">{user.position}</span>
               <div className="flex flex-row gap-2">
+                <SocialIcon
+                  key="email"
+                  network="email"
+                  url={`mailto:${user.email}`}
+                  style={{ height: 35, width: 35, marginTop: 10 }}
+                />
                 {user.platforms
                   ? user.platforms.map((platform, index) =>
                       platform !== "X" && platform !== "Threads" ? (

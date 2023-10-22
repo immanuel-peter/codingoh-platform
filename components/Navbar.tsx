@@ -21,13 +21,11 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Dialog, Transition } from "@headlessui/react";
 import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
+import { Avatar } from "@mui/joy";
 
 import { questions, inboxItems } from "@/dummy/questions";
 import { Question } from "@/types";
-
-interface NavbarProps {
-  isProfile?: boolean;
-}
+import AvatarPic from "public/avatar.png";
 
 const Navbar = ({ isProfile }: { isProfile?: boolean }) => {
   const router = useRouter();
@@ -166,7 +164,7 @@ const Navbar = ({ isProfile }: { isProfile?: boolean }) => {
             >
               <FaInbox className="text-3xl hover:text-amber-900" />
             </div>
-            {!isProfile ? (
+            {/* {!isProfile ? (
               <Link href="/users/7094247" className="mx-1">
                 <div className="flex items-center justify-between px-3 py-2 gap-4 bg-gradient-to-r from-blue-300 to-transparent via-blue-300 border border-solid border-blue-800 rounded-full">
                   Profile
@@ -175,7 +173,15 @@ const Navbar = ({ isProfile }: { isProfile?: boolean }) => {
               </Link>
             ) : (
               <UserButton />
-            )}
+            )} */}
+            <Link href="/users/7094247">
+              <Avatar
+                size="md"
+                className="hover:text-blue-500 hover:bg-blue-300/50"
+              >
+                JD
+              </Avatar>
+            </Link>
           </SignedIn>
         </nav>
       </header>

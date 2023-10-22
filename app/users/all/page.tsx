@@ -61,10 +61,11 @@ const allUsers = () => {
     //   setLangQuery(value);
     // }
 
-    const filteredUsers = users.filter((user) =>
-      user.codingLanguages.some((lang) =>
-        lang.language.toLowerCase().includes(langQuery.toLowerCase())
-      )
+    const filteredUsers = users.filter(
+      (user) =>
+        user.codingLanguages?.some((lang) =>
+          lang.language.toLowerCase().includes(langQuery.toLowerCase())
+        )
     );
     setDisplayedUsers(filteredUsers);
   };
@@ -103,7 +104,7 @@ const allUsers = () => {
               <Card
                 key={index}
                 name={user.name}
-                position={user.position}
+                position={user.position || "Undefined"}
                 isOnline={user.isOnline}
                 languages={user.codingLanguages}
               />

@@ -1,6 +1,4 @@
-"use client";
-
-import React, { useState } from "react";
+import React from "react";
 import Image from "next/image";
 import { CircularProgress } from "@mui/material";
 import { palette } from "@mui/system";
@@ -26,10 +24,11 @@ const Card = ({
   extraStyles,
 }: CardProps) => {
   let filteredLanguages: Proficiency[];
-  if (!languages || languages.length === 0) {
-    return "No languages";
-  } else {
+
+  if (languages && languages.length !== 0) {
     filteredLanguages = getTopLanguages(languages, 3);
+  } else {
+    return [];
   }
 
   return (
@@ -81,42 +80,45 @@ const Card = ({
               )}
             </div>
           </div>
-          <div className="mt-6 mb-3 flex gap-14 bg-white md:!gap-14">
-            <div className="flex flex-col items-center justify-center bg-white">
-              <p className="text-2xl font-bold text-navy-700 bg-inherit">
-                <CircularProgress
-                  variant="determinate"
-                  value={filteredLanguages[0].proficiency}
-                />
-              </p>
-              <p className="text-sm font-normal bg-inherit text-gray-600">
-                {filteredLanguages[0].language}
-              </p>
+          {filteredLanguages && filteredLanguages.length > 0 ? (
+            <div className="mt-6 mb-3 flex gap-14 bg-white md:!gap-14">
+              <div className="flex flex-col items-center justify-center bg-white">
+                <p className="text-2xl font-bold text-navy-700 bg-inherit">
+                  <CircularProgress
+                    variant="determinate"
+                    value={filteredLanguages[0].proficiency}
+                  />
+                </p>
+                <p className="text-sm font-normal bg-inherit text-gray-600">
+                  {filteredLanguages[0].language}
+                </p>
+              </div>
+              <div className="flex flex-col items-center justify-center bg-inherit">
+                <p className="text-2xl font-bold text-navy-700 bg-inherit">
+                  <CircularProgress
+                    variant="determinate"
+                    value={filteredLanguages[1].proficiency}
+                  />
+                </p>
+                <p className="text-sm font-normal text-gray-600 bg-inherit">
+                  {filteredLanguages[1].language}
+                </p>
+              </div>
+              <div className="flex flex-col items-center justify-center bg-inherit">
+                <p className="text-2xl font-bold text-navy-700 bg-inherit dark:text-white">
+                  <CircularProgress
+                    variant="determinate"
+                    value={filteredLanguages[2].proficiency}
+                  />
+                </p>
+                <p className="text-sm font-normal text-gray-600 bg-inherit">
+                  {filteredLanguages[2].language}
+                </p>
+              </div>
             </div>
-            <div className="flex flex-col items-center justify-center bg-inherit">
-              <p className="text-2xl font-bold text-navy-700 bg-inherit">
-                <CircularProgress
-                  variant="determinate"
-                  value={filteredLanguages[1].proficiency}
-                />
-              </p>
-              <p className="text-sm font-normal text-gray-600 bg-inherit">
-                {filteredLanguages[1].language}
-              </p>
-            </div>
-
-            <div className="flex flex-col items-center justify-center bg-inherit">
-              <p className="text-2xl font-bold text-navy-700 bg-inherit dark:text-white">
-                <CircularProgress
-                  variant="determinate"
-                  value={filteredLanguages[2].proficiency}
-                />
-              </p>
-              <p className="text-sm font-normal text-gray-600 bg-inherit">
-                {filteredLanguages[2].language}
-              </p>
-            </div>
-          </div>
+          ) : (
+            <p className="text-green-500">Still Learning...</p>
+          )}
         </div>
       </div>
     </>

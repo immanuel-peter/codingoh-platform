@@ -280,7 +280,7 @@ const genderOptions: string[] = [
 
 const gatesBday = new Date("1955-10-28");
 
-const NewUser = () => {
+export const NewUser = () => {
   // Personal Info
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
@@ -314,6 +314,13 @@ const NewUser = () => {
     setTimezone(data.value);
   };
   console.log(timezone);
+
+  const onImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files[0]) {
+      let img = event.target.files[0];
+      setProfileImg(URL.createObjectURL(img));
+    }
+  };
 
   // Background Banner
   const [selectedBackgroundImage, setSelectedBackgroundImage] = useState(
@@ -1005,13 +1012,19 @@ const NewUser = () => {
                   Avatar
                 </label>
                 <div className="mt-2 flex flex-row justify-start gap-3 items-center">
-                  <Avatar size="lg" src={profileImg || undefined} />
+                  {profileImg !== "" ? (
+                    <Avatar size="lg" src={profileImg} />
+                  ) : firstName !== "" && lastName !== "" ? (
+                    <Avatar size="lg">{`${firstName[0]}${lastName[0]}`}</Avatar>
+                  ) : (
+                    <Avatar size="lg" />
+                  )}
                   <label className="p-1 border border-solid rounded-lg cursor-pointer bg-white hover:bg-gray-50 shadow-sm font-medium">
                     Change
                     <input
                       type="file"
                       name="profile-img"
-                      onChange={() => {}} // need to work on this
+                      onChange={onImageChange} // need to work on this
                       className="hidden"
                     />
                   </label>
