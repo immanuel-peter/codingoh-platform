@@ -110,6 +110,7 @@ import Link from "next/link";
 import { Dialog, Transition } from "@headlessui/react";
 import { SocialIcon } from "react-social-icons";
 import { SignedIn } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
 
 import { users, questions, projects, techSkills } from "@/dummy/questions";
 import { User, RecordType, Project as ProjectType } from "@/types";
@@ -226,6 +227,8 @@ const getUser = (userId: string): User | undefined => {
 const { Option } = Select;
 
 const UserPage = ({ params }: { params: { id: string } }) => {
+  const router = useRouter();
+
   const [questionTypeMode, setQuestionTypeMode] = useState("all");
   const [isStackOpen, setIsStackOpen] = useState(false);
   const [isQuestionsOpen, setIsQuestionsOpen] = useState(false);
@@ -235,7 +238,7 @@ const UserPage = ({ params }: { params: { id: string } }) => {
   );
   const [projectTypeMode, setProjectTypeMode] = useState("all");
   const [isProjectsOpen, setIsProjectsOpen] = useState(false);
-  const [editStatus, setEditStatus] = useState(false);
+
   const [newProjectModalOpen, setNewProjectModalOpen] = useState(false);
   const [newProjectImage, setNewProjectImage] = useState("");
   const [targetKeys, setTargetKeys] = useState<string[]>([]);
@@ -388,23 +391,13 @@ const UserPage = ({ params }: { params: { id: string } }) => {
           </div>
           <div>
             <SignedIn>
-              {!editStatus ? (
-                <button
-                  onClick={() => setEditStatus(true)}
-                  className="p-3 bg-cyan-300 hover:bg-cyan-400 border border-solid border-cyan-400 hover:border-cyan-500 items-center justify-center flex flex-row rounded-lg"
-                >
-                  <FaEdit className="mr-3 bg-inherit" />
-                  Edit Profile
-                </button>
-              ) : (
-                <button
-                  onClick={() => setEditStatus(false)}
-                  className="p-3 w-24 bg-purple-400 hover:bg-purple-500 border border-solid border-purple-500 hover:border-purple-600 items-center justify-center flex flex-row rounded-lg"
-                >
-                  <FaSave className="mr-3 bg-inherit" />
-                  Save
-                </button>
-              )}
+              <button
+                onClick={() => router.push(`/users/${user.id}/edit`)}
+                className="p-3 bg-cyan-300 hover:bg-cyan-400 border border-solid border-cyan-400 hover:border-cyan-500 items-center justify-center flex flex-row rounded-lg"
+              >
+                <FaEdit className="mr-3 bg-inherit" />
+                Edit Profile
+              </button>
             </SignedIn>
           </div>
         </div>

@@ -77,7 +77,7 @@ export default function Home() {
                   <Card
                     key={index}
                     name={user.name}
-                    position={user.position}
+                    position={user.position || "Undefined"}
                     languages={user.codingLanguages}
                     isOnline={user.isOnline}
                     extraStyles="last-of-type:mb-3"

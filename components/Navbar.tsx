@@ -174,12 +174,12 @@ const Navbar = ({ isProfile }: { isProfile?: boolean }) => {
             ) : (
               <UserButton />
             )} */}
-            <Link href="/users/7094247">
+            <Link href="/users/8591247">
               <Avatar
                 size="md"
                 className="hover:text-blue-500 hover:bg-blue-300/50"
               >
-                JD
+                IP
               </Avatar>
             </Link>
           </SignedIn>

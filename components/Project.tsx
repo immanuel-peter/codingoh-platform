@@ -129,7 +129,7 @@ const Project = ({ project }: { project: ProjectType }) => {
                     className="flex justify-between items-center p-2 text-4xl font-bold leading-6 text-gray-900 text-left"
                   >
                     {project.name}
-                    <Link href="https://www.github.com">
+                    <Link href={project.github}>
                       <FaGithub
                         className={`${getBgColor(
                           project.status
@@ -156,18 +156,27 @@ const Project = ({ project }: { project: ProjectType }) => {
                   <div className="grid grid-cols-16 p-2 gap-3">
                     {project.stack?.map((item) => allIcons[item])}
                   </div>
-                  <h2 className="pl-2 mt-2 font-bold text-left text-xl">
-                    Needed Skills
-                  </h2>
-                  <div
-                    id="project-tags"
-                    className="p-2 gap-2 flex justify-start items-start flex-wrap"
-                  >
-                    {project.needed?.map((item) => (
-                      <Tag bordered={false}>{item}</Tag>
-                    ))}
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <h2 className="pl-2 mt-2 font-bold text-left text-xl">
+                        Needed Skills
+                      </h2>
+                      <div
+                        id="project-tags"
+                        className="p-2 gap-2 flex justify-start items-start flex-wrap"
+                      >
+                        {project.needed?.map((item) => (
+                          <Tag bordered={false}>{item}</Tag>
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <Link href="/" target="_blank">
+                        <FaCirclePlus className="hover:text-blue-700 hover:cursor-pointer text-4xl" />
+                      </Link>
+                    </div>
                   </div>
-                  <h1 className="px-2 mt-4 font-bold text-left text-2xl flex flex-row justify-between items-center">
+                  {/* <h1 className="px-2 mt-4 font-bold text-left text-2xl flex flex-row justify-between items-center">
                     Contributors
                     <Link href="/" target="_blank">
                       <FaCirclePlus className="hover:text-blue-700 hover:cursor-pointer text-4xl" />
@@ -190,7 +199,7 @@ const Project = ({ project }: { project: ProjectType }) => {
                         {project.stack?.map((item) => allIcons[item])}
                       </div>
                     </div>
-                  ))}
+                  ))} */}
                 </Dialog.Panel>
               </Transition.Child>
             </div>

@@ -23,13 +23,16 @@ const Card = ({
   languages,
   extraStyles,
 }: CardProps) => {
-  let filteredLanguages: Proficiency[];
+  // let filteredLanguages: Proficiency[];
 
-  if (languages && languages.length !== 0) {
-    filteredLanguages = getTopLanguages(languages, 3);
-  } else {
-    return [];
-  }
+  // if (languages && languages.length !== 0) {
+  //   filteredLanguages = getTopLanguages(languages, 3);
+  // } else {
+  //   return [];
+  // }
+
+  const filteredLanguages: Proficiency[] =
+    languages && languages.length !== 0 ? getTopLanguages(languages, 3) : [];
 
   return (
     <>
@@ -117,7 +120,7 @@ const Card = ({
               </div>
             </div>
           ) : (
-            <p className="text-green-500">Still Learning...</p>
+            <p className="text-green-500 mt-20">Still Learning...</p>
           )}
         </div>
       </div>

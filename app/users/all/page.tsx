@@ -106,7 +106,7 @@ const allUsers = () => {
                 name={user.name}
                 position={user.position || "Undefined"}
                 isOnline={user.isOnline}
-                languages={user.codingLanguages}
+                languages={user.codingLanguages || []}
               />
             </Link>
           ))
