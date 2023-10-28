@@ -43,7 +43,7 @@ import backgrounds from "@/public/backgrounds";
 import { allIcons } from "@/utils/icons";
 import { techSkills as inDemandSkills } from "@/dummy/questions";
 import { uniqueArray, labelValues, finalProfsByLangs } from "@/utils";
-import { profile } from "console";
+import { Proficiency } from "@/types";
 
 const countryList = [
   "United States of America",
@@ -333,9 +333,7 @@ export const NewUser = () => {
   const [showOptions, setShowOptions] = useState<boolean>(false);
   const [userLangs, setUserLangs] = useState<string[]>([]);
   const [selectedOption, setSelectedOption] = useState<string>("");
-  const [userProfs, setUserProfs] = useState<{ lang: string; prof: number }[]>(
-    []
-  );
+  const [userProfs, setUserProfs] = useState<Proficiency[]>([]);
   const [finalProfs, setFinalProfs] = useState<{ [lang: string]: number }>({});
 
   const langOptions = Object.keys(allIcons);
@@ -378,16 +376,16 @@ export const NewUser = () => {
       setUserProfs([
         ...userProfs,
         {
-          lang: language,
-          prof: value,
+          language: language,
+          proficiency: value,
         },
       ]);
     } else {
       setUserProfs([
         ...userProfs,
         {
-          lang: language,
-          prof: value[0],
+          language: language,
+          proficiency: value[0],
         },
       ]);
     }

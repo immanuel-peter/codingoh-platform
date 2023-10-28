@@ -21,10 +21,8 @@ import {
   FaXTwitter,
   FaThreads,
 } from "react-icons/fa6";
-import { HiCheckCircle } from "react-icons/hi2";
 import { IoCloseCircleOutline } from "react-icons/io5";
 import { BsPlusCircleFill } from "react-icons/bs";
-import { LuMinusCircle } from "react-icons/lu";
 import CheckIcon from "@mui/icons-material/Check";
 import { Badge, Autocomplete, Slider, Avatar } from "@mui/joy";
 import { Select, Tooltip, Progress } from "antd";
@@ -35,15 +33,11 @@ import moment from "moment-timezone";
 import { useTimezoneSelect, allTimezones } from "react-timezone-select";
 
 import Navbar from "@/components/Navbar";
-import AddUserProfileImageInput from "@/components/newuser/AddUserProfileImageInput";
-import BackgroundImageGrid from "@/components/newuser/BackgroundImageGrid";
-import LangSelect from "@/components/newuser/LangSelect";
-import SocialLinks from "@/components/newuser/SocialLinks";
 import backgrounds from "@/public/backgrounds";
+import { User, Proficiency } from "@/types";
 import { allIcons } from "@/utils/icons";
-import { techSkills as inDemandSkills } from "@/dummy/questions";
+import { techSkills as inDemandSkills, users } from "@/dummy/questions";
 import { uniqueArray, labelValues, finalProfsByLangs } from "@/utils";
-import { profile } from "console";
 
 const countryList = [
   "United States of America",
@@ -267,9 +261,7 @@ const countryList = [
   "Zambia",
   "Zimbabwe",
 ];
-
 const labelStyle = "abbrev";
-
 const genderOptions: string[] = [
   "Male",
   "Female",
@@ -278,30 +270,34 @@ const genderOptions: string[] = [
   "Other",
 ];
 
-const gatesBday = new Date("1955-10-28");
+const getUser = (userId: string): User | undefined => {
+  return users.find((user) => user.id === Number(userId));
+};
 
-export const EditUser = () => {
+export const EditUser = ({ params }: { params: { id: string } }) => {
+  const user = getUser(params.id);
+  if (!user) return false;
+
   // Personal Info
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
+  const [firstName, setFirstName] = useState(user.name.split(" ")[0]);
+  const [lastName, setLastName] = useState(user.name.split(" ")[1]);
   const [gender, setGender] = useState("");
   const [dob, setDob] = useState<Date | string | undefined>();
   const [timezone, setTimezone] = useState(
     Intl.DateTimeFormat().resolvedOptions().timeZone
   );
-  const [email, setEmail] = useState("");
-  const [education, setEducation] = useState("");
-  const [company, setCompany] = useState("");
-  const [position, setPosition] = useState("");
-  const [city, setCity] = useState("");
+  const [email, setEmail] = useState(user.email);
+  const [education, setEducation] = useState(user.education || "");
+  const [company, setCompany] = useState(user.company || "");
+  const [position, setPosition] = useState(user.position || "");
+  const [city, setCity] = useState(user.location || "");
   const [usState, setUsState] = useState("");
   const [country, setCountry] = useState("");
   const [profileImg, setProfileImg] = useState("");
-  const [about, setAbout] = useState("");
+  const [about, setAbout] = useState(user.about || "");
 
   const formattedDob =
     dob instanceof Date ? dob.toISOString().split("T")[0] : "";
-  console.log(dob);
 
   const timezones = allTimezones;
   const { options, parseTimezone } = useTimezoneSelect({
@@ -313,7 +309,6 @@ export const EditUser = () => {
     const data = parseTimezone(e.currentTarget.value);
     setTimezone(data.value);
   };
-  console.log(timezone);
 
   const onImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
@@ -331,12 +326,28 @@ export const EditUser = () => {
   const [inputValue, setInputValue] = useState<string>("");
   const [filteredOptions, setFilteredOptions] = useState<string[]>([]);
   const [showOptions, setShowOptions] = useState<boolean>(false);
-  const [userLangs, setUserLangs] = useState<string[]>([]);
-  const [selectedOption, setSelectedOption] = useState<string>("");
-  const [userProfs, setUserProfs] = useState<{ lang: string; prof: number }[]>(
-    []
+  const [userLangs, setUserLangs] = useState<string[]>(
+    user.codingLanguages
+      ? user.codingLanguages.map((lang) => lang.language)
+      : []
   );
-  const [finalProfs, setFinalProfs] = useState<{ [lang: string]: number }>({});
+  const [newLangs, setNewLangs] = useState<string[]>([]);
+  const [selectedOption, setSelectedOption] = useState<string>("");
+  const [userProfs, setUserProfs] = useState<Proficiency[]>(
+    user.codingLanguages || []
+  );
+  const [newProfs, setNewProfs] = useState<Proficiency[]>([]);
+  const [finalProfs, setFinalProfs] = useState<{ [lang: string]: number }>(
+    user.codingLanguages ? finalProfsByLangs(user.codingLanguages) : {}
+  );
+  const [newFinalProfs, setNewFinalProfs] = useState<{
+    [lang: string]: number;
+  }>({});
+  const [allProfs, setAllProfs] = useState<{ [lang: string]: number }>({
+    ...finalProfs,
+    ...newFinalProfs,
+  });
+  console.log(finalProfs);
 
   const langOptions = Object.keys(allIcons);
 
@@ -369,6 +380,15 @@ export const EditUser = () => {
     setSelectedOption("");
   };
 
+  const handleAddNewLang = (lang: string) => {
+    // setUserLangs([...userLangs, lang]);
+    setNewLangs([...newLangs, lang]);
+    setInputValue("");
+    setFilteredOptions([]);
+    setShowOptions(false);
+    setSelectedOption("");
+  };
+
   const handleAddProf = (
     event: React.SyntheticEvent<Element, Event> | Event,
     value: number | number[],
@@ -378,20 +398,46 @@ export const EditUser = () => {
       setUserProfs([
         ...userProfs,
         {
-          lang: language,
-          prof: value,
+          language: language,
+          proficiency: value,
         },
       ]);
     } else {
       setUserProfs([
         ...userProfs,
         {
-          lang: language,
-          prof: value[0],
+          language: language,
+          proficiency: value[0],
         },
       ]);
     }
     setFinalProfs(finalProfsByLangs(userProfs));
+  };
+
+  const handleAddNewProf = (
+    event: React.SyntheticEvent<Element, Event> | Event,
+    value: number | number[],
+    language: string
+  ) => {
+    if (typeof value === "number") {
+      setNewProfs([
+        ...newProfs,
+        {
+          language: language,
+          proficiency: value,
+        },
+      ]);
+    } else {
+      setNewProfs([
+        ...newProfs,
+        {
+          language: language,
+          proficiency: value[0],
+        },
+      ]);
+    }
+    setNewFinalProfs(finalProfsByLangs(newProfs));
+    setAllProfs({ ...finalProfs, ...newFinalProfs });
   };
 
   const handleDocClick = (event: MouseEvent) => {
@@ -414,14 +460,24 @@ export const EditUser = () => {
   }, [inputValue]);
 
   // Skills
-  const [skills, setSkills] = useState<string[]>([]);
+  const [skills, setSkills] = useState<string[]>(user.skills || []);
+  console.log(skills);
 
   const handleSkillChange = (value: string) => {
     setSkills([...skills, value]);
   };
 
+  const handleSkillDeselect = (value: string) => {
+    const newSkills = skills.filter((skill) => skill !== value);
+    setSkills(newSkills);
+  };
+
   // Social Links
-  const [socials, setSocials] = useState<string[]>([]);
+  const [socials, setSocials] = useState<string[]>(
+    user.platforms
+      ? user.platforms.map((p) => p.toLowerCase().replace(/\s/g, ""))
+      : []
+  );
   const [socialLinks, setSocialLinks] = useState([
     { name: "discord", link: "" },
     { name: "dropbox", link: "" },
@@ -738,7 +794,7 @@ export const EditUser = () => {
         <div className="space-y-12">
           <div className="border-b border-gray-900/10 pb-12">
             <h2 className="text-base font-semibold leading-3 text-gray-900">
-              New User
+              Update User
             </h2>
             <span className="text-xs">
               <sup className="text-red-500">*</sup> Required fields
@@ -1124,12 +1180,12 @@ export const EditUser = () => {
                       : "cursor-pointer text-blue-400 hover:text-blue-600"
                   }
         `}
-                  onClick={() => handleAddLang(inputValue)}
+                  onClick={() => handleAddNewLang(inputValue)}
                 />
               </div>
 
               <div className="flex flex-col ml-20">
-                {userLangs.length > 0 && (
+                {finalProfs.length > 0 && (
                   <>
                     <div className="flex flex-row items-center justify-between font-bold">
                       <h3>Language</h3>
@@ -1142,8 +1198,8 @@ export const EditUser = () => {
                   </>
                 )}
 
-                {userLangs.length > 0 &&
-                  userLangs.map((userlang, index) => (
+                {Object.keys(finalProfs).length > 0 &&
+                  Object.keys(finalProfs).map((userlang, index) => (
                     <div className="grid grid-cols-6 justify-between m-2">
                       <div key={index} className="col-span-1 mr-20">
                         <Tooltip
@@ -1163,7 +1219,34 @@ export const EditUser = () => {
                         step={1}
                         className="col-span-5"
                         defaultValue={0}
+                        value={finalProfs[userlang]}
                         onChange={(e, v) => handleAddProf(e, v, userlang)}
+                      />
+                    </div>
+                  ))}
+
+                {newLangs.length > 0 &&
+                  newLangs.map((userlang, index) => (
+                    <div className="grid grid-cols-6 justify-between m-2">
+                      <div key={index} className="col-span-1 mr-20">
+                        <Tooltip
+                          title={userlang}
+                          arrow={false}
+                          placement="right"
+                        >
+                          {allIcons[userlang]}
+                        </Tooltip>
+                      </div>
+                      <Slider
+                        size="md"
+                        color="neutral"
+                        valueLabelDisplay="on"
+                        min={-1}
+                        max={100}
+                        step={1}
+                        className="col-span-5"
+                        defaultValue={0}
+                        onChange={(e, v) => handleAddNewProf(e, v, userlang)}
                       />
                     </div>
                   ))}
@@ -1177,14 +1260,16 @@ export const EditUser = () => {
             </h2>
             <Select
               className="w-11/12 grow-0"
-              mode="tags"
+              mode="multiple"
               placeholder="Project Management, Kanban, Cloud Computing..."
               options={labelValues(uniqueArray(inDemandSkills))}
               allowClear
               clearIcon={
                 <IoCloseCircleOutline className="text-red-300 hover:text-red-600" />
               }
-              onChange={handleSkillChange}
+              defaultValue={skills}
+              onDeselect={handleSkillDeselect}
+              onSelect={handleSkillChange}
             />
           </div>
 

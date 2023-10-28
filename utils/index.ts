@@ -238,11 +238,11 @@ export const labelValues = (
   }));
 };
 
-export const finalProfsByLangs = (data: { lang: string; prof: number }[]) => {
+export const finalProfsByLangs = (data: Proficiency[]) => {
   const returnArray: { [key: string]: number } = {};
   for (const item of data) {
-    if (item.prof > 0) {
-      returnArray[item.lang] = item.prof;
+    if (item.proficiency > 0) {
+      returnArray[item.language] = item.proficiency;
     }
   }
   return returnArray;
