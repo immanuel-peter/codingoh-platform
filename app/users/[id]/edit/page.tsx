@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, SyntheticEvent } from "react";
 import {
   FaCamera,
   FaCircleUser,
@@ -25,7 +25,7 @@ import { IoCloseCircleOutline } from "react-icons/io5";
 import { BsPlusCircleFill } from "react-icons/bs";
 import CheckIcon from "@mui/icons-material/Check";
 import { Badge, Autocomplete, Slider, Avatar } from "@mui/joy";
-import { Select, Tooltip, Progress } from "antd";
+import { Select, Tooltip, Progress, message } from "antd";
 import { currentUser, useUser } from "@clerk/nextjs";
 import Image from "next/image";
 import { SocialIcon } from "react-social-icons";
@@ -786,11 +786,91 @@ export const EditUser = ({ params }: { params: { id: string } }) => {
     setFinalSocialLinks(socialLinks.filter((item) => item.link !== ""));
   };
 
+  // Form Actions
+  const [messageApi, contextHolder] = message.useMessage();
+
+  const handleFormSubmit = async (e: SyntheticEvent) => {
+    e.preventDefault();
+
+    const userData = {
+      firstName,
+      lastName,
+      gender,
+      dob,
+      timezone,
+      email,
+      education,
+      company,
+      position,
+      city,
+      usState,
+      country,
+      profileImg,
+      about,
+      selectedBackgroundImage,
+      inputValue,
+      finalProfs,
+      skills,
+      finalSocialLinks,
+    };
+
+    if (
+      userData.firstName.trim() === "" &&
+      userData.lastName.trim() === "" &&
+      userData.timezone === "" &&
+      userData.email.trim() === ""
+    ) {
+      messageApi.open({
+        type: "error",
+        content: "Please fill in all required fields",
+        duration: 3,
+      });
+    }
+
+    try {
+      // Make database call
+      // console.log("Added user to database:", userData.firstName, userData.lastName)
+      // Redirect to dev profile page '/users/{/* id given by database */}'
+    } catch (error) {
+      // console.log("Error:", error)
+    }
+  };
+
+  const handleFormCancel = () => {
+    setFirstName("");
+    setLastName("");
+    setGender("");
+    setDob("");
+    setTimezone(Intl.DateTimeFormat().resolvedOptions().timeZone);
+    setEmail("");
+    setEducation("");
+    setCompany("");
+    setPosition("");
+    setCity("");
+    setUsState("");
+    setCountry("");
+    setProfileImg("");
+    setAbout("");
+    setSelectedBackgroundImage(backgrounds[0]);
+    setInputValue("");
+    setFilteredOptions([]);
+    setShowOptions(false);
+    setUserLangs([]);
+    setUserProfs([]);
+    setFinalProfs({});
+    setSkills([]);
+    setSocials([]);
+  };
+
   return (
     <>
+      {contextHolder}
       <Navbar />
 
-      <form className="mt-5 flex items-center justify-center max-w-7xl">
+      <form
+        className="mt-5 flex items-center justify-center max-w-7xl"
+        onSubmit={handleFormSubmit}
+      >
         <div className="space-y-12">
           <div className="border-b border-gray-900/10 pb-12">
             <h2 className="text-base font-semibold leading-3 text-gray-900">
@@ -1442,6 +1522,7 @@ export const EditUser = ({ params }: { params: { id: string } }) => {
             <button
               type="button"
               className="text-sm font-semibold leading-6 text-gray-900"
+              onClick={handleFormCancel}
             >
               Cancel
             </button>

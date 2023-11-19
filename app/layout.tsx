@@ -2,6 +2,7 @@ import "./globals.css";
 import type { Metadata } from "next";
 import { DM_Sans } from "@next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
+import Progress from "./progress";
 
 const dmsans = DM_Sans({ subsets: ["latin"], weight: ["400", "500", "700"] });
 
@@ -18,7 +19,9 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang="en">
-        <body className={dmsans.className}>{children}</body>
+        <body className={dmsans.className}>
+          <Progress>{children}</Progress>
+        </body>
       </html>
     </ClerkProvider>
   );

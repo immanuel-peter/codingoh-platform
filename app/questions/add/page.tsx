@@ -2,13 +2,14 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { Select } from "antd";
+import { Select, message } from "antd";
 import ReactMarkdown from "react-markdown";
 
 import { Navbar, RenderMd } from "@/components";
 import { FaArrowTurnDown, FaMarkdown } from "react-icons/fa6";
 import { IoClose } from "react-icons/io5";
 import { tags } from "@/dummy/questions";
+import { title } from "process";
 
 const placeholderMdText = `# Fibonacci sequence not working
 
@@ -41,6 +42,11 @@ I'm not sure what else to try. Can anyone help me figure out what's wrong with m
 `;
 
 const AddQuestion = () => {
+  const [messageApi, contextHolder] = message.useMessage();
+  var titleCheck,
+    descCheck,
+    notifCheck = false;
+
   const [markdown, setMarkdown] = useState(placeholderMdText);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [newQuestion, setNewQuestion] = useState({
@@ -76,11 +82,74 @@ const AddQuestion = () => {
     }
   };
 
+  const handleQuestionSubmit = async (e: React.SyntheticEvent) => {
+    e.preventDefault();
+
+    if (newQuestion.title.trim() === "") {
+      messageApi.open({
+        type: "error",
+        content: "Please provide a title for your question",
+        duration: 3,
+      });
+    } else {
+      titleCheck = true;
+    }
+
+    if (newQuestion.description.trim() === "") {
+      messageApi.open({
+        type: "error",
+        content: "Please provide a description for your question",
+        duration: 3,
+      });
+    } else {
+      descCheck = true;
+    }
+
+    if (
+      newQuestion.notifications.desktop === false &&
+      newQuestion.notifications.email === false
+    ) {
+      messageApi.open({
+        type: "error",
+        content: "Please provide a method of notification",
+        duration: 3,
+      });
+    } else {
+      notifCheck = true;
+    }
+
+    try {
+      // Make database call
+      // console.log("Added question to database:", question.title);
+      // Redirect to dev profile page /questions/{/* id given by database */}
+    } catch (error) {
+      // console.log("Error:", error)
+    }
+  };
+
+  const handleFormCancel = () => {
+    setMarkdown(placeholderMdText);
+    setNewQuestion({
+      ...newQuestion,
+      title: "",
+      tags: [],
+      preferences: "text",
+      notifications: {
+        email: false,
+        desktop: false,
+      },
+    });
+  };
+
   return (
     <>
+      {contextHolder}
       <Navbar />
 
-      <form className="mt-5 flex items-center justify-center max-w-7xl">
+      <form
+        className="mt-5 flex items-center justify-center max-w-7xl"
+        onSubmit={handleQuestionSubmit}
+      >
         <div className="space-y-12 py-4">
           <div className="border-b border-gray-900/10 pb-12">
             <h2 className="text-base font-semibold leading-7 text-gray-900">
@@ -335,6 +404,7 @@ const AddQuestion = () => {
             <button
               type="button"
               className="text-sm font-semibold leading-6 text-gray-900"
+              onClick={handleFormCancel}
             >
               Cancel
             </button>

@@ -1,5 +1,6 @@
 import React from "react";
 import { FcDatabase } from "react-icons/fc";
+import { SiOpenai } from "react-icons/si";
 import {
   JavascriptOriginal,
   PythonOriginal,
@@ -100,6 +101,8 @@ import {
   D3jsOriginal,
   ReduxOriginal,
   GraphqlPlain,
+  SocketioOriginal,
+  ThreejsOriginal,
 } from "devicons-react";
 
 export const allIcons: { [name: string]: React.ReactNode } = {
@@ -143,6 +146,7 @@ export const allIcons: { [name: string]: React.ReactNode } = {
   "Google Cloud": <GooglecloudOriginal size={25} />,
   DigitalOcean: <DigitaloceanOriginal size={25} />,
   Heroku: <HerokuOriginal size={25} />,
+  "Three.js": <ThreejsOriginal size={25} />,
   "Node.js": <NodejsOriginal size={25} />,
   React: <ReactOriginal size={25} />,
   "React Native": <ReactOriginal size={25} />,
@@ -165,6 +169,7 @@ export const allIcons: { [name: string]: React.ReactNode } = {
   Flutter: <FlutterOriginal size={25} />,
   "Apache Kafka": <ApachekafkaOriginal size={25} />,
   PyTorch: <PytorchOriginal size={25} />,
+  ChatGPT: <SiOpenai className="text-2xl text-emerald-600" />,
   OpenCV: <OpencvOriginal size={25} />,
   Electron: <ElectronOriginal size={25} />,
   Xamarin: <XamarinOriginal size={25} />,
@@ -204,4 +209,5 @@ export const allIcons: { [name: string]: React.ReactNode } = {
   "D3.js": <D3jsOriginal size={25} />,
   Redux: <ReduxOriginal size={25} />,
   GraphQL: <GraphqlPlain size={25} />,
+  "Socket.IO": <SocketioOriginal size={25} />,
 };

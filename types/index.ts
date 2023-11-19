@@ -45,7 +45,7 @@ export interface Project {
   description: string;
   startDate: Date;
   endDate?: Date;
-  github: string;
+  github?: string;
   status: "ongoing" | "completed" | "on_hold";
   image: string;
   stack?: string[];

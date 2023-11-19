@@ -40,7 +40,10 @@ const Project = ({ project }: { project: ProjectType }) => {
       >
         <img
           alt="Office"
-          src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80"
+          src={
+            project.image ||
+            "https://images.unsplash.com/photo-1600880292203-757bb62b4baf?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80"
+          }
           className="h-56 w-full object-cover"
         />
         <div
@@ -64,9 +67,11 @@ const Project = ({ project }: { project: ProjectType }) => {
           </div>
 
           <div
-            className={`flex justify-between justify-items-end items-end ${getBgColor(
-              project.status
-            )}`}
+            className={`flex justify-between ${
+              project.github
+                ? "justify-items-end items-end"
+                : "justify-items-end items-center"
+            } ${getBgColor(project.status)}`}
           >
             <Link
               href={`/users/${project.owner?.id}`}
@@ -74,13 +79,15 @@ const Project = ({ project }: { project: ProjectType }) => {
             >
               {project.owner?.name}
             </Link>
-            <Link href="https://www.github.com">
-              <FaGithub
-                className={`${getBgColor(
-                  project.status
-                )} h-7 w-7 hover:scale-150 transition duration-300`}
-              />
-            </Link>
+            {project.github && (
+              <Link href="https://www.github.com">
+                <FaGithub
+                  className={`${getBgColor(
+                    project.status
+                  )} h-7 w-7 hover:scale-150 transition duration-300`}
+                />
+              </Link>
+            )}
           </div>
         </div>
       </article>
@@ -121,7 +128,10 @@ const Project = ({ project }: { project: ProjectType }) => {
                 >
                   <img
                     alt="Office"
-                    src="https://images.unsplash.com/photo-1600880292203-757bb62b4baf?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80"
+                    src={
+                      project.image ||
+                      "https://images.unsplash.com/photo-1600880292203-757bb62b4baf?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80"
+                    }
                     className="h-[300px] w-full object-cover mb-4 rounded-t-2xl border border-solid border-gray-700"
                   />
                   <Dialog.Title
@@ -129,13 +139,15 @@ const Project = ({ project }: { project: ProjectType }) => {
                     className="flex justify-between items-center p-2 text-4xl font-bold leading-6 text-gray-900 text-left"
                   >
                     {project.name}
-                    <Link href={project.github}>
-                      <FaGithub
-                        className={`${getBgColor(
-                          project.status
-                        )} h-7 w-7 hover:scale-150 transition duration-300`}
-                      />
-                    </Link>
+                    {project.github && (
+                      <Link href={project.github}>
+                        <FaGithub
+                          className={`${getBgColor(
+                            project.status
+                          )} h-7 w-7 hover:scale-150 transition duration-300`}
+                        />
+                      </Link>
+                    )}
                   </Dialog.Title>
                   <Link
                     href={`/users/${project.owner?.id}`}
@@ -150,31 +162,39 @@ const Project = ({ project }: { project: ProjectType }) => {
                   <p className="py-4 px-2 text-base leading-6 text-left">
                     {project.description}
                   </p>
-                  <h2 className="pl-2 mt-2 font-bold text-left text-xl">
-                    Tech Stack
-                  </h2>
-                  <div className="grid grid-cols-16 p-2 gap-3">
-                    {project.stack?.map((item) => allIcons[item])}
-                  </div>
-                  <div className="flex justify-between items-start">
-                    <div>
+                  {project.stack && (
+                    <>
                       <h2 className="pl-2 mt-2 font-bold text-left text-xl">
-                        Needed Skills
+                        Tech Stack
                       </h2>
-                      <div
-                        id="project-tags"
-                        className="p-2 gap-2 flex justify-start items-start flex-wrap"
-                      >
-                        {project.needed?.map((item) => (
-                          <Tag bordered={false}>{item}</Tag>
-                        ))}
+                      <div className="grid grid-cols-16 p-2 gap-3">
+                        {project.stack?.map((item) => allIcons[item])}
                       </div>
-                    </div>
-                    <div>
-                      <Link href="/" target="_blank">
-                        <FaCirclePlus className="hover:text-blue-700 hover:cursor-pointer text-4xl" />
-                      </Link>
-                    </div>
+                    </>
+                  )}
+                  <div className="flex justify-between items-start">
+                    {project.needed && (
+                      <div>
+                        <h2 className="pl-2 mt-2 font-bold text-left text-xl">
+                          Needed Skills
+                        </h2>
+                        <div
+                          id="project-tags"
+                          className="p-2 gap-2 flex justify-start items-start flex-wrap"
+                        >
+                          {project.needed?.map((item) => (
+                            <Tag bordered={false}>{item}</Tag>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+                    {project.application && (
+                      <div>
+                        <Link href="/" target="_blank">
+                          <FaCirclePlus className="hover:text-blue-700 hover:cursor-pointer text-4xl" />
+                        </Link>
+                      </div>
+                    )}
                   </div>
                   {/* <h1 className="px-2 mt-4 font-bold text-left text-2xl flex flex-row justify-between items-center">
                     Contributors
