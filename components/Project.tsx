@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { FaCirclePlus, FaGithub } from "react-icons/fa6";
 import { Dialog, Transition } from "@headlessui/react";
-import { Tag } from "antd";
+import { Tag, Tooltip } from "antd";
 import { useRouter } from "next/navigation";
 
 import { projects } from "@/dummy/questions";
@@ -168,7 +168,9 @@ const Project = ({ project }: { project: ProjectType }) => {
                         Tech Stack
                       </h2>
                       <div className="grid grid-cols-16 p-2 gap-3">
-                        {project.stack?.map((item) => allIcons[item])}
+                        {project.stack?.map((item) => (
+                          <Tooltip title={item}>{allIcons[item]}</Tooltip>
+                        ))}
                       </div>
                     </>
                   )}

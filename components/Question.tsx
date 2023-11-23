@@ -10,9 +10,10 @@ import { LocalizationProvider } from "@mui/x-date-pickers-pro";
 import { DateTimePicker, renderTimeViewClock } from "@mui/x-date-pickers-pro";
 import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs, { Dayjs } from "dayjs";
+import { Avatar, AvatarGroup } from "@mui/joy";
 
 import { daysBetweenDateAndToday } from "@/utils";
-import Avatar from "../public/avatar.png";
+import avatar from "../public/avatar.png";
 import { Contributor } from "@/types";
 import { ellipsis } from "@/utils";
 
@@ -67,14 +68,49 @@ const Question = ({
           
         </p> */}
         <div className="flex -space-x-1 overflow-hidden">
-          {contributors.map((contributor) => (
-            <Image
-              key={contributor.user.id}
-              src={Avatar}
-              alt="contributor"
-              className="inline-block h-6 w-6 rounded-full ring-2 ring-white"
-            />
-          ))}
+          {contributors.length < 5 ? (
+            contributors.map((contributor) => (
+              <Image
+                key={contributor.user.id}
+                src={avatar}
+                alt="contributor"
+                className="inline-block h-6 w-6 rounded-full ring-2 ring-white"
+              />
+            ))
+          ) : (
+            <div className="px-2 flex items-center">
+              <Image
+                key={1}
+                src={avatar}
+                alt="contributor"
+                className="inline-block h-7 w-7 rounded-full ring-2 ring-white"
+              />
+              <Image
+                key={2}
+                src={avatar}
+                alt="contributor"
+                className="inline-block h-7 w-7 rounded-full ring-2 ring-white"
+              />
+              <Image
+                key={3}
+                src={avatar}
+                alt="contributor"
+                className="inline-block h-7 w-7 rounded-full ring-2 ring-white"
+              />
+              <Image
+                key={4}
+                src={avatar}
+                alt="contributor"
+                className="inline-block h-7 w-7 rounded-full ring-2 ring-white"
+              />
+              <div
+                key={5}
+                className="flex h-7 w-7 rounded-full bg-slate-200 ring-2 ring-white items-center justify-center text-center text-xs"
+              >
+                +{contributors.length - 4}
+              </div>
+            </div>
+          )}
         </div>
         <p className="mt-1 text-xs leading-5 text-gray-500">
           {`${contributors.length} ${

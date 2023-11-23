@@ -4,9 +4,10 @@ import React, { useState } from "react";
 import Image from "next/image";
 import { AiFillHeart, AiOutlineCheck, AiFillMessage } from "react-icons/ai";
 import { Badge } from "antd";
+import { Avatar, AvatarGroup } from "@mui/joy";
 
 import { Contributor } from "@/types";
-import Avatar from "@/public/avatar.png";
+import avatar from "@/public/avatar.png";
 import { RenderMd } from ".";
 
 interface Comment {
@@ -29,9 +30,24 @@ const Comment = ({
   onAddNestedComment: (text: string, parentId: number) => void;
 }) => {
   const [isChecked, setIsChecked] = useState(false);
-  const [likeCount, setLikeCount] = useState(0);
+  const [likeCount, setLikeCount] = useState({ count: 0, disabled: false });
+  const originalLikeCount = 1;
   const [openNewComment, setOpenNewComment] = useState(false);
   const [newCommentText, setNewCommentText] = useState("");
+
+  const handleAddLike = () => {
+    likeCount.count < originalLikeCount
+      ? setLikeCount({
+          ...likeCount,
+          count: likeCount.count + 1,
+          disabled: true,
+        })
+      : setLikeCount({
+          ...likeCount,
+          count: likeCount.count - 1,
+          disabled: false,
+        });
+  };
 
   const handleAddComment = () => {
     onAddNestedComment(newCommentText, comment.id);
@@ -65,10 +81,12 @@ const Comment = ({
               }`}
             />
 
-            <Badge count={likeCount}>
+            <Badge count={likeCount.count}>
               <AiFillHeart
-                onClick={() => setLikeCount(likeCount + 1)}
-                className="text-red-500/50 hover:text-red-600 cursor-pointer text-4xl"
+                onClick={handleAddLike}
+                className={`text-red-500/50 cursor-pointer ${
+                  !likeCount.disabled ? "hover:text-red-600" : "text-red-600"
+                } text-4xl`}
               />
             </Badge>
 
@@ -286,14 +304,49 @@ const Comments = ({ contributors }: { contributors: Contributor[] }) => {
                 <>
                   <span className="mr-2">Contributors</span>
                   <div className="flex -space-x-1 overflow-hidden">
-                    {contributors.map((contributor) => (
-                      <Image
-                        key={contributor.user.id}
-                        src={Avatar}
-                        alt="contributor"
-                        className="inline-block h-6 w-6 rounded-full ring-2 ring-white"
-                      />
-                    ))}
+                    {contributors.length < 5 ? (
+                      contributors.map((contributor) => (
+                        <Image
+                          key={contributor.user.id}
+                          src={avatar}
+                          alt="contributor"
+                          className="inline-block h-6 w-6 rounded-full ring-2 ring-white"
+                        />
+                      ))
+                    ) : (
+                      <div className="px-2 flex items-center">
+                        <Image
+                          key={1}
+                          src={avatar}
+                          alt="contributor"
+                          className="inline-block h-7 w-7 rounded-full ring-2 ring-white"
+                        />
+                        <Image
+                          key={2}
+                          src={avatar}
+                          alt="contributor"
+                          className="inline-block h-7 w-7 rounded-full ring-2 ring-white"
+                        />
+                        <Image
+                          key={3}
+                          src={avatar}
+                          alt="contributor"
+                          className="inline-block h-7 w-7 rounded-full ring-2 ring-white"
+                        />
+                        <Image
+                          key={4}
+                          src={avatar}
+                          alt="contributor"
+                          className="inline-block h-7 w-7 rounded-full ring-2 ring-white"
+                        />
+                        <div
+                          key={5}
+                          className="flex h-7 w-7 rounded-full bg-slate-200 ring-2 ring-white items-center justify-center text-center text-xs"
+                        >
+                          +{contributors.length - 4}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </>
               ) : null}

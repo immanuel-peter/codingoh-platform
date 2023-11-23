@@ -1416,6 +1416,84 @@ By following this approach, you can dynamically update the contents of a select 
     contributors: [],
     tags: ["javascript", "web-dev", "dropdown", "dynamic", "event-handler"],
   },
+  {
+    id: 8493057,
+    question: "How can I generate new metadata for a search query?",
+    asker: users[17],
+    description: `I have a search page that utilizes a search API using OpenAI. I want to change the meta description for the page to be 'Search | %s', with %s being the decoded search query. However, in Nextjs 13 we can't put in useSearchParams in async functions. Has anybody else been able to overcome this challenge or implemented search before in Nextjs 13?
+
+The code below is what I had, and I don't know how to refactor it because the documentation is limited.
+    
+\`\`\`typescript
+"use client";
+
+import { Metadata } from "next";
+import { useSearchParams } from "next/navigation";
+import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
+
+type Props = {
+  searchParams: { [q: string]: string | string[] | undefined };
+};
+
+// http://localhost:3000/search?q=How+can+I+create+a+web+app%3F
+
+export async function generateMetadata({
+  searchParams,
+}: Props): Promise<Metadata> {
+  const [originalQuestion, setOriginalQuestion] = useState("");
+
+  useEffect(() => {
+    const searchParams = useSearchParams();
+    const searchQuery = searchParams ? searchParams.get("q") : null;
+    const encodedSearchQuery = encodeURI(searchQuery || "");
+    const decodedSearchQuery = decodeURI(encodedSearchQuery);
+    setOriginalQuestion(decodedSearchQuery);
+  }, []);
+
+  return {
+    description: \`Search CodingOH: \${originalQuestion}\`,
+  };
+}
+
+export default function PageLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return (
+    <html lang="en">
+      <body>{children}</body>
+    </html>
+  );
+}
+\`\`\`
+    `,
+    time: "12:45 PM",
+    date: "November 23, 2023",
+    isAnswered: varStatus(),
+    answer: "# Try looking on Stack Overflow",
+    contributors: [
+      { user: users[0], contributionTime: "12:50 PM" },
+      { user: users[1], contributionTime: "12:55 PM" },
+      { user: users[2], contributionTime: "1:00 PM" },
+      { user: users[3], contributionTime: "1:05 PM" },
+      { user: users[4], contributionTime: "1:10 PM" },
+      { user: users[5], contributionTime: "1:15 PM" },
+      { user: users[6], contributionTime: "1:20 PM" },
+      { user: users[7], contributionTime: "1:25 PM" },
+      { user: users[8], contributionTime: "1:30 PM" },
+      { user: users[9], contributionTime: "1:35 PM" },
+      { user: users[10], contributionTime: "1:40 PM" },
+      { user: users[11], contributionTime: "1:45 PM" },
+      { user: users[12], contributionTime: "1:50 PM" },
+      { user: users[13], contributionTime: "1:55 PM" },
+      { user: users[14], contributionTime: "2:00 PM" },
+      { user: users[15], contributionTime: "2:05 PM" },
+      { user: users[16], contributionTime: "2:10 PM" },
+    ],
+    tags: ["javascript", "web-dev", "nextjs-13", "react", "full-stack"],
+  },
 ];
 
 // Projects
