@@ -19,14 +19,15 @@ import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs, { Dayjs } from "dayjs";
 import { Tag, Tooltip } from "antd";
 import Image from "next/image";
+import Link from "next/link";
+import { Metadata } from "next";
 
 import Avatar from "@/public/avatar.png";
 import { questions, users } from "@/dummy/questions";
 import { Question, User, Contributor } from "@/types";
 import { Navbar, FAB, RenderMd } from "@/components";
-import { daysBetweenDateAndToday } from "@/utils";
+import { daysBetweenDateAndToday, generateMetadata } from "@/utils";
 import { Comments } from "@/components";
-import Link from "next/link";
 
 const getQuestion = (userId: string): Question | undefined => {
   return questions.find((question) => question.id === Number(userId));

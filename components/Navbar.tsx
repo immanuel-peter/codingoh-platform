@@ -17,6 +17,7 @@ import {
 } from "react-icons/fa6";
 import { FcPlus } from "react-icons/fc";
 import { BsFillSunFill, BsSun, BsMoon } from "react-icons/bs";
+import { HiDocumentText } from "react-icons/hi2";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Dialog, Transition } from "@headlessui/react";
@@ -138,7 +139,7 @@ const Navbar = ({ isProfile }: { isProfile?: boolean }) => {
             href="https://successful-echium-b3f.notion.site/Support-CodingOH-67de2dbf28694086bbf3d59baa1fa10b?pvs=4"
             target="_blank"
           >
-            <FaHandshakeAngle className="text-3xl hover:text-blue-500 cursor-pointer" />
+            <HiDocumentText className="text-3xl hover:text-blue-500 cursor-pointer" />
           </Link>
           <SignedOut>
             <Link

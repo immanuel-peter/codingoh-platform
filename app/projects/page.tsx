@@ -6,6 +6,7 @@ import { Select } from "antd";
 import { projects } from "@/dummy/questions";
 import { Navbar, Project, FAB, NewFAB } from "@/components";
 import { combineText } from "@/utils";
+import { Metadata } from "next";
 
 const statusOptions = [
   { value: "all", label: "All" },
@@ -14,7 +15,7 @@ const statusOptions = [
   { value: "on_hold", label: "On Hold" },
 ];
 
-const page = () => {
+const Page = () => {
   const sortedProjects = projects.sort(
     (a, b) => b.startDate.getTime() - a.startDate.getTime()
   );
@@ -80,4 +81,4 @@ const page = () => {
   );
 };
 
-export default page;
+export default Page;

@@ -8,6 +8,7 @@ import {
   RecordType,
 } from "@/types";
 import { allIcons } from "./icons";
+import { Metadata } from "next";
 
 export function varStatus() {
   return Math.random() > 0.5;
@@ -262,3 +263,19 @@ export const recordTypesFromLangs = () => {
   }
   return records;
 };
+
+export async function generateMetadata(
+  {
+    params,
+  }: {
+    params: { id: string };
+  },
+  func: (id: string) => Question | undefined
+): Promise<Metadata> {
+  const question = func(params.id);
+
+  return {
+    title: question?.question,
+    description: question?.description,
+  };
+}
