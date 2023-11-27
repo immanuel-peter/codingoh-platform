@@ -47,6 +47,7 @@ const AddQuestion = () => {
     descCheck,
     notifCheck = false;
 
+  const [tagsList, setTagsList] = useState(tags);
   const [markdown, setMarkdown] = useState(placeholderMdText);
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const [newQuestion, setNewQuestion] = useState({
@@ -69,17 +70,23 @@ const AddQuestion = () => {
     }));
   }, [markdown, placeholderMdText]);
 
-  const handleTagChange = (value: string) => {
-    const exists = tags.some((tag) => tag.value === value);
+  const handleTagSelect = (value: string) => {
+    const exists = tagsList.some((tag) => tag.value === value);
 
     if (exists) {
       setNewQuestion({ ...newQuestion, tags: [...newQuestion.tags, value] });
     }
 
     if (!exists) {
-      tags.push({ value, label: value });
+      const updatedTagsList = [...tagsList, { value, label: value }];
+      setTagsList(updatedTagsList);
       setNewQuestion({ ...newQuestion, tags: [...newQuestion.tags, value] });
     }
+  };
+
+  const handleTagDeselect = (value: string) => {
+    const newTags = newQuestion.tags.filter((tag) => tag !== value);
+    setNewQuestion({ ...newQuestion, tags: newTags });
   };
 
   const handleQuestionSubmit = async (e: React.SyntheticEvent) => {
@@ -256,9 +263,9 @@ const AddQuestion = () => {
                   className="mt-2"
                   style={{ width: "100%" }}
                   placeholder="List applicable tags"
-                  onChange={handleTagChange}
-                  onSelect={() => {}}
-                  options={tags}
+                  onSelect={handleTagSelect}
+                  onDeselect={handleTagDeselect}
+                  options={tagsList}
                 />
               </div>
             </div>
