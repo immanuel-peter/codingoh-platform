@@ -28,7 +28,6 @@ import { LuMinusCircle } from "react-icons/lu";
 import CheckIcon from "@mui/icons-material/Check";
 import { Badge, Autocomplete, Slider, Avatar } from "@mui/joy";
 import { Select, Tooltip, Progress, message } from "antd";
-import { currentUser, useUser } from "@clerk/nextjs";
 import Image from "next/image";
 import { SocialIcon } from "react-social-icons";
 import moment from "moment-timezone";
@@ -1084,7 +1083,7 @@ export const NewUser = () => {
 
               <div className="sm:col-span-1">
                 <label
-                  htmlFor="about"
+                  htmlFor="avatar"
                   className="block text-sm font-medium leading-6 text-gray-900"
                 >
                   Avatar

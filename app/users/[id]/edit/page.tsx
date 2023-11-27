@@ -26,7 +26,6 @@ import { BsPlusCircleFill } from "react-icons/bs";
 import CheckIcon from "@mui/icons-material/Check";
 import { Badge, Autocomplete, Slider, Avatar } from "@mui/joy";
 import { Select, Tooltip, Progress, message } from "antd";
-import { currentUser, useUser } from "@clerk/nextjs";
 import Image from "next/image";
 import { SocialIcon } from "react-social-icons";
 import moment from "moment-timezone";

@@ -3,6 +3,7 @@
 import React, { useState, Fragment } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { FaEdit } from "react-icons/fa";
 import { FaCirclePlus, FaGithub } from "react-icons/fa6";
 import { Dialog, Transition } from "@headlessui/react";
 import { Tag, Tooltip } from "antd";
@@ -138,7 +139,12 @@ const Project = ({ project }: { project: ProjectType }) => {
                     as="h1"
                     className="flex justify-between items-center p-2 text-4xl font-bold leading-6 text-gray-900 text-left"
                   >
-                    {project.name}
+                    <div className="flex flex-row items-end gap-3">
+                      {project.name}{" "}
+                      <Link href={`/projects/${project.id}/edit`}>
+                        <FaEdit className="text-base hover:text-blue-600 hover:cursor-pointer" />
+                      </Link>
+                    </div>
                     {project.github && (
                       <Link href={project.github}>
                         <FaGithub

@@ -21,7 +21,6 @@ import { HiDocumentText } from "react-icons/hi2";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Dialog, Transition } from "@headlessui/react";
-import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import { Avatar } from "@mui/joy";
 
 import { questions, inboxItems } from "@/dummy/questions";
@@ -141,7 +140,7 @@ const Navbar = ({ isProfile }: { isProfile?: boolean }) => {
           >
             <HiDocumentText className="text-3xl hover:text-blue-500 cursor-pointer" />
           </Link>
-          <SignedOut>
+          {/* <SignedOut>
             <Link
               href="/sign-in"
               className="px-3 py-2 rounded-full font-semibold border border-solid border-black bg-gray-100 hover:bg-gray-200 text-gray-900"
@@ -154,36 +153,26 @@ const Navbar = ({ isProfile }: { isProfile?: boolean }) => {
             >
               Sign Up
             </Link>
-          </SignedOut>
-          <SignedIn>
-            <Link href="/questions/add">
-              <FaCirclePlus className="text-3xl mx-1 text-green-500 hover:text-green-700" />
-            </Link>
-            <div
-              className="mx-1 cursor-pointer"
-              onClick={() => setOpenInbox(true)}
+          </SignedOut> */}
+
+          <Link href="/questions/add">
+            <FaCirclePlus className="text-3xl mx-1 text-green-500 hover:text-green-700" />
+          </Link>
+          <div
+            className="mx-1 cursor-pointer"
+            onClick={() => setOpenInbox(true)}
+          >
+            <FaInbox className="text-3xl hover:text-amber-900" />
+          </div>
+
+          <Link href="/users/8591247">
+            <Avatar
+              size="md"
+              className="hover:text-blue-500 hover:bg-blue-300/50"
             >
-              <FaInbox className="text-3xl hover:text-amber-900" />
-            </div>
-            {/* {!isProfile ? (
-              <Link href="/users/7094247" className="mx-1">
-                <div className="flex items-center justify-between px-3 py-2 gap-4 bg-gradient-to-r from-blue-300 to-transparent via-blue-300 border border-solid border-blue-800 rounded-full">
-                  Profile
-                  <UserButton />
-                </div>
-              </Link>
-            ) : (
-              <UserButton />
-            )} */}
-            <Link href="/users/8591247">
-              <Avatar
-                size="md"
-                className="hover:text-blue-500 hover:bg-blue-300/50"
-              >
-                IP
-              </Avatar>
-            </Link>
-          </SignedIn>
+              IP
+            </Avatar>
+          </Link>
         </nav>
       </header>
       <hr className="border-solid border-black border-[1px]" />

@@ -20,7 +20,6 @@ import { BsFilePlusFill } from "react-icons/bs";
 import Link from "next/link";
 import { Dialog, Transition } from "@headlessui/react";
 import { SocialIcon } from "react-social-icons";
-import { SignedIn } from "@clerk/nextjs";
 import { useRouter } from "next/navigation";
 
 import { users, questions, projects, techSkills } from "@/dummy/questions";
@@ -254,15 +253,13 @@ const UserPage = ({ params }: { params: { id: string } }) => {
             </div>
           </div>
           <div>
-            <SignedIn>
-              <Link
-                href={`/users/${user.id}/edit`}
-                className="p-3 bg-cyan-300 hover:bg-cyan-400 border border-solid border-cyan-400 hover:border-cyan-500 items-center justify-center flex flex-row rounded-lg"
-              >
-                <FaEdit className="mr-3 bg-inherit" />
-                Edit Profile
-              </Link>
-            </SignedIn>
+            <Link
+              href={`/users/${user.id}/edit`}
+              className="p-3 bg-cyan-300 hover:bg-cyan-400 border border-solid border-cyan-400 hover:border-cyan-500 items-center justify-center flex flex-row rounded-lg"
+            >
+              <FaEdit className="mr-3 bg-inherit" />
+              Edit Profile
+            </Link>
           </div>
         </div>
         <Image
