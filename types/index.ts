@@ -1,3 +1,5 @@
+import { StaticImageData } from "next/image";
+
 // dummy/questions.ts
 export interface Question {
   id: number;
@@ -28,6 +30,27 @@ export interface User {
   platforms?: string[];
 }
 
+export interface UserType {
+  id: number;
+  name: string;
+  gender?: string;
+  dob?: string;
+  timezone: string;
+  email: string;
+  education?: string;
+  company?: string;
+  position?: string;
+  city?: string;
+  usState?: string;
+  country?: string;
+  profileImg?: string;
+  about?: string;
+  backgroundImg?: StaticImageData;
+  stack?: Proficiency[];
+  skills?: string[];
+  socials?: Social[];
+}
+
 export interface Proficiency {
   language: string;
   proficiency: number;
@@ -51,6 +74,11 @@ export interface Project {
   stack?: string[];
   needed?: string[];
   application?: string;
+}
+
+export interface Social {
+  name: string;
+  link: string;
 }
 
 // app/users/[id]/page.tsx

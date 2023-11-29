@@ -47,7 +47,7 @@ import {
   finalProfsByLangs,
   finalProficiencies,
 } from "@/utils";
-import { Proficiency } from "@/types";
+import { Proficiency, Social } from "@/types";
 
 const countryList: string[] = [
   "United States of America",
@@ -425,7 +425,7 @@ export const NewUser = () => {
 
   // Social Links
   const [socials, setSocials] = useState<string[]>([]);
-  const [socialLinks, setSocialLinks] = useState([
+  const [socialLinks, setSocialLinks] = useState<Social[]>([
     { name: "discord", link: "" },
     { name: "dropbox", link: "" },
     { name: "facebook", link: "" },
@@ -442,9 +442,7 @@ export const NewUser = () => {
     { name: "threads", link: "" },
     { name: "personal", link: "" },
   ]);
-  const [finalSocialLinks, setFinalSocialLinks] = useState<
-    { name: string; link: string }[]
-  >([]);
+  const [finalSocialLinks, setFinalSocialLinks] = useState<Social[]>([]);
 
   const socialIcons: {
     name: string;
