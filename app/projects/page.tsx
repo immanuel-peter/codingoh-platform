@@ -6,7 +6,6 @@ import { Select } from "antd";
 import { projects } from "@/dummy/questions";
 import { Navbar, Project, FAB, NewFAB } from "@/components";
 import { combineText } from "@/utils";
-import { Metadata } from "next";
 
 const statusOptions = [
   { value: "all", label: "All" },
@@ -20,8 +19,8 @@ const Page = () => {
     (a, b) => b.startDate.getTime() - a.startDate.getTime()
   );
 
-  const [projQuery, setProjQuery] = useState("");
-  const [status, setStatus] = useState("all");
+  const [projQuery, setProjQuery] = useState<string>("");
+  const [status, setStatus] = useState<string>("all");
 
   const handleChange = (value: string) => {
     setStatus(value);

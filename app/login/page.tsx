@@ -42,14 +42,16 @@ const Login = () => {
     //   }
     // })
 
-    try {
-      // Perform backend call to upload user credentials
-      // console.log('Sign up successful');
-    } catch (err) {
-      // console.log('Error:', err);
+    if (fieldsCheck) {
+      try {
+        // Perform backend call to upload user credentials
+        // console.log('Sign up successful');
+      } catch (err) {
+        // console.log('Error:', err);
+      }
     }
 
-    if (fieldsCheck && emailCheck && passwordCheck) {
+    if (emailCheck && passwordCheck) {
       // router.push("/users/{id}");
     }
   };

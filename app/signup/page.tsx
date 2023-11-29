@@ -61,15 +61,14 @@ const SignUp = () => {
       passwordCheck = true;
     }
 
-    try {
-      // Perform backend call to upload user credentials
-      // console.log('Sign up successful');
-    } catch (err) {
-      // console.log('Error:', err);
-    }
-
     if (fieldsCheck && emailCheck && passwordCheck) {
-      router.push("/users/add");
+      try {
+        // Perform backend call to upload user credentials
+        // console.log('Sign up successful');
+        router.push("/users/add");
+      } catch (err) {
+        // console.log('Error:', err);
+      }
     }
   };
 

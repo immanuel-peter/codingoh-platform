@@ -23,7 +23,7 @@ import { SocialIcon } from "react-social-icons";
 import { useRouter } from "next/navigation";
 
 import { users, questions, projects, techSkills } from "@/dummy/questions";
-import { User, RecordType, Project as ProjectType } from "@/types";
+import { User, RecordType, Project as ProjectType, Proficiency } from "@/types";
 import {
   getTopLanguages,
   stringifyList,
@@ -48,19 +48,16 @@ const { Option } = Select;
 const UserPage = ({ params }: { params: { id: string } }) => {
   const router = useRouter();
 
-  const [questionTypeMode, setQuestionTypeMode] = useState("all");
-  const [isStackOpen, setIsStackOpen] = useState(false);
-  const [isQuestionsOpen, setIsQuestionsOpen] = useState(false);
-  const [skillsOpen, setSkillsOpen] = useState(false);
-  const [isProjectGithubHovered, setIsProjectGithubHovered] = useState(
-    new Array(6).fill(false)
-  );
-  const [projectTypeMode, setProjectTypeMode] = useState("all");
-  const [isProjectsOpen, setIsProjectsOpen] = useState(false);
+  const [questionTypeMode, setQuestionTypeMode] = useState<string>("all");
+  const [isStackOpen, setIsStackOpen] = useState<boolean>(false);
+  const [isQuestionsOpen, setIsQuestionsOpen] = useState<boolean>(false);
+  const [skillsOpen, setSkillsOpen] = useState<boolean>(false);
+  const [projectTypeMode, setProjectTypeMode] = useState<string>("all");
+  const [isProjectsOpen, setIsProjectsOpen] = useState<boolean>(false);
 
-  const [newProjectModalOpen, setNewProjectModalOpen] = useState(false);
-  const [newProjectImage, setNewProjectImage] = useState("");
-  const [targetKeys, setTargetKeys] = useState<string[]>([]);
+  const [newProjectModalOpen, setNewProjectModalOpen] =
+    useState<boolean>(false);
+  const [newProjectImage, setNewProjectImage] = useState<string>("");
   const [newProject, setNewProject] = useState<ProjectType>({
     id: 0, // Provide default values or replace with actual values
     owner: users[0],
@@ -85,38 +82,17 @@ const UserPage = ({ params }: { params: { id: string } }) => {
   const userMap = sortQuestionsAndContributions(questions, users);
   const userQuestionsAndContributions = userMap[user.id];
 
-  const topLanguages = user.codingLanguages
+  const topLanguages: Proficiency[] = user.codingLanguages
     ? getTopLanguages(user.codingLanguages, 5)
     : [];
 
-  const userProjects = projectsMap(projects, user) || [];
+  const userProjects: ProjectType[] = projectsMap(projects, user) || [];
 
   const onImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
       let img = event.target.files[0];
       setNewProjectImage(URL.createObjectURL(img));
     }
-  };
-
-  const transferFilterOption = (inputValue: string, option: RecordType) =>
-    option.description.indexOf(inputValue) > -1;
-
-  const renderTransferFooter = (
-    _: TransferListProps<any>,
-    { direction }: { direction: TransferDirection }
-  ) => {
-    if (direction === "left") {
-      return (
-        <div className="flex justify-center items-center py-2 text-base font-semibold">
-          Pick from...
-        </div>
-      );
-    }
-    return (
-      <div className="flex justify-center items-center py-2 text-base font-semibold">
-        Your Stack
-      </div>
-    );
   };
 
   const handleStackChange = (value: string[]) => {
@@ -131,18 +107,6 @@ const UserPage = ({ params }: { params: { id: string } }) => {
       ...newProject,
       needed: newProject.needed ? [...newProject.needed, value] : [value],
     });
-  };
-
-  const handleIconMouseEnter = (index: number) => {
-    const updatedState = [...isProjectGithubHovered];
-    updatedState[index] = true;
-    setIsProjectGithubHovered(updatedState);
-  };
-
-  const handleIconMouseLeave = (index: number) => {
-    const updatedState = [...isProjectGithubHovered];
-    updatedState[index] = false;
-    setIsProjectGithubHovered(updatedState);
   };
 
   // Form Actions
@@ -177,14 +141,14 @@ const UserPage = ({ params }: { params: { id: string } }) => {
           "If you are providing an application link, please provide needed skills for the project.",
         duration: 3,
       });
-    }
-
-    try {
-      // Make database call
-      // console.log("Added user to database:", userData.firstName, userData.lastName)
-      // Redirect to dev profile page /users/{/* id given by database */}
-    } catch (error) {
-      // console.log("Error:", error)
+    } else {
+      try {
+        // Make database call
+        // console.log("Added user to database:", userData.firstName, userData.lastName)
+        // Redirect to dev profile page /users/{/* id given by database */}
+      } catch (error) {
+        // console.log("Error:", error)
+      }
     }
   };
 

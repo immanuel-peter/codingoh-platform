@@ -29,11 +29,11 @@ const Comment = ({
   comment: Comment;
   onAddNestedComment: (text: string, parentId: number) => void;
 }) => {
-  const [isChecked, setIsChecked] = useState(false);
+  const [isChecked, setIsChecked] = useState<boolean>(false);
   const [likeCount, setLikeCount] = useState({ count: 0, disabled: false });
-  const originalLikeCount = 1;
-  const [openNewComment, setOpenNewComment] = useState(false);
-  const [newCommentText, setNewCommentText] = useState("");
+  const originalLikeCount: number = 1;
+  const [openNewComment, setOpenNewComment] = useState<boolean>(false);
+  const [newCommentText, setNewCommentText] = useState<string>("");
 
   const handleAddLike = () => {
     likeCount.count < originalLikeCount
@@ -55,11 +55,11 @@ const Comment = ({
     setOpenNewComment(false);
   };
 
-  const currentDate = new Date();
-  const year = currentDate.getFullYear().toString().slice(-2);
-  const month = String(currentDate.getMonth() + 1).padStart(2, "0");
-  const day = String(currentDate.getDate()).padStart(2, "0");
-  const formattedDate = `${month}-${day}-${year}`;
+  const currentDate: Date = new Date();
+  const year: string = currentDate.getFullYear().toString().slice(-2);
+  const month: string = String(currentDate.getMonth() + 1).padStart(2, "0");
+  const day: string = String(currentDate.getDate()).padStart(2, "0");
+  const formattedDate: string = `${month}-${day}-${year}`;
 
   return (
     <>

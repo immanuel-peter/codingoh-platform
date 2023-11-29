@@ -33,10 +33,10 @@ const getQuestion = (userId: string): Question | undefined => {
   return questions.find((question) => question.id === Number(userId));
 };
 
-const subText =
+const subText: string =
   "I have a WPF - mvvm application. I have method in viewmodel that communicates with service layer and service layer communicates with database using entity framework. I am puzzled what to return if user is not found in database.";
 
-const codeString = `
+const codeString: string = `
   using KnitterNotebook.Database;
   using KnitterNotebook.Exceptions;
   using KnitterNotebook.Models;
@@ -93,7 +93,7 @@ const markdownQuestion = `
   What is the most efficient and straightforward way to sort this array in JavaScript?
   `;
 
-const markdownAnswer = `
+const markdownAnswer: string = `
 # Using the \`Array.prototype.sort()\` method
 
 You can use the built-in \`sort()\` method of the Array object. By default, it sorts elements as strings, which may lead to incorrect results when sorting numbers. To correctly sort numbers, you need to provide a custom sorting function as follows:
@@ -112,7 +112,7 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
   if (!question) return false;
 
   const [activeButton, setActiveButton] = useState("Question");
-  const [isScheduleMeetOpen, setIsScheduleMeetOpen] = useState(false);
+  const [isScheduleMeetOpen, setIsScheduleMeetOpen] = useState<boolean>(false);
   const [dateTime, setDateTime] = useState<Dayjs | null>(null);
   const [didSchedule, setDidSchedule] = useState<boolean>(false);
 

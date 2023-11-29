@@ -249,6 +249,21 @@ export const finalProfsByLangs = (data: Proficiency[]) => {
   return returnArray;
 };
 
+export const finalProficiencies = (data: { [key: string]: number }) => {
+  const returnArray: Proficiency[] = [];
+  const keys = Object.keys(data);
+
+  for (let i = 0; i < keys.length; i++) {
+    const newObject = {
+      language: keys[i],
+      proficiency: data[i],
+    };
+    returnArray.push(newObject);
+  }
+
+  return returnArray;
+};
+
 export const recordTypesFromLangs = () => {
   let records: RecordType[] = [];
   const allLangs = Object.keys(allIcons);

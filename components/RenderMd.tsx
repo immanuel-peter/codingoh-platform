@@ -12,7 +12,7 @@ import {
   coldarkDark,
 } from "react-syntax-highlighter/dist/esm/styles/prism";
 
-const placeholderMdText = `# Fibonacci sequence not working
+const placeholderMdText: string = `# Fibonacci sequence not working
 
 I'm trying to write a program that will print the Fibonacci sequence to the console. I have the following code, but it's not working:
 

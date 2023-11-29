@@ -34,7 +34,7 @@ const Question = ({
   answered,
   extraStyles,
 }: QuestionProps) => {
-  const [isScheduleMeetOpen, setIsScheduleMeetOpen] = useState(false);
+  const [isScheduleMeetOpen, setIsScheduleMeetOpen] = useState<boolean>(false);
   const [dateTime, setDateTime] = useState<Dayjs | null>(null);
   const [didSchedule, setDidSchedule] = useState<boolean>(false);
 

@@ -60,3 +60,16 @@ export interface RecordType {
   description: string;
   chosen: boolean;
 }
+
+export interface Tag {
+  value: string;
+  label: string;
+}
+
+export interface InboxIem {
+  randUser: User;
+  randName: string;
+  randQuestion: string;
+  link: string;
+  unread: boolean;
+}

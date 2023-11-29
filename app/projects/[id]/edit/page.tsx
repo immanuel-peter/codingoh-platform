@@ -16,24 +16,28 @@ const getProject = (projectId: string): Project | undefined => {
   return projects.find((project) => project.id === Number(projectId));
 };
 
+const { Option } = Select;
+
 const Page = ({ params }: { params: { id: string } }) => {
   const project = getProject(params.id);
   if (!project) return false;
   const projectCopy = project;
 
-  const [profileImg, setProfileImg] = useState(project.image);
-  const owner = project.owner.name;
-  const [name, setName] = useState(project.name);
-  const [description, setDescription] = useState(project.description);
+  const [profileImg, setProfileImg] = useState<string>(project.image);
+  const owner: string = project.owner.name;
+  const [name, setName] = useState<string>(project.name);
+  const [description, setDescription] = useState<string>(project.description);
   const [startDate, setStartDate] = useState<Date | undefined>(
     project.startDate
   );
   const [endDate, setEndDate] = useState<Date | undefined>(project.endDate);
-  const [github, setGithub] = useState(project.github);
-  const [status, setStatus] = useState(project.status);
-  const [stack, setStack] = useState(project.stack);
-  const [needed, setNeeded] = useState(project.needed);
-  const [application, setApplication] = useState(project.application);
+  const [github, setGithub] = useState<string | undefined>(project.github);
+  const [status, setStatus] = useState<string>(project.status);
+  const [stack, setStack] = useState<string[] | undefined>(project.stack);
+  const [needed, setNeeded] = useState<string[] | undefined>(project.needed);
+  const [application, setApplication] = useState<string | undefined>(
+    project.application
+  );
 
   const [messageApi, contextHolder] = message.useMessage();
   const router = useRouter();

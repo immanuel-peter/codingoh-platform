@@ -1,5 +1,5 @@
 import { varStatus, randEl } from "@/utils";
-import { Question, User, Project } from "@/types";
+import { Question, User, Project, Tag, InboxIem } from "@/types";
 
 // Users
 export const users: User[] = [
@@ -2083,7 +2083,7 @@ export const projects: Project[] = [
   },
 ];
 
-export const tags: { value: string; label: string }[] = [
+export const tags: Tag[] = [
   { value: "javascript", label: "javascript" },
   { value: "python", label: "python" },
   { value: "java", label: "java" },
@@ -2186,13 +2186,7 @@ export const tags: { value: string; label: string }[] = [
   { value: "custom-hooks", label: "custom-hooks" },
 ];
 
-export const inboxItems: {
-  randUser: User;
-  randName: string;
-  randQuestion: string;
-  link: string;
-  unread: boolean;
-}[] = [
+export const inboxItems: InboxIem[] = [
   {
     randUser: randEl(users),
     randName: randEl(users).name,

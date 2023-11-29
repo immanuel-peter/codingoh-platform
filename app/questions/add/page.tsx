@@ -9,9 +9,9 @@ import { Navbar, RenderMd } from "@/components";
 import { FaArrowTurnDown, FaMarkdown } from "react-icons/fa6";
 import { IoClose } from "react-icons/io5";
 import { tags } from "@/dummy/questions";
-import { title } from "process";
+import { Tag } from "@/types";
 
-const placeholderMdText = `# Fibonacci sequence not working
+const placeholderMdText: string = `# Fibonacci sequence not working
 
 I'm trying to write a program that will print the Fibonacci sequence to the console. I have the following code, but it's not working:
 
@@ -43,13 +43,13 @@ I'm not sure what else to try. Can anyone help me figure out what's wrong with m
 
 const AddQuestion = () => {
   const [messageApi, contextHolder] = message.useMessage();
-  var titleCheck,
-    descCheck,
-    notifCheck = false;
+  var titleCheck: boolean,
+    descCheck: boolean,
+    notifCheck: boolean = false;
 
-  const [tagsList, setTagsList] = useState(tags);
-  const [markdown, setMarkdown] = useState(placeholderMdText);
-  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [tagsList, setTagsList] = useState<Tag[]>(tags);
+  const [markdown, setMarkdown] = useState<string>(placeholderMdText);
+  const [isPreviewOpen, setIsPreviewOpen] = useState<boolean>(false);
   const [newQuestion, setNewQuestion] = useState({
     title: "",
     description: "",
@@ -125,12 +125,14 @@ const AddQuestion = () => {
       notifCheck = true;
     }
 
-    try {
-      // Make database call
-      // console.log("Added question to database:", question.title);
-      // Redirect to dev profile page /questions/{/* id given by database */}
-    } catch (error) {
-      // console.log("Error:", error)
+    if (titleCheck && descCheck && notifCheck) {
+      try {
+        // Make database call
+        // console.log("Added question to database:", question.title);
+        // Redirect to dev profile page /questions/{/* id given by database */}
+      } catch (error) {
+        // console.log("Error:", error)
+      }
     }
   };
 

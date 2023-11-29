@@ -28,7 +28,7 @@ import { LuMinusCircle } from "react-icons/lu";
 import CheckIcon from "@mui/icons-material/Check";
 import { Badge, Autocomplete, Slider, Avatar } from "@mui/joy";
 import { Select, Tooltip, Progress, message } from "antd";
-import Image from "next/image";
+import Image, { StaticImageData } from "next/image";
 import { SocialIcon } from "react-social-icons";
 import moment from "moment-timezone";
 import { useTimezoneSelect, allTimezones } from "react-timezone-select";
@@ -41,10 +41,15 @@ import SocialLinks from "@/components/newuser/SocialLinks";
 import backgrounds from "@/public/backgrounds";
 import { allIcons } from "@/utils/icons";
 import { techSkills as inDemandSkills } from "@/dummy/questions";
-import { uniqueArray, labelValues, finalProfsByLangs } from "@/utils";
+import {
+  uniqueArray,
+  labelValues,
+  finalProfsByLangs,
+  finalProficiencies,
+} from "@/utils";
 import { Proficiency } from "@/types";
 
-const countryList = [
+const countryList: string[] = [
   "United States of America",
   "United Kingdom",
   "Afghanistan",
@@ -281,24 +286,24 @@ const gatesBday = new Date("1955-10-28");
 
 export const NewUser = () => {
   // Personal Info
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [gender, setGender] = useState("");
+  const [firstName, setFirstName] = useState<string>("");
+  const [lastName, setLastName] = useState<string>("");
+  const [gender, setGender] = useState<string>("");
   const [dob, setDob] = useState<Date | string | undefined>();
-  const [timezone, setTimezone] = useState(
+  const [timezone, setTimezone] = useState<string>(
     Intl.DateTimeFormat().resolvedOptions().timeZone
   );
-  const [email, setEmail] = useState("");
-  const [education, setEducation] = useState("");
-  const [company, setCompany] = useState("");
-  const [position, setPosition] = useState("");
-  const [city, setCity] = useState("");
-  const [usState, setUsState] = useState("");
-  const [country, setCountry] = useState("");
-  const [profileImg, setProfileImg] = useState("");
-  const [about, setAbout] = useState("");
+  const [email, setEmail] = useState<string>("");
+  const [education, setEducation] = useState<string>("");
+  const [company, setCompany] = useState<string>("");
+  const [position, setPosition] = useState<string>("");
+  const [city, setCity] = useState<string>("");
+  const [usState, setUsState] = useState<string>("");
+  const [country, setCountry] = useState<string>("");
+  const [profileImg, setProfileImg] = useState<string>("");
+  const [about, setAbout] = useState<string>("");
 
-  const formattedDob =
+  const formattedDob: string =
     dob instanceof Date ? dob.toISOString().split("T")[0] : "";
   console.log(dob);
 
@@ -322,9 +327,8 @@ export const NewUser = () => {
   };
 
   // Background Banner
-  const [selectedBackgroundImage, setSelectedBackgroundImage] = useState(
-    backgrounds[0]
-  );
+  const [selectedBackgroundImage, setSelectedBackgroundImage] =
+    useState<StaticImageData>(backgrounds[0]);
 
   // Proficient Languages
   const [inputValue, setInputValue] = useState<string>("");
@@ -334,8 +338,10 @@ export const NewUser = () => {
   const [selectedOption, setSelectedOption] = useState<string>("");
   const [userProfs, setUserProfs] = useState<Proficiency[]>([]);
   const [finalProfs, setFinalProfs] = useState<{ [lang: string]: number }>({});
+  const ultimateProfs: Proficiency[] = finalProficiencies(finalProfs);
+  console.log(ultimateProfs);
 
-  const langOptions = Object.keys(allIcons);
+  const langOptions: string[] = Object.keys(allIcons);
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newInputValue = event.target.value;
@@ -440,7 +446,10 @@ export const NewUser = () => {
     { name: string; link: string }[]
   >([]);
 
-  const socialIcons = [
+  const socialIcons: {
+    name: string;
+    node: React.JSX.Element;
+  }[] = [
     {
       name: "discord",
       node: (
@@ -749,8 +758,7 @@ export const NewUser = () => {
       profileImg,
       about,
       selectedBackgroundImage,
-      inputValue,
-      finalProfs,
+      ultimateProfs,
       skills,
       finalSocialLinks,
     };
@@ -766,14 +774,14 @@ export const NewUser = () => {
         content: "Please fill in all required fields",
         duration: 3,
       });
-    }
-
-    try {
-      // Make database call
-      // console.log("Added user to database:", userData.firstName, userData.lastName)
-      // Redirect to dev profile page /users/{/* id given by database */}
-    } catch (error) {
-      // console.log("Error:", error)
+    } else {
+      try {
+        // Make database call
+        // console.log("Added user to database:", userData.firstName, userData.lastName)
+        // Redirect to dev profile page /users/{/* id given by database */}
+      } catch (error) {
+        // console.log("Error:", error)
+      }
     }
   };
 

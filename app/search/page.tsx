@@ -27,9 +27,10 @@ const SearchPage = () => {
   const encodedSearchQuery = encodeURI(searchQuery || "");
   const originalQuestion = decodeURI(encodedSearchQuery);
 
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState<boolean>(false);
   const [questionsInOrder, setQuestionsInOrder] = useState<QuestionType[]>([]);
-  const [showScrollTopButton, setShowScrollTopButton] = useState(false);
+  const [showScrollTopButton, setShowScrollTopButton] =
+    useState<boolean>(false);
 
   useEffect(() => {
     const fetchQuestions = async () => {

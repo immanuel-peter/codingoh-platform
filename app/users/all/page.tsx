@@ -15,8 +15,8 @@ import { User } from "@/types";
 
 const allUsers = () => {
   const [displayedUsers, setDisplayedUsers] = useState<User[]>(users);
-  const [userQuery, setUserQuery] = useState("");
-  const [langQuery, setLangQuery] = useState("");
+  const [userQuery, setUserQuery] = useState<string>("");
+  const [langQuery, setLangQuery] = useState<string>("");
 
   const handleUserQueryChange = (
     event: React.ChangeEvent<HTMLInputElement>

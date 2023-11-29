@@ -30,16 +30,15 @@ import AvatarPic from "public/avatar.png";
 const Navbar = ({ isProfile }: { isProfile?: boolean }) => {
   const router = useRouter();
 
-  const [query, setQuery] = useState("");
-  const [sunClicked, setSunClicked] = useState(false);
+  const [query, setQuery] = useState<string>("");
   const [suggestedQueries, setSuggestedQueries] = useState<Question[]>([]);
-  const [openInbox, setOpenInbox] = useState(false);
+  const [openInbox, setOpenInbox] = useState<boolean>(false);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const inputValue = e.target.value;
+    const inputValue: string = e.target.value;
     setQuery(inputValue);
 
-    const filteredQueries = questions.filter((question) =>
+    const filteredQueries: Question[] = questions.filter((question) =>
       question.question.toLowerCase().includes(inputValue.toLowerCase())
     );
     setSuggestedQueries(filteredQueries);

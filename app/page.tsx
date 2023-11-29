@@ -9,18 +9,20 @@ import { Tooltip } from "@mui/material";
 import { Navbar, Card, Question, FAB } from "@/components";
 import { users, questions } from "@/dummy/questions";
 import { convertToComparableDate } from "@/utils";
+import { Question as QuestionType, User } from "@/types";
 
 export default function Home() {
-  const [showScrollTopButton, setShowScrollTopButton] = useState(false);
+  const [showScrollTopButton, setShowScrollTopButton] =
+    useState<boolean>(false);
 
-  const onlineUsers = users.filter((user) => user.isOnline);
+  const onlineUsers: User[] = users.filter((user) => user.isOnline);
 
-  const latestQuestions = questions.slice().sort((a, b) => {
+  const latestQuestions: QuestionType[] = questions.slice().sort((a, b) => {
     const aComparableDate: Date = convertToComparableDate(a.date, a.time);
     const bComparableDate: Date = convertToComparableDate(b.date, b.time);
     return bComparableDate.getTime() - aComparableDate.getTime(); // Compare in descending order
   });
-  const unansweredQuestions = latestQuestions.filter(
+  const unansweredQuestions: QuestionType[] = latestQuestions.filter(
     (question) => !question.isAnswered
   );
 
