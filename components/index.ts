@@ -11,6 +11,7 @@ import BackgroundImageGrid from "./newuser/BackgroundImageGrid";
 import LangSelect from "./newuser/LangSelect";
 import SocialLinks from "./newuser/SocialLinks";
 import Codebot from "./Codebot";
+import NewProjectForm from "./NewProjectForm";
 
 export {
   Navbar,
@@ -26,4 +27,5 @@ export {
   LangSelect,
   SocialLinks,
   Codebot,
+  NewProjectForm,
 };

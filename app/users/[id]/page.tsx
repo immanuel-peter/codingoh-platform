@@ -2,78 +2,38 @@
 
 import React, { Fragment, useState } from "react";
 import Image from "next/image";
-import { Badge, Chip } from "@mui/joy";
-import { palette } from "@mui/system";
-import { FaEdit, FaThumbsUp, FaSave, FaHome } from "react-icons/fa";
-import {
-  FaRegCircleXmark,
-  FaCamera,
-  FaUpload,
-  FaPlus,
-  FaXTwitter,
-  FaThreads,
-} from "react-icons/fa6";
-import { Progress, Tooltip, Button, Transfer, Select, message } from "antd";
-import type { TransferDirection, TransferListProps } from "antd/es/transfer";
+import { Badge } from "@mui/joy";
+import { FaEdit, FaThumbsUp, FaHome } from "react-icons/fa";
+import { FaPlus, FaXTwitter, FaThreads } from "react-icons/fa6";
+import { Progress, Tooltip, Select } from "antd";
 import { MdOutlineKeyboardDoubleArrowRight } from "react-icons/md";
 import { BsFilePlusFill } from "react-icons/bs";
 import Link from "next/link";
 import { Dialog, Transition } from "@headlessui/react";
 import { SocialIcon } from "react-social-icons";
-import { useRouter } from "next/navigation";
 
 import { users, questions, projects, techSkills } from "@/dummy/questions";
-import { User, RecordType, Project as ProjectType, Proficiency } from "@/types";
-import {
-  getTopLanguages,
-  stringifyList,
-  getTopQuestions,
-  recordTypesFromLangs,
-  uniqueArray,
-  labelValues,
-} from "@/utils";
-import { Navbar, Card, Question, Project, FAB } from "@/components";
+import { User, Project as ProjectType, Proficiency } from "@/types";
+import { getTopLanguages, getTopQuestions } from "@/utils";
+import { Navbar, Question, Project, FAB, NewProjectForm } from "@/components";
 import { sortQuestionsAndContributions, projectsMap } from "@/utils";
 import Banner from "@/public/banner.png";
 import Avatar from "@/public/avatar.png";
 import { allIcons } from "@/utils/icons";
-import { IoCloseCircleOutline } from "react-icons/io5";
 
 const getUser = (userId: string): User | undefined => {
   return users.find((user) => user.id === Number(userId));
 };
 
-const { Option } = Select;
-
 const UserPage = ({ params }: { params: { id: string } }) => {
-  const router = useRouter();
-
   const [questionTypeMode, setQuestionTypeMode] = useState<string>("all");
   const [isStackOpen, setIsStackOpen] = useState<boolean>(false);
   const [isQuestionsOpen, setIsQuestionsOpen] = useState<boolean>(false);
   const [skillsOpen, setSkillsOpen] = useState<boolean>(false);
   const [projectTypeMode, setProjectTypeMode] = useState<string>("all");
   const [isProjectsOpen, setIsProjectsOpen] = useState<boolean>(false);
-
   const [newProjectModalOpen, setNewProjectModalOpen] =
     useState<boolean>(false);
-  const [newProjectImage, setNewProjectImage] = useState<string>("");
-  const [newProject, setNewProject] = useState<ProjectType>({
-    id: 0, // Provide default values or replace with actual values
-    owner: users[0],
-    name: "",
-    description: "",
-    startDate: new Date(),
-    endDate: undefined, // or specify a default value
-    github: "",
-    status: "ongoing",
-    image: newProjectImage || "",
-    stack: [],
-    needed: [], // Initialize as an empty array
-    application: "",
-  });
-
-  console.log(newProject.needed);
 
   const user = getUser(params.id);
 
@@ -88,73 +48,8 @@ const UserPage = ({ params }: { params: { id: string } }) => {
 
   const userProjects: ProjectType[] = projectsMap(projects, user) || [];
 
-  const onImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    if (event.target.files && event.target.files[0]) {
-      let img = event.target.files[0];
-      setNewProjectImage(URL.createObjectURL(img));
-    }
-  };
-
-  const handleStackChange = (value: string[]) => {
-    setNewProject({
-      ...newProject,
-      stack: value,
-    });
-  };
-
-  const handleSkillChange = (value: string) => {
-    setNewProject({
-      ...newProject,
-      needed: newProject.needed ? [...newProject.needed, value] : [value],
-    });
-  };
-
-  // Form Actions
-  const [messageApi, contextHolder] = message.useMessage();
-
-  const handleFormSubmit = (e: React.SyntheticEvent) => {
-    e.preventDefault();
-
-    if (newProject.name.trim() === "") {
-      messageApi.open({
-        type: "error",
-        content: "Please provide a project title",
-        duration: 3,
-      });
-    }
-
-    if (newProject.description.trim() === "") {
-      messageApi.open({
-        type: "error",
-        content: "Please provide a project description",
-        duration: 3,
-      });
-    }
-
-    if (
-      newProject.application?.trim() !== "" &&
-      newProject.needed?.length === 0
-    ) {
-      messageApi.open({
-        type: "error",
-        content:
-          "If you are providing an application link, please provide needed skills for the project.",
-        duration: 3,
-      });
-    } else {
-      try {
-        // Make database call
-        // console.log("Added user to database:", userData.firstName, userData.lastName)
-        // Redirect to dev profile page /users/{/* id given by database */}
-      } catch (error) {
-        // console.log("Error:", error)
-      }
-    }
-  };
-
   return (
     <>
-      {contextHolder}
       <Navbar isProfile />
       <div className="p-3 m-0">
         <div className="relative flex h-32 w-full items-center justify-between rounded-xl bg-cover px-10 mb-4">
@@ -1231,7 +1126,195 @@ const UserPage = ({ params }: { params: { id: string } }) => {
                     New Project
                   </Dialog.Title>
 
-                  <form onSubmit={handleFormSubmit}>
+                  <NewProjectForm />
+                </Dialog.Panel>
+              </Transition.Child>
+            </div>
+          </div>
+        </Dialog>
+      </Transition>
+    </>
+  );
+};
+
+export default UserPage;
+
+/*
+<div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-2">
+          {Array.from({ length: 12 }).map((_, index) => (
+            <div
+              key={index}
+              className={`w-${getRandomSize()} h-${getRandomSize()} rounded-lg bg-gradient-to-br from-blue-500 to-indigo-500 p-4`}
+            ></div>
+          ))}
+        </div>
+*/
+
+/*
+{user ? (
+        <div>
+          <h1>ID: {user.id}</h1>
+          <h1>Name: {user.name}</h1>
+          <h1>About: {user.about}</h1>
+          <h1>Languages: {stringifyList(user.codingLanguages)}</h1>
+          <h1>Email: {user.email}</h1>
+          <h1>Files: {stringifyList(user.fileAttachments)}</h1>
+          <h1>Online: {user.isOnline ? "True" : "False"}</h1>
+          <h1>Position: {user.position}</h1>
+        </div>
+      ) : (
+        <h1>User Does Not Exist</h1>
+      )}
+*/
+
+/*
+<div className="flex justify-start ml-2 mr-5">
+          <Card
+            name={user.name}
+            position={user.position}
+            languages={user.codingLanguages}
+            isOnline={user.isOnline}
+          />
+        </div>
+
+<div className="divide-y divide-gray-600">
+          <div>
+            <ul role="list" className="divide-y divide-gray-600">
+              {userQuestionsAndContributions.askedQuestions.map(
+                (question, index) => (
+                  <li key={index} className="flex justify-between gap-x-6 py-5">
+                    <Question
+                      question={question.question}
+                      asker={question.asker.name}
+                      contributors={question.contributors.length}
+                      date={question.date}
+                      answered={question.isAnswered}
+                    />
+                  </li>
+                )
+              )}
+            </ul>
+          </div>
+          <div>
+            <ul role="list" className="divide-y divide-gray-600">
+              {userQuestionsAndContributions.contributedQuestions.map(
+                (question, index) => (
+                  <li key={index} className="flex justify-between gap-x-6 py-5">
+                    <Question
+                      question={question.question}
+                      asker={question.asker.name}
+                      contributors={question.contributors.length}
+                      date={question.date}
+                      answered={question.isAnswered}
+                    />
+                  </li>
+                )
+              )}
+            </ul>
+          </div>
+        </div>
+*/
+
+/*
+<input
+                          id="tech-stack"
+                          name="tech-stack"
+                          type="text"
+                          placeholder="Provide the stack necessary for your project"
+                          className="basis-3/5 self-center rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
+                        />
+                        
+                        <button
+                          type="button"
+                          className="basis-[6%] self-center rounded-full py-1.5 text-gray-900 border border-solid border-blue-400 bg-blue-300 hover:bg-blue-500 sm:text-sm sm:leading-6"
+                          onClick={() => {}}
+                        >
+                          +
+                        </button>
+*/
+
+/*
+const [newProjectImage, setNewProjectImage] = useState<string>("");
+  const [newProject, setNewProject] = useState<ProjectType>({
+    id: 0, // Provide default values or replace with actual values
+    owner: users[0],
+    name: "",
+    description: "",
+    startDate: new Date(),
+    endDate: undefined, // or specify a default value
+    github: "",
+    status: "ongoing",
+    image: newProjectImage || "",
+    stack: [],
+    needed: [], // Initialize as an empty array
+    application: "",
+  });
+
+  console.log(newProject.needed);
+
+const onImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files && event.target.files[0]) {
+      let img = event.target.files[0];
+      setNewProjectImage(URL.createObjectURL(img));
+    }
+  };
+
+  const handleStackChange = (value: string[]) => {
+    setNewProject({
+      ...newProject,
+      stack: value,
+    });
+  };
+
+  const handleSkillChange = (value: string) => {
+    setNewProject({
+      ...newProject,
+      needed: newProject.needed ? [...newProject.needed, value] : [value],
+    });
+  };
+
+const [messageApi, contextHolder] = message.useMessage();
+
+  const handleFormSubmit = (e: React.SyntheticEvent) => {
+    e.preventDefault();
+
+    if (newProject.name.trim() === "") {
+      messageApi.open({
+        type: "error",
+        content: "Please provide a project title",
+        duration: 3,
+      });
+    }
+
+    if (newProject.description.trim() === "") {
+      messageApi.open({
+        type: "error",
+        content: "Please provide a project description",
+        duration: 3,
+      });
+    }
+
+    if (
+      newProject.application?.trim() !== "" &&
+      newProject.needed?.length === 0
+    ) {
+      messageApi.open({
+        type: "error",
+        content:
+          "If you are providing an application link, please provide needed skills for the project.",
+        duration: 3,
+      });
+    } else {
+      try {
+        // Make database call
+        
+      } catch (error) {
+        // console.log("Error:", error)
+      }
+    }
+  };
+
+<form onSubmit={handleFormSubmit}>
                     <div className="p-2 m-2">
                       <div className="flex flex-col">
                         <label
@@ -1469,108 +1552,4 @@ const UserPage = ({ params }: { params: { id: string } }) => {
                       </button>
                     </div>
                   </form>
-                </Dialog.Panel>
-              </Transition.Child>
-            </div>
-          </div>
-        </Dialog>
-      </Transition>
-    </>
-  );
-};
-
-export default UserPage;
-
-/*
-<div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-2">
-          {Array.from({ length: 12 }).map((_, index) => (
-            <div
-              key={index}
-              className={`w-${getRandomSize()} h-${getRandomSize()} rounded-lg bg-gradient-to-br from-blue-500 to-indigo-500 p-4`}
-            ></div>
-          ))}
-        </div>
-*/
-
-/*
-{user ? (
-        <div>
-          <h1>ID: {user.id}</h1>
-          <h1>Name: {user.name}</h1>
-          <h1>About: {user.about}</h1>
-          <h1>Languages: {stringifyList(user.codingLanguages)}</h1>
-          <h1>Email: {user.email}</h1>
-          <h1>Files: {stringifyList(user.fileAttachments)}</h1>
-          <h1>Online: {user.isOnline ? "True" : "False"}</h1>
-          <h1>Position: {user.position}</h1>
-        </div>
-      ) : (
-        <h1>User Does Not Exist</h1>
-      )}
-*/
-
-/*
-<div className="flex justify-start ml-2 mr-5">
-          <Card
-            name={user.name}
-            position={user.position}
-            languages={user.codingLanguages}
-            isOnline={user.isOnline}
-          />
-        </div>
-
-<div className="divide-y divide-gray-600">
-          <div>
-            <ul role="list" className="divide-y divide-gray-600">
-              {userQuestionsAndContributions.askedQuestions.map(
-                (question, index) => (
-                  <li key={index} className="flex justify-between gap-x-6 py-5">
-                    <Question
-                      question={question.question}
-                      asker={question.asker.name}
-                      contributors={question.contributors.length}
-                      date={question.date}
-                      answered={question.isAnswered}
-                    />
-                  </li>
-                )
-              )}
-            </ul>
-          </div>
-          <div>
-            <ul role="list" className="divide-y divide-gray-600">
-              {userQuestionsAndContributions.contributedQuestions.map(
-                (question, index) => (
-                  <li key={index} className="flex justify-between gap-x-6 py-5">
-                    <Question
-                      question={question.question}
-                      asker={question.asker.name}
-                      contributors={question.contributors.length}
-                      date={question.date}
-                      answered={question.isAnswered}
-                    />
-                  </li>
-                )
-              )}
-            </ul>
-          </div>
-        </div>
-*/
-
-/*
-<input
-                          id="tech-stack"
-                          name="tech-stack"
-                          type="text"
-                          placeholder="Provide the stack necessary for your project"
-                          className="basis-3/5 self-center rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
-                        />
-                        
-                        <button
-                          type="button"
-                          className="basis-[6%] self-center rounded-full py-1.5 text-gray-900 border border-solid border-blue-400 bg-blue-300 hover:bg-blue-500 sm:text-sm sm:leading-6"
-                          onClick={() => {}}
-                        >
-                          +
-                        </button>
 */

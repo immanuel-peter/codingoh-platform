@@ -1,6 +1,13 @@
 import React from "react";
 import { FcDatabase } from "react-icons/fc";
-import { SiOpenai } from "react-icons/si";
+import {
+  SiOpenai,
+  SiSupabase,
+  SiMicrosoftaccess,
+  SiMicrosoftexcel,
+  SiMicrosoftpowerpoint,
+  SiMicrosoftword,
+} from "react-icons/si";
 import {
   JavascriptOriginal,
   PythonOriginal,
@@ -140,6 +147,7 @@ export const allIcons: { [name: string]: React.ReactNode } = {
   Scala: <ScalaOriginal size={25} />,
   Julia: <JuliaOriginal size={25} />,
   Firebase: <FirebasePlain size={25} />,
+  Supabase: <SiSupabase size={25} className="text-2xl text-emerald-600" />,
   Neo4j: <Neo4jOriginal size={25} />,
   AWS: <AmazonwebservicesOriginal size={25} />,
   Azure: <AzurePlain size={25} />,
@@ -162,6 +170,7 @@ export const allIcons: { [name: string]: React.ReactNode } = {
   Django: <DjangoPlain size={25} />,
   FastAPI: <FastapiOriginal size={25} />,
   Laravel: <LaravelPlain size={25} />,
+  "Microsoft Access": <SiMicrosoftaccess className="text-2xl text-red-700" />,
   Svelte: <SvelteOriginal size={25} />,
   NumPy: <NumpyOriginal size={25} />,
   Pandas: <PandasOriginal size={25} />,
@@ -210,4 +219,9 @@ export const allIcons: { [name: string]: React.ReactNode } = {
   Redux: <ReduxOriginal size={25} />,
   GraphQL: <GraphqlPlain size={25} />,
   "Socket.IO": <SocketioOriginal size={25} />,
+  "Microsoft Word": <SiMicrosoftword className="text-2xl text-blue-600" />,
+  "Microsoft Excel": <SiMicrosoftexcel className="text-2xl text-emerald-600" />,
+  "Microsoft PowerPoint": (
+    <SiMicrosoftpowerpoint className="text-2xl text-orange-500" />
+  ),
 };
