@@ -20,6 +20,8 @@
     "@mui/x-date-pickers-pro": "^6.11.2",
     "@next/font": "^13.4.12",
     "@nextui-org/react": "^2.1.12",
+    "@supabase/auth-helpers-nextjs": "^0.8.7",
+    "@supabase/supabase-js": "^2.39.1",
     "@types/node": "20.4.4",
     "@types/react": "18.2.15",
     "@types/react-dom": "18.2.7",

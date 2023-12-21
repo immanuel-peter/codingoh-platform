@@ -111,12 +111,12 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
 
   if (!question) return false;
 
-  const [activeButton, setActiveButton] = useState("Question");
   const [isScheduleMeetOpen, setIsScheduleMeetOpen] = useState<boolean>(false);
   const [dateTime, setDateTime] = useState<Dayjs | null>(null);
   const [didSchedule, setDidSchedule] = useState<boolean>(false);
 
-  console.log(dateTime, didSchedule);
+  const formattedDate = dateTime?.toDate();
+  console.log(formattedDate);
 
   const handleSchedule = () => {
     setDidSchedule(true);
