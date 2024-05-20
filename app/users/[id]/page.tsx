@@ -11,6 +11,7 @@ import { BsFilePlusFill } from "react-icons/bs";
 import Link from "next/link";
 import { Dialog, Transition } from "@headlessui/react";
 import { SocialIcon } from "react-social-icons";
+import { createClient } from "@/utils/supabase/client";
 
 import { users, questions, projects, techSkills } from "@/dummy/questions";
 import { User, Project as ProjectType, Proficiency } from "@/types";
@@ -19,13 +20,16 @@ import { Navbar, Question, Project, FAB, NewProjectForm } from "@/components";
 import { sortQuestionsAndContributions, projectsMap } from "@/utils";
 import Banner from "@/public/banner.png";
 import Avatar from "@/public/avatar.png";
-import { allIcons } from "@/utils/icons";
+import sortedIcons from "@/utils/icons";
 
 const getUser = (userId: string): User | undefined => {
   return users.find((user) => user.id === Number(userId));
 };
 
 const UserPage = ({ params }: { params: { id: string } }) => {
+  const supabase = createClient();
+  const supabaseUser = null;
+
   const [questionTypeMode, setQuestionTypeMode] = useState<string>("all");
   const [isStackOpen, setIsStackOpen] = useState<boolean>(false);
   const [isQuestionsOpen, setIsQuestionsOpen] = useState<boolean>(false);
@@ -50,7 +54,7 @@ const UserPage = ({ params }: { params: { id: string } }) => {
 
   return (
     <>
-      <Navbar isProfile />
+      <Navbar />
       <div className="p-3 m-0">
         <div className="relative flex h-32 w-full items-center justify-between rounded-xl bg-cover px-10 mb-4">
           <div className="flex flex-row items-center justify-between gap-x-4">
@@ -149,7 +153,7 @@ const UserPage = ({ params }: { params: { id: string } }) => {
                         arrow={false}
                         placement="right"
                       >
-                        {allIcons[language.language]}
+                        {sortedIcons[language.language]}
                       </Tooltip>
                     </div>
                     <Progress
@@ -814,7 +818,7 @@ const UserPage = ({ params }: { params: { id: string } }) => {
                               arrow={false}
                               placement="right"
                             >
-                              {allIcons[language.language]}
+                              {sortedIcons[language.language]}
                             </Tooltip>
                           </div>
                           <Progress
@@ -1482,10 +1486,10 @@ const [messageApi, contextHolder] = message.useMessage();
                             placeholder="Python, TensorFlow, Pytorch, etc..."
                             onChange={handleStackChange}
                           >
-                            {Object.keys(allIcons).map((icon) => (
+                            {Object.keys(sortedIcons).map((icon) => (
                               <Option value={icon}>
                                 <div className="flex flex-row justify-between items-center px-3">
-                                  {allIcons[icon]}
+                                  {sortedIcons[icon]}
                                   {icon}
                                 </div>
                               </Option>

@@ -10,6 +10,8 @@ export const metadata: Metadata = {
   description: "Coding Office Hours: Stack Overflow in real time",
 };
 
+// https://www.google.com/s2/favicons?sz=256&domain_url={}
+
 export default function RootLayout({
   children,
 }: {

@@ -8,7 +8,7 @@ import { IoCloseCircleOutline } from "react-icons/io5";
 
 import { Project as ProjectType } from "@/types";
 import { users, techSkills } from "@/dummy/questions";
-import { allIcons } from "@/utils/icons";
+import sortedIcons from "@/utils/icons";
 import { labelValues, uniqueArray } from "@/utils";
 
 const { Option } = Select;
@@ -262,10 +262,10 @@ const NewProjectForm = () => {
                 placeholder="Python, TensorFlow, Pytorch, etc..."
                 onChange={handleStackChange}
               >
-                {Object.keys(allIcons).map((icon) => (
+                {Object.keys(sortedIcons).map((icon) => (
                   <Option value={icon}>
                     <div className="flex flex-row justify-between items-center px-3">
-                      {allIcons[icon]}
+                      {sortedIcons[icon]}
                       {icon}
                     </div>
                   </Option>

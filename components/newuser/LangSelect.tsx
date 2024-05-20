@@ -6,7 +6,7 @@ import { LuMinusCircle } from "react-icons/lu";
 import { Tooltip, Progress } from "antd";
 import { Slider } from "@mui/joy";
 
-import { allIcons } from "@/utils/icons";
+import sortedIcons from "@/utils/icons";
 
 const Autocomplete = () => {
   const [inputValue, setInputValue] = useState<string>("");
@@ -15,7 +15,7 @@ const Autocomplete = () => {
   const [userLangs, setUserLangs] = useState<string[]>([]);
   const [selectedOption, setSelectedOption] = useState<string>("");
 
-  const options = Object.keys(allIcons);
+  const options = Object.keys(sortedIcons);
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newInputValue = event.target.value;
@@ -136,7 +136,7 @@ const ShowSkill = ({ skill }: { skill: string }) => {
     <div className="grid grid-cols-6 justify-between m-2">
       <div key={skill} className="col-span-1 mr-20">
         <Tooltip title={skill} arrow={false} placement="right">
-          {allIcons[skill]}
+          {sortedIcons[skill]}
         </Tooltip>
       </div>
       <Slider

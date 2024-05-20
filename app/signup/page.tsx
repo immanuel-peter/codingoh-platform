@@ -1,15 +1,15 @@
 "use client";
 
 import React, { useState } from "react";
-import { Divider, Input, message } from "antd";
-import { AiOutlineEyeInvisible, AiOutlineEye } from "react-icons/ai";
+import { Divider, Input, message, Alert } from "antd";
 import { FaCode, FaGithub } from "react-icons/fa6";
 import { FcGoogle } from "react-icons/fc";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { redirect } from "next/navigation";
+import { createClient } from "@/utils/supabase/client";
 
 const SignUp = () => {
-  const router = useRouter();
+  const supabase = createClient();
   const [messageApi, contextHolder] = message.useMessage();
 
   const [name, setName] = useState("");
@@ -20,6 +20,8 @@ const SignUp = () => {
   var fieldsCheck = false;
   var emailCheck = false;
   var passwordCheck = false;
+
+  let success = false;
 
   const handleSignUp = async () => {
     if (
@@ -62,12 +64,18 @@ const SignUp = () => {
     }
 
     if (fieldsCheck && emailCheck && passwordCheck) {
-      try {
-        // Perform backend call to upload user credentials
-        // console.log('Sign up successful');
-        router.push("/users/add");
-      } catch (err) {
-        // console.log('Error:', err);
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          emailRedirectTo: `${window.location.origin}/login?verify=true`,
+        },
+      });
+      if (data) {
+        console.log(data);
+        success = true;
+      } else {
+        console.log(error);
       }
     }
   };
@@ -127,6 +135,12 @@ const SignUp = () => {
               onChange={(e) => setConfirmPassword(e.target.value)}
             />
           </div>
+
+          {success && (
+            <div className="px-4 py-2">
+              <Alert message="Check your email" type="success" showIcon />
+            </div>
+          )}
 
           <div className="flex justify-center mt-1">
             <button

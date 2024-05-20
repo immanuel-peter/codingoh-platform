@@ -77,7 +77,7 @@ export interface Project {
 }
 
 export interface Social {
-  name: string;
+  social: string;
   link: string;
 }
 

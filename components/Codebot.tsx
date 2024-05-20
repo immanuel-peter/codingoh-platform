@@ -3,7 +3,7 @@
 import React, { use, useState } from "react";
 import { FaShapes } from "react-icons/fa6";
 
-import { allIcons } from "@/utils/icons";
+import sortedIcons from "@/utils/icons";
 
 const Codebot = () => {
   const [selectedLang, setSelectedLang] = useState<string>("");
@@ -24,7 +24,7 @@ const Codebot = () => {
             <FaShapes className="w-6 h-6" />
             <div>Miscellaneous</div>
           </div>
-          {Object.keys(allIcons).map((icon) => (
+          {Object.keys(sortedIcons).map((icon) => (
             <div
               onClick={() => setSelectedLang(icon)}
               className={`flex flex-row items-center justify-start gap-4 p-5 ${
@@ -33,7 +33,7 @@ const Codebot = () => {
                   : "bg-gradient-to-l from-blue-300 to-transparent via-blue-300"
               } `}
             >
-              <div>{allIcons[icon]}</div>
+              <div>{sortedIcons[icon]}</div>
               <div>{icon}</div>
             </div>
           ))}

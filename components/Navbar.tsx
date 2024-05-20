@@ -22,13 +22,66 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Dialog, Transition } from "@headlessui/react";
 import { Avatar } from "@mui/joy";
+import { redirect } from "next/navigation";
+import { createClient } from "@/utils/supabase/client";
 
 import { questions, inboxItems } from "@/dummy/questions";
 import { Question } from "@/types";
-import AvatarPic from "public/avatar.png";
 
-const Navbar = ({ isProfile }: { isProfile?: boolean }) => {
-  const router = useRouter();
+type UserResponse = {
+  id: string;
+  [key: string]: any;
+};
+
+type Coder = {
+  first_name: string;
+  last_name: string;
+  timezone: string;
+  email_address: string;
+  background_image: number;
+  profile_image: boolean;
+  [key: string]: any;
+};
+
+const Navbar = () => {
+  const supabase = createClient();
+  const [user, setUser] = useState<UserResponse>({ id: "" });
+  const [coder, setCoder] = useState<Coder>({
+    first_name: "",
+    last_name: "",
+    timezone: "",
+    email_address: "",
+    background_image: 0,
+    profile_image: false,
+  });
+  const [coderPic, setCoderPic] =
+    useState<string>(`https://${process.env.NEXT_PUBLIC_SUPABASE_URL}.supabase.co/storage/v1/object/public/avatars/profileImg-${user.id}
+  `);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const {
+        data: { user },
+        error,
+      } = await supabase.auth.getUser();
+      if (user) {
+        setUser(user);
+        const { data, error } = await supabase
+          .from("coders")
+          .select("*")
+          .eq("auth_id", user?.id)
+          .single();
+        if (data) {
+          setCoder(data);
+        } else {
+          console.error(error);
+        }
+      } else {
+        console.error(error);
+      }
+    };
+    fetchUser();
+  }, []);
 
   const [query, setQuery] = useState<string>("");
   const [suggestedQueries, setSuggestedQueries] = useState<Question[]>([]);
@@ -71,13 +124,13 @@ const Navbar = ({ isProfile }: { isProfile?: boolean }) => {
   const handleSuggestionClick = (suggestion: string, suggestionId: number) => {
     setQuery(suggestion);
     setSuggestedQueries([]);
-    router.push(`/questions/${suggestionId}`);
+    redirect(`/questions/${suggestionId}`);
   };
 
   const handleInputKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       if (query.trim() !== "") {
-        router.push(`/search?q=${encodeURI(query)}`);
+        redirect(`/search?q=${encodeURI(query)}`);
       }
       setSuggestedQueries([]);
     }
@@ -133,45 +186,69 @@ const Navbar = ({ isProfile }: { isProfile?: boolean }) => {
           )}
         </div>
         <nav className="p-3 flex flex-row items-center justify-evenly gap-6">
-          <Link
-            href="https://successful-echium-b3f.notion.site/Support-CodingOH-67de2dbf28694086bbf3d59baa1fa10b?pvs=4"
-            target="_blank"
-          >
-            <HiDocumentText className="text-3xl hover:text-blue-500 cursor-pointer" />
-          </Link>
-          {/* <SignedOut>
-            <Link
-              href="/sign-in"
-              className="px-3 py-2 rounded-full font-semibold border border-solid border-black bg-gray-100 hover:bg-gray-200 text-gray-900"
-            >
-              Login
-            </Link>
-            <Link
-              href="/sign-up"
-              className="px-3 py-2 rounded-full font-semibold border border-solid border-black bg-blue-500 hover:bg-blue-600 text-white"
-            >
-              Sign Up
-            </Link>
-          </SignedOut> */}
+          {user.id == "" && (
+            <>
+              <Link
+                href="/login"
+                className="px-3 py-2 rounded-full font-semibold border border-solid border-black bg-gray-100 hover:bg-gray-200 text-gray-900"
+              >
+                Login
+              </Link>
+              <Link
+                href="/signup"
+                className="px-3 py-2 rounded-full font-semibold border border-solid border-black bg-blue-500 hover:bg-blue-600 text-white"
+              >
+                Sign Up
+              </Link>
+            </>
+          )}
+          {user.id != "" && (
+            <>
+              <Link
+                href="https://successful-echium-b3f.notion.site/Support-CodingOH-67de2dbf28694086bbf3d59baa1fa10b?pvs=4"
+                target="_blank"
+              >
+                <HiDocumentText className="text-3xl hover:text-blue-500 cursor-pointer" />
+              </Link>
 
-          <Link href="/questions/add">
-            <FaCirclePlus className="text-3xl mx-1 text-green-500 hover:text-green-700" />
-          </Link>
-          <div
-            className="mx-1 cursor-pointer"
-            onClick={() => setOpenInbox(true)}
-          >
-            <FaInbox className="text-3xl hover:text-amber-900" />
-          </div>
+              <Link href="/questions/add">
+                <FaCirclePlus className="text-3xl mx-1 text-green-500 hover:text-green-700" />
+              </Link>
+              <div
+                className="mx-1 cursor-pointer"
+                onClick={() => setOpenInbox(true)}
+              >
+                <FaInbox className="text-3xl hover:text-amber-900" />
+              </div>
 
-          <Link href="/users/8591247">
-            <Avatar
-              size="md"
-              className="hover:text-blue-500 hover:bg-blue-300/50"
-            >
-              IP
-            </Avatar>
-          </Link>
+              {!coder ? (
+                <Avatar />
+              ) : (
+                <Link href={`/users/${user.id}`}>
+                  {coder.profile_image ? (
+                    <Avatar
+                      size="md"
+                      alt={
+                        coder.first_name != "" && coder.last_name != ""
+                          ? `${coder.first_name[0]}${coder.last_name[0]}`
+                          : "</>"
+                      }
+                      src={coderPic}
+                    />
+                  ) : (
+                    <Avatar
+                      size="md"
+                      className="hover:text-blue-500 hover:bg-blue-300/50"
+                    >
+                      {coder.first_name != "" && coder.last_name != ""
+                        ? `${coder.first_name[0]}${coder.last_name[0]}`
+                        : "</>"}
+                    </Avatar>
+                  )}
+                </Link>
+              )}
+            </>
+          )}
         </nav>
       </header>
       <hr className="border-solid border-black border-[1px]" />

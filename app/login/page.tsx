@@ -1,23 +1,25 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
-import { Divider, Input, message } from "antd";
-import { AiOutlineEyeInvisible, AiOutlineEye } from "react-icons/ai";
+import React, { useState } from "react";
+import { Divider, Input, message, Form } from "antd";
 import { FaCode, FaGithub } from "react-icons/fa6";
 import { FcGoogle } from "react-icons/fc";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { redirect, useRouter, useSearchParams } from "next/navigation";
+import { createClient } from "@/utils/supabase/client";
 
 const Login = () => {
+  const supabase = createClient();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const verify = searchParams.get("verify");
+
   const [messageApi, contextHolder] = message.useMessage();
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
 
   var fieldsCheck = false;
-  var emailCheck = false;
-  var passwordCheck = false;
 
   const handleLogin = async () => {
     if (email.trim() === "" || password === "") {
@@ -31,29 +33,50 @@ const Login = () => {
       fieldsCheck = true;
     }
 
-    // Credential Check
-    // make call to database to check email and password
-    // useEffect(() => {
-    //   if (email !== user.email || password !== user.password) {
-    //     console.log("Wrong credentials");
-    //   } else {
-    //     emailCheck = true;
-    //     passwordCheck = true;
-    //   }
-    // })
-
     if (fieldsCheck) {
-      try {
-        // Perform backend call to upload user credentials
-        // console.log('Sign up successful');
-      } catch (err) {
-        // console.log('Error:', err);
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      if (data) {
+        console.log(data);
+        if (verify) {
+          router.push("/users/add");
+        } else {
+          router.push(`/users/${data.user?.id}`);
+        }
+      } else {
+        console.log(error);
       }
     }
+  };
 
-    if (emailCheck && passwordCheck) {
-      // router.push("/users/{id}");
+  const signInWithGithub = async () => {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: "github",
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
+    if (error) {
+      console.log(error);
     }
+    console.log(data.url);
+    return data.url;
+  };
+
+  const signInWithGoogle = async () => {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
+    if (error) {
+      console.log(error);
+    }
+    console.log(data.url);
+    return data.url;
   };
 
   return (
@@ -72,10 +95,16 @@ const Login = () => {
           </div>
 
           <div className="px-4 pt-2 flex flex-col justify-center items-center gap-4">
-            <div className="px-4 py-2 flex flex-row justify-center items-center gap-2 border border-solid border-black rounded-md hover:cursor-pointer hover:bg-blue-200">
+            <div
+              onClick={signInWithGoogle}
+              className="px-4 py-2 flex flex-row justify-center items-center gap-2 border border-solid border-black rounded-md hover:cursor-pointer hover:bg-blue-200"
+            >
               <FcGoogle size={30} /> Login Using Google &rarr;
             </div>
-            <div className="px-4 py-2 flex flex-row justify-center items-center gap-2 border border-solid border-black rounded-md hover:cursor-pointer hover:bg-gray-400">
+            <div
+              onClick={signInWithGithub}
+              className="px-4 py-2 flex flex-row justify-center items-center gap-2 border border-solid border-black rounded-md hover:cursor-pointer hover:bg-gray-400"
+            >
               <FaGithub size={30} /> Login Using GitHub &rarr;
             </div>
           </div>
@@ -85,6 +114,7 @@ const Login = () => {
           <div className="px-4 py-2 flex flex-col">
             <label className="text-blue-500">Email</label>
             <Input
+              name="email"
               placeholder="Enter your email"
               className="rounded-md shadow-sm h-8 border-none mb-3"
               value={email}
@@ -92,6 +122,7 @@ const Login = () => {
             />
             <label className="text-blue-500">Password</label>
             <Input.Password
+              name="password"
               placeholder="Generate a password"
               className="mb-3"
               value={password}

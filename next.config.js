@@ -1,6 +1,10 @@
 /** @type {import('next').NextConfig} */
-const nextConfig = {
-  images: {
+const nextConfig = {};
+
+module.exports = nextConfig;
+
+/*
+images: {
     remotePatterns: [
       {
         protocol: "https",
@@ -8,9 +12,4 @@ const nextConfig = {
       },
     ],
   },
-  env: {
-    NEXT_PUBLIC_OPENAI_API_KEY: "REPLACE_WITH_API_KEY",
-  },
-};
-
-module.exports = nextConfig;
+*/

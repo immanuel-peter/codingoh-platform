@@ -2,8 +2,6 @@
 
 import React, { useState, useEffect, SyntheticEvent } from "react";
 import {
-  FaCamera,
-  FaCircleUser,
   FaDiscord,
   FaDropbox,
   FaFacebook,
@@ -16,30 +14,24 @@ import {
   FaStackOverflow,
   FaTiktok,
   FaTwitch,
-  FaTwitter,
   FaYoutube,
   FaXTwitter,
   FaThreads,
+  FaUserCheck
 } from "react-icons/fa6";
-import { HiCheckCircle } from "react-icons/hi2";
 import { IoCloseCircleOutline } from "react-icons/io5";
 import { BsPlusCircleFill } from "react-icons/bs";
-import { LuMinusCircle } from "react-icons/lu";
 import CheckIcon from "@mui/icons-material/Check";
-import { Badge, Autocomplete, Slider, Avatar } from "@mui/joy";
-import { Select, Tooltip, Progress, message } from "antd";
+import { Badge, Slider, Avatar } from "@mui/joy";
+import { Select, Tooltip, Progress, message, notification } from "antd";
 import Image, { StaticImageData } from "next/image";
 import { SocialIcon } from "react-social-icons";
 import moment from "moment-timezone";
 import { useTimezoneSelect, allTimezones } from "react-timezone-select";
 
 import Navbar from "@/components/Navbar";
-import AddUserProfileImageInput from "@/components/newuser/AddUserProfileImageInput";
-import BackgroundImageGrid from "@/components/newuser/BackgroundImageGrid";
-import LangSelect from "@/components/newuser/LangSelect";
-import SocialLinks from "@/components/newuser/SocialLinks";
 import backgrounds from "@/public/backgrounds";
-import { allIcons } from "@/utils/icons";
+import sortedIcons from "@/utils/icons";
 import { techSkills as inDemandSkills } from "@/dummy/questions";
 import {
   uniqueArray,
@@ -48,6 +40,8 @@ import {
   finalProficiencies,
 } from "@/utils";
 import { Proficiency, Social } from "@/types";
+import { createClient } from "@/utils/supabase/client";
+import { redirect, useRouter, useSearchParams } from "next/navigation";
 
 const timezones: string[] = [
   "UTC",
@@ -422,7 +416,32 @@ const genderOptions: string[] = [
 
 const gatesBday = new Date("1955-10-28");
 
+type UserResponse = {
+  id: string;
+  [key: string]: any;
+};
+
 export const NewUser = () => {
+  const router = useRouter();
+  const supabase = createClient();
+  const [user, setUser] = useState<UserResponse>({ id: "" });
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const {
+        data: { user },
+        error,
+      } = await supabase.auth.getUser();
+      if (user) {
+        setUser(user);
+      } else {
+        console.error(error);
+        router.replace("/signup");
+      }
+    };
+    fetchUser();
+  }, [user]);
+
   // Personal Info
   const [firstName, setFirstName] = useState<string>("");
   const [lastName, setLastName] = useState<string>("");
@@ -436,12 +455,11 @@ export const NewUser = () => {
   const [city, setCity] = useState<string>("");
   const [usState, setUsState] = useState<string>("");
   const [country, setCountry] = useState<string>("");
-  const [profileImg, setProfileImg] = useState<string>("");
+  const [profileImg, setProfileImg] = useState<File | null>(null);
   const [about, setAbout] = useState<string>("");
 
   const formattedDob: string =
     dob instanceof Date ? dob.toISOString().split("T")[0] : "";
-  console.log(dob);
 
   // const timezones = allTimezones;
   // const { options, parseTimezone } = useTimezoneSelect({
@@ -458,26 +476,31 @@ export const NewUser = () => {
   const onImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
       let img = event.target.files[0];
-      setProfileImg(URL.createObjectURL(img));
+      setProfileImg(img);
     }
   };
 
   // Background Banner
   const [selectedBackgroundImage, setSelectedBackgroundImage] =
-    useState<StaticImageData>(backgrounds[0]);
+    useState<number>(0);
 
   // Proficient Languages
   const [inputValue, setInputValue] = useState<string>("");
+  const [langOptions, setLangOptions] = useState<string[]>(
+    Object.keys(sortedIcons)
+  );
   const [filteredOptions, setFilteredOptions] = useState<string[]>([]);
   const [showOptions, setShowOptions] = useState<boolean>(false);
   const [userLangs, setUserLangs] = useState<string[]>([]);
   const [selectedOption, setSelectedOption] = useState<string>("");
   const [userProfs, setUserProfs] = useState<Proficiency[]>([]);
   const [finalProfs, setFinalProfs] = useState<{ [lang: string]: number }>({});
-  const ultimateProfs: Proficiency[] = finalProficiencies(finalProfs);
-  console.log(ultimateProfs);
-
-  const langOptions: string[] = Object.keys(allIcons);
+  const ultimateProfs: Proficiency[] = Object.entries(finalProfs).map(
+    ([key, value]) => {
+      return { "language": key, "proficiency": value };
+    }
+  );
+  // console.log(ultimateProfs);
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newInputValue = event.target.value;
@@ -496,6 +519,7 @@ export const NewUser = () => {
   const handleOptionClick = (option: string) => {
     setInputValue(option);
     setSelectedOption(option);
+    setLangOptions(langOptions.filter((lang) => lang !== option));
     setFilteredOptions([]);
     setShowOptions(false);
   };
@@ -555,37 +579,37 @@ export const NewUser = () => {
   // Skills
   const [skills, setSkills] = useState<string[]>([]);
 
-  const handleSkillChange = (value: string) => {
-    setSkills([...skills, value]);
+  const handleSkillChange = (value: string[]) => {
+    setSkills(value);
   };
 
   // Social Links
   const [socials, setSocials] = useState<string[]>([]);
   const [socialLinks, setSocialLinks] = useState<Social[]>([
-    { name: "discord", link: "" },
-    { name: "dropbox", link: "" },
-    { name: "facebook", link: "" },
-    { name: "github", link: "" },
-    { name: "instagram", link: "" },
-    { name: "linkedin", link: "" },
-    { name: "medium", link: "" },
-    { name: "reddit", link: "" },
-    { name: "stackoverflow", link: "" },
-    { name: "tiktok", link: "" },
-    { name: "twitch", link: "" },
-    { name: "x", link: "" },
-    { name: "youtube", link: "" },
-    { name: "threads", link: "" },
-    { name: "personal", link: "" },
+    { "social": "discord", "link": "" },
+    { "social": "dropbox", "link": "" },
+    { "social": "facebook", "link": "" },
+    { "social": "github", "link": "" },
+    { "social": "instagram", "link": "" },
+    { "social": "linkedin", "link": "" },
+    { "social": "medium", "link": "" },
+    { "social": "reddit", "link": "" },
+    { "social": "stackoverflow", "link": "" },
+    { "social": "tiktok", "link": "" },
+    { "social": "twitch", "link": "" },
+    { "social": "x", "link": "" },
+    { "social": "youtube", "link": "" },
+    { "social": "threads", "link": "" },
+    { "social": "personal", "link": "" },
   ]);
   const [finalSocialLinks, setFinalSocialLinks] = useState<Social[]>([]);
 
   const socialIcons: {
-    name: string;
+    social: string;
     node: React.JSX.Element;
   }[] = [
     {
-      name: "discord",
+      social: "discord",
       node: (
         <>
           <div className="flex flex-row items-center gap-4 mt-3">
@@ -595,7 +619,7 @@ export const NewUser = () => {
               placeholder="www.discord.com"
               value={socialLinks[0].link}
               onChange={(e) =>
-                updateSocialLink(socialLinks[0].name, e.target.value)
+                updateSocialLink(socialLinks[0].social, e.target.value)
               }
             />
           </div>
@@ -603,7 +627,7 @@ export const NewUser = () => {
       ),
     },
     {
-      name: "dropbox",
+      social: "dropbox",
       node: (
         <>
           <div className="flex flex-row items-center gap-4 mt-3">
@@ -613,7 +637,7 @@ export const NewUser = () => {
               placeholder="www.dropbox.com"
               value={socialLinks[1].link}
               onChange={(e) =>
-                updateSocialLink(socialLinks[1].name, e.target.value)
+                updateSocialLink(socialLinks[1].social, e.target.value)
               }
             />
           </div>
@@ -621,7 +645,7 @@ export const NewUser = () => {
       ),
     },
     {
-      name: "facebook",
+      social: "facebook",
       node: (
         <>
           <div className="flex flex-row items-center gap-4 mt-3">
@@ -631,7 +655,7 @@ export const NewUser = () => {
               placeholder="www.facebook.com"
               value={socialLinks[2].link}
               onChange={(e) =>
-                updateSocialLink(socialLinks[2].name, e.target.value)
+                updateSocialLink(socialLinks[2].social, e.target.value)
               }
             />
           </div>
@@ -639,7 +663,7 @@ export const NewUser = () => {
       ),
     },
     {
-      name: "github",
+      social: "github",
       node: (
         <>
           <div className="flex flex-row items-center gap-4 mt-3">
@@ -649,7 +673,7 @@ export const NewUser = () => {
               placeholder="www.github.com"
               value={socialLinks[3].link}
               onChange={(e) =>
-                updateSocialLink(socialLinks[3].name, e.target.value)
+                updateSocialLink(socialLinks[3].social, e.target.value)
               }
             />
           </div>
@@ -657,7 +681,7 @@ export const NewUser = () => {
       ),
     },
     {
-      name: "instagram",
+      social: "instagram",
       node: (
         <>
           <div className="flex flex-row items-center gap-4 mt-3">
@@ -667,7 +691,7 @@ export const NewUser = () => {
               placeholder="www.instagram.com"
               value={socialLinks[4].link}
               onChange={(e) =>
-                updateSocialLink(socialLinks[4].name, e.target.value)
+                updateSocialLink(socialLinks[4].social, e.target.value)
               }
             />
           </div>
@@ -675,7 +699,7 @@ export const NewUser = () => {
       ),
     },
     {
-      name: "linkedin",
+      social: "linkedin",
       node: (
         <>
           <div className="flex flex-row items-center gap-4 mt-3">
@@ -685,7 +709,7 @@ export const NewUser = () => {
               placeholder="www.linkedin.com"
               value={socialLinks[5].link}
               onChange={(e) =>
-                updateSocialLink(socialLinks[5].name, e.target.value)
+                updateSocialLink(socialLinks[5].social, e.target.value)
               }
             />
           </div>
@@ -693,7 +717,7 @@ export const NewUser = () => {
       ),
     },
     {
-      name: "medium",
+      social: "medium",
       node: (
         <>
           <div className="flex flex-row items-center gap-4 mt-3">
@@ -703,7 +727,7 @@ export const NewUser = () => {
               placeholder="www.medium.com"
               value={socialLinks[6].link}
               onChange={(e) =>
-                updateSocialLink(socialLinks[6].name, e.target.value)
+                updateSocialLink(socialLinks[6].social, e.target.value)
               }
             />
           </div>
@@ -711,7 +735,7 @@ export const NewUser = () => {
       ),
     },
     {
-      name: "reddit",
+      social: "reddit",
       node: (
         <>
           <div className="flex flex-row items-center gap-4 mt-3">
@@ -721,7 +745,7 @@ export const NewUser = () => {
               placeholder="www.reddit.com"
               value={socialLinks[7].link}
               onChange={(e) =>
-                updateSocialLink(socialLinks[7].name, e.target.value)
+                updateSocialLink(socialLinks[7].social, e.target.value)
               }
             />
           </div>
@@ -729,7 +753,7 @@ export const NewUser = () => {
       ),
     },
     {
-      name: "stackoverflow",
+      social: "stackoverflow",
       node: (
         <>
           <div className="flex flex-row items-center gap-4 mt-3">
@@ -739,7 +763,7 @@ export const NewUser = () => {
               placeholder="www.stackoverflow.com"
               value={socialLinks[8].link}
               onChange={(e) =>
-                updateSocialLink(socialLinks[8].name, e.target.value)
+                updateSocialLink(socialLinks[8].social, e.target.value)
               }
             />
           </div>
@@ -747,7 +771,7 @@ export const NewUser = () => {
       ),
     },
     {
-      name: "tiktok",
+      social: "tiktok",
       node: (
         <>
           <div className="flex flex-row items-center gap-4 mt-3">
@@ -757,7 +781,7 @@ export const NewUser = () => {
               placeholder="www.tiktok.com"
               value={socialLinks[9].link}
               onChange={(e) =>
-                updateSocialLink(socialLinks[9].name, e.target.value)
+                updateSocialLink(socialLinks[9].social, e.target.value)
               }
             />
           </div>
@@ -765,7 +789,7 @@ export const NewUser = () => {
       ),
     },
     {
-      name: "twitch",
+      social: "twitch",
       node: (
         <>
           <div className="flex flex-row items-center gap-4 mt-3">
@@ -775,7 +799,7 @@ export const NewUser = () => {
               placeholder="www.twitch.com"
               value={socialLinks[10].link}
               onChange={(e) =>
-                updateSocialLink(socialLinks[10].name, e.target.value)
+                updateSocialLink(socialLinks[10].social, e.target.value)
               }
             />
           </div>
@@ -783,7 +807,7 @@ export const NewUser = () => {
       ),
     },
     {
-      name: "x",
+      social: "x",
       node: (
         <>
           <div className="flex flex-row items-center gap-4 mt-3">
@@ -793,7 +817,7 @@ export const NewUser = () => {
               placeholder="www.x.com"
               value={socialLinks[11].link}
               onChange={(e) =>
-                updateSocialLink(socialLinks[11].name, e.target.value)
+                updateSocialLink(socialLinks[11].social, e.target.value)
               }
             />
           </div>
@@ -801,7 +825,7 @@ export const NewUser = () => {
       ),
     },
     {
-      name: "youtube",
+      social: "youtube",
       node: (
         <>
           <div className="flex flex-row items-center gap-4 mt-3">
@@ -811,7 +835,7 @@ export const NewUser = () => {
               placeholder="www.youtube.com"
               value={socialLinks[12].link}
               onChange={(e) =>
-                updateSocialLink(socialLinks[12].name, e.target.value)
+                updateSocialLink(socialLinks[12].social, e.target.value)
               }
             />
           </div>
@@ -819,7 +843,7 @@ export const NewUser = () => {
       ),
     },
     {
-      name: "threads",
+      social: "threads",
       node: (
         <>
           <div className="flex flex-row items-center gap-4 mt-3">
@@ -829,7 +853,7 @@ export const NewUser = () => {
               placeholder="www.threads.net"
               value={socialLinks[13].link}
               onChange={(e) =>
-                updateSocialLink(socialLinks[13].name, e.target.value)
+                updateSocialLink(socialLinks[13].social, e.target.value)
               }
             />
           </div>
@@ -837,7 +861,7 @@ export const NewUser = () => {
       ),
     },
     {
-      name: "personal",
+      social: "personal",
       node: (
         <>
           <div className="flex flex-row items-center gap-4 mt-3">
@@ -847,7 +871,7 @@ export const NewUser = () => {
               placeholder="www.mywebsite.com"
               value={socialLinks[14].link}
               onChange={(e) =>
-                updateSocialLink(socialLinks[14].name, e.target.value)
+                updateSocialLink(socialLinks[14].social, e.target.value)
               }
             />
           </div>
@@ -856,11 +880,13 @@ export const NewUser = () => {
     },
   ];
 
-  const userSocials = socialIcons.filter((icon) => socials.includes(icon.name));
+  const userSocials = socialIcons.filter((icon) =>
+    socials.includes(icon.social)
+  );
 
-  const updateSocialLink = (network: string, updatedLink: string) => {
+  const updateSocialLink = (network: string, updatedLink: string): void => {
     const updatedLinks = socialLinks.map((link) => {
-      if (link.name === network) {
+      if (link.social === network) {
         return { ...link, link: updatedLink };
       }
       return link;
@@ -872,52 +898,96 @@ export const NewUser = () => {
 
   // Form Actions
   const [messageApi, contextHolder] = message.useMessage();
+  const [api] = notification.useNotification();
+
+  const openNotification = () => {
+    api.open({
+      message: 'User Profile Created!',
+      description: <span>Check out your new profile <a href={`/users/${user.id}`}>here</a></span>,
+      icon: <FaUserCheck className="text-green-600" />,
+    });
+  };
+
+  // style={{ color: '#108ee9' }}
 
   const handleFormSubmit = async (e: SyntheticEvent) => {
     e.preventDefault();
-
+  
     const userData = {
-      firstName,
-      lastName,
-      gender,
-      dob,
-      timezone,
-      email,
-      education,
-      company,
-      position,
-      city,
-      usState,
-      country,
-      profileImg,
-      about,
-      selectedBackgroundImage,
-      ultimateProfs,
-      skills,
-      finalSocialLinks,
+      "auth_id": user.id,
+      "first_name": firstName,
+      "last_name": lastName,
+      "gender": gender ?? "Male",
+      "birthday": dob,
+      "timezone": timezone,
+      "email_address": email,
+      "education": education,
+      "company": company,
+      "position": position,
+      "city": city,
+      "us_state": usState,
+      "country": country == "" ? "United States of America" : country,
+      "profile_image": profileImg ? true : false,
+      "about": about,
+      "background_image": selectedBackgroundImage,
+      "stack": ultimateProfs,
+      "skills": skills,
+      "socials": finalSocialLinks,
     };
-
+  
     if (
-      userData.firstName.trim() === "" ||
-      userData.lastName.trim() === "" ||
+      userData.first_name.trim() === "" ||
+      userData.last_name.trim() === "" ||
       userData.timezone === "" ||
-      userData.email.trim() === ""
+      userData.email_address.trim() === ""
     ) {
       messageApi.open({
         type: "error",
         content: "Please fill in all required fields",
         duration: 3,
       });
-    } else {
-      try {
-        // Make database call
-        // console.log("Added user to database:", userData.firstName, userData.lastName)
-        // Redirect to dev profile page /users/{/* id given by database */}
-      } catch (error) {
-        // console.log("Error:", error)
+      return;
+    }
+  
+    try {
+      // First, upload user data
+      const { data: userDataResponse, error: userDataError } = await supabase
+        .from("coders")
+        .upsert(userData)
+        .select();
+  
+      if (userDataError) {
+        console.log("Faulty data:", userData);
+        console.log("Error uploading user data:", userDataError);
+        return;
       }
+  
+      console.log("User data uploaded:", userDataResponse);
+  
+      // Then, upload the profile image if provided
+      if (profileImg) {
+        const { data: imageData, error: imageError } = await supabase.storage
+          .from("avatars")
+          .upload(`profileImg-${user.id}`, profileImg, { upsert: true });
+  
+        if (imageError) {
+          console.log("Error uploading profile image:", imageError);
+          return;
+        }
+  
+        console.log("Profile image uploaded:", imageData);
+      }
+  
+      // Redirect to user's profile page if everything is successful
+      if (userDataResponse) {
+        // router.push(`/users/${user.id}`);
+        openNotification();
+      }
+    } catch (error) {
+      console.log("Error during submission:", error);
     }
   };
+  
 
   const handleFormCancel = () => {
     setFirstName("");
@@ -932,9 +1002,9 @@ export const NewUser = () => {
     setCity("");
     setUsState("");
     setCountry("");
-    setProfileImg("");
     setAbout("");
-    setSelectedBackgroundImage(backgrounds[0]);
+    setProfileImg(null);
+    setSelectedBackgroundImage(0);
     setInputValue("");
     setFilteredOptions([]);
     setShowOptions(false);
@@ -1069,7 +1139,7 @@ export const NewUser = () => {
                     className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:max-w-xs sm:text-sm sm:leading-6"
                   >
                     {timezones.map((timezone, index) => (
-                      <option value={index}>{timezone}</option>
+                      <option key={index}>{timezone}</option>
                     ))}
                   </select>
                 </div>
@@ -1231,8 +1301,8 @@ export const NewUser = () => {
                   Avatar
                 </label>
                 <div className="mt-2 flex flex-row justify-start gap-3 items-center">
-                  {profileImg !== "" ? (
-                    <Avatar size="lg" src={profileImg} />
+                  {profileImg ? (
+                    <Avatar size="lg" src={URL.createObjectURL(profileImg)} />
                   ) : firstName !== "" && lastName !== "" ? (
                     <Avatar size="lg">{`${firstName[0]}${lastName[0]}`}</Avatar>
                   ) : (
@@ -1284,9 +1354,7 @@ export const NewUser = () => {
                       <Badge
                         color="success"
                         badgeContent={<CheckIcon className="h-2 w-2" />}
-                        invisible={
-                          selectedBackgroundImage !== backgrounds[index]
-                        }
+                        invisible={selectedBackgroundImage !== index}
                       >
                         <Image
                           src={img}
@@ -1294,9 +1362,7 @@ export const NewUser = () => {
                           height={128}
                           width={256}
                           className="rounded-lg cursor-pointer"
-                          onClick={() =>
-                            setSelectedBackgroundImage(backgrounds[index])
-                          }
+                          onClick={() => setSelectedBackgroundImage(index)}
                         />
                       </Badge>
                     ))}
@@ -1370,7 +1436,7 @@ export const NewUser = () => {
                           arrow={false}
                           placement="right"
                         >
-                          {allIcons[userlang]}
+                          {sortedIcons[userlang]}
                         </Tooltip>
                       </div>
                       <Slider
@@ -1391,7 +1457,7 @@ export const NewUser = () => {
           </div>
 
           <div className="flex flex-row justify-between border-b border-gray-900/10 pb-12">
-            <h2 className="text-base font-semibold leading-7 mb-7l text-gray-900">
+            <h2 className="text-base font-semibold leading-7 mb-7 text-gray-900">
               Skills
             </h2>
             <Select

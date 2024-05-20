@@ -12,7 +12,7 @@ import { useRouter } from "next/navigation";
 import { projects } from "@/dummy/questions";
 import { Project as ProjectType } from "@/types";
 import Avatar from "@/public/avatar.png";
-import { allIcons } from "@/utils/icons";
+import sortedIcons from "@/utils/icons";
 
 const getBgColor = (status: string): string => {
   switch (status) {
@@ -175,7 +175,7 @@ const Project = ({ project }: { project: ProjectType }) => {
                       </h2>
                       <div className="grid grid-cols-16 p-2 gap-3">
                         {project.stack?.map((item) => (
-                          <Tooltip title={item}>{allIcons[item]}</Tooltip>
+                          <Tooltip title={item}>{sortedIcons[item]}</Tooltip>
                         ))}
                       </div>
                     </>
@@ -224,7 +224,7 @@ const Project = ({ project }: { project: ProjectType }) => {
                         <div className="text-lg">Immanuel Peter</div>
                       </div>
                       <div className="basis-1/2 justify-end items-center flex flex-row gap-3">
-                        {project.stack?.map((item) => allIcons[item])}
+                        {project.stack?.map((item) => sortedIcons[item])}
                       </div>
                     </div>
                   ))} */}

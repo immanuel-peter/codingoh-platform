@@ -8,10 +8,10 @@ import Link from "next/link";
 
 import { Navbar, Card, FAB } from "@/components";
 import { users } from "@/dummy/questions";
-import { allIcons } from "@/utils/icons";
+import sortedIcons from "@/utils/icons";
 import { User } from "@/types";
 
-// const langOptions = Object.keys(allIcons).map((key) => ({ value: key }));
+// const langOptions = Object.keys(sortedIcons).map((key) => ({ value: key }));
 
 const allUsers = () => {
   const [displayedUsers, setDisplayedUsers] = useState<User[]>(users);
@@ -39,7 +39,7 @@ const allUsers = () => {
     event: React.SyntheticEvent<Element, Event>,
     value: string
   ) => {
-    const matchingLanguages = Object.keys(allIcons).filter((language) =>
+    const matchingLanguages = Object.keys(sortedIcons).filter((language) =>
       language.toLowerCase().includes(value.toLowerCase())
     );
 
@@ -87,7 +87,7 @@ const allUsers = () => {
           onInputChange={handleLangQueryChange}
           freeSolo
           placeholder="Ex: Python"
-          options={Object.keys(allIcons)}
+          options={Object.keys(sortedIcons)}
           sx={{ width: 300 }}
         />
       </div>

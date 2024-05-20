@@ -3,7 +3,6 @@ import { FaShapes } from "react-icons/fa6";
 
 import Navbar from "@/components/Navbar";
 import Codebot from "@/components/Codebot";
-import { allIcons } from "@/utils/icons";
 
 const CodeBot = () => {
   return (

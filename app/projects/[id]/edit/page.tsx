@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 import { projects, techSkills } from "@/dummy/questions";
 import { Project } from "@/types";
 import Navbar from "@/components/Navbar";
-import { allIcons } from "@/utils/icons";
+import sortedIcons from "@/utils/icons";
 import { labelValues, uniqueArray } from "@/utils";
 import { IoCloseCircleOutline } from "react-icons/io5";
 
@@ -342,10 +342,10 @@ const Page = ({ params }: { params: { id: string } }) => {
                     onChange={handleStackChange}
                     onDeselect={handleStackDeselect}
                   >
-                    {Object.keys(allIcons).map((icon) => (
+                    {Object.keys(sortedIcons).map((icon) => (
                       <Option value={icon}>
                         <div className="flex flex-row justify-between items-center px-3">
-                          {allIcons[icon]}
+                          {sortedIcons[icon]}
                           {icon}
                         </div>
                       </Option>

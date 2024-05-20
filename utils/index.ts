@@ -7,7 +7,7 @@ import {
   Project,
   RecordType,
 } from "@/types";
-import { allIcons } from "./icons";
+import sortedIcons from "./icons";
 import { Metadata } from "next";
 
 export function varStatus() {
@@ -266,7 +266,7 @@ export const finalProficiencies = (data: { [key: string]: number }) => {
 
 export const recordTypesFromLangs = () => {
   let records: RecordType[] = [];
-  const allLangs = Object.keys(allIcons);
+  const allLangs = Object.keys(sortedIcons);
   for (let i = 0; i < allLangs.length; i++) {
     const data = {
       key: (i + 1).toString(),

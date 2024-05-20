@@ -34,7 +34,7 @@ import { useTimezoneSelect, allTimezones } from "react-timezone-select";
 import Navbar from "@/components/Navbar";
 import backgrounds from "@/public/backgrounds";
 import { User, Proficiency } from "@/types";
-import { allIcons } from "@/utils/icons";
+import sortedIcons from "@/utils/icons";
 import { techSkills as inDemandSkills, users } from "@/dummy/questions";
 import {
   uniqueArray,
@@ -353,7 +353,7 @@ export const EditUser = ({ params }: { params: { id: string } }) => {
   const ultimateProfs: Proficiency[] = finalProficiencies(allProfs);
   console.log(ultimateProfs);
 
-  const langOptions: string[] = Object.keys(allIcons);
+  const langOptions: string[] = Object.keys(sortedIcons);
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newInputValue = event.target.value;
@@ -1292,7 +1292,7 @@ export const EditUser = ({ params }: { params: { id: string } }) => {
                           arrow={false}
                           placement="right"
                         >
-                          {allIcons[userlang]}
+                          {sortedIcons[userlang]}
                         </Tooltip>
                       </div>
                       <Slider
@@ -1319,7 +1319,7 @@ export const EditUser = ({ params }: { params: { id: string } }) => {
                           arrow={false}
                           placement="right"
                         >
-                          {allIcons[userlang]}
+                          {sortedIcons[userlang]}
                         </Tooltip>
                       </div>
                       <Slider
