@@ -17,7 +17,7 @@ import {
   FaYoutube,
   FaXTwitter,
   FaThreads,
-  FaUserCheck
+  FaUserCheck,
 } from "react-icons/fa6";
 import { IoCloseCircleOutline } from "react-icons/io5";
 import { BsPlusCircleFill } from "react-icons/bs";
@@ -497,7 +497,7 @@ export const NewUser = () => {
   const [finalProfs, setFinalProfs] = useState<{ [lang: string]: number }>({});
   const ultimateProfs: Proficiency[] = Object.entries(finalProfs).map(
     ([key, value]) => {
-      return { "language": key, "proficiency": value };
+      return { language: key, proficiency: value };
     }
   );
   // console.log(ultimateProfs);
@@ -586,21 +586,21 @@ export const NewUser = () => {
   // Social Links
   const [socials, setSocials] = useState<string[]>([]);
   const [socialLinks, setSocialLinks] = useState<Social[]>([
-    { "social": "discord", "link": "" },
-    { "social": "dropbox", "link": "" },
-    { "social": "facebook", "link": "" },
-    { "social": "github", "link": "" },
-    { "social": "instagram", "link": "" },
-    { "social": "linkedin", "link": "" },
-    { "social": "medium", "link": "" },
-    { "social": "reddit", "link": "" },
-    { "social": "stackoverflow", "link": "" },
-    { "social": "tiktok", "link": "" },
-    { "social": "twitch", "link": "" },
-    { "social": "x", "link": "" },
-    { "social": "youtube", "link": "" },
-    { "social": "threads", "link": "" },
-    { "social": "personal", "link": "" },
+    { social: "discord", link: "" },
+    { social: "dropbox", link: "" },
+    { social: "facebook", link: "" },
+    { social: "github", link: "" },
+    { social: "instagram", link: "" },
+    { social: "linkedin", link: "" },
+    { social: "medium", link: "" },
+    { social: "reddit", link: "" },
+    { social: "stackoverflow", link: "" },
+    { social: "tiktok", link: "" },
+    { social: "twitch", link: "" },
+    { social: "x", link: "" },
+    { social: "youtube", link: "" },
+    { social: "threads", link: "" },
+    { social: "personal", link: "" },
   ]);
   const [finalSocialLinks, setFinalSocialLinks] = useState<Social[]>([]);
 
@@ -616,7 +616,7 @@ export const NewUser = () => {
             <FaDiscord className="text-4xl text-violet-500" />
             <input
               className="block w-3/4 rounded-md border-0 py-1.5 text-gray-900 placeholder:text-gray-400 placeholder:italic shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:max-w-xs sm:text-sm sm:leading-6"
-              placeholder="www.discord.com"
+              placeholder="https://www.discord.com"
               value={socialLinks[0].link}
               onChange={(e) =>
                 updateSocialLink(socialLinks[0].social, e.target.value)
@@ -634,7 +634,7 @@ export const NewUser = () => {
             <FaDropbox className="text-4xl text-blue-500" />
             <input
               className="block w-3/4 rounded-md border-0 py-1.5 text-gray-900 placeholder:text-gray-400 placeholder:italic shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:max-w-xs sm:text-sm sm:leading-6"
-              placeholder="www.dropbox.com"
+              placeholder="https://www.dropbox.com"
               value={socialLinks[1].link}
               onChange={(e) =>
                 updateSocialLink(socialLinks[1].social, e.target.value)
@@ -652,7 +652,7 @@ export const NewUser = () => {
             <FaFacebook className="text-4xl text-blue-600" />
             <input
               className="block w-3/4 rounded-md border-0 py-1.5 text-gray-900 placeholder:text-gray-400 placeholder:italic shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:max-w-xs sm:text-sm sm:leading-6"
-              placeholder="www.facebook.com"
+              placeholder="https://www.facebook.com"
               value={socialLinks[2].link}
               onChange={(e) =>
                 updateSocialLink(socialLinks[2].social, e.target.value)
@@ -670,7 +670,7 @@ export const NewUser = () => {
             <FaGithub className="text-4xl text-black" />
             <input
               className="block w-3/4 rounded-md border-0 py-1.5 text-gray-900 placeholder:text-gray-400 placeholder:italic shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:max-w-xs sm:text-sm sm:leading-6"
-              placeholder="www.github.com"
+              placeholder="https://www.github.com"
               value={socialLinks[3].link}
               onChange={(e) =>
                 updateSocialLink(socialLinks[3].social, e.target.value)
@@ -688,7 +688,7 @@ export const NewUser = () => {
             <FaInstagram className="text-4xl text-pink-500" />
             <input
               className="block w-3/4 rounded-md border-0 py-1.5 text-gray-900 placeholder:text-gray-400 placeholder:italic shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:max-w-xs sm:text-sm sm:leading-6"
-              placeholder="www.instagram.com"
+              placeholder="https://www.instagram.com"
               value={socialLinks[4].link}
               onChange={(e) =>
                 updateSocialLink(socialLinks[4].social, e.target.value)
@@ -706,7 +706,7 @@ export const NewUser = () => {
             <FaLinkedin className="text-4xl text-blue-500" />
             <input
               className="block w-3/4 rounded-md border-0 py-1.5 text-gray-900 placeholder:text-gray-400 placeholder:italic shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:max-w-xs sm:text-sm sm:leading-6"
-              placeholder="www.linkedin.com"
+              placeholder="https://www.linkedin.com"
               value={socialLinks[5].link}
               onChange={(e) =>
                 updateSocialLink(socialLinks[5].social, e.target.value)
@@ -724,7 +724,7 @@ export const NewUser = () => {
             <FaMedium className="text-4xl text-black" />
             <input
               className="block w-3/4 rounded-md border-0 py-1.5 text-gray-900 placeholder:text-gray-400 placeholder:italic shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:max-w-xs sm:text-sm sm:leading-6"
-              placeholder="www.medium.com"
+              placeholder="https://www.medium.com"
               value={socialLinks[6].link}
               onChange={(e) =>
                 updateSocialLink(socialLinks[6].social, e.target.value)
@@ -742,7 +742,7 @@ export const NewUser = () => {
             <FaReddit className="text-4xl text-orange-500" />
             <input
               className="block w-3/4 rounded-md border-0 py-1.5 text-gray-900 placeholder:text-gray-400 placeholder:italic shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:max-w-xs sm:text-sm sm:leading-6"
-              placeholder="www.reddit.com"
+              placeholder="https://www.reddit.com"
               value={socialLinks[7].link}
               onChange={(e) =>
                 updateSocialLink(socialLinks[7].social, e.target.value)
@@ -760,7 +760,7 @@ export const NewUser = () => {
             <FaStackOverflow className="text-4xl text-orange-400" />
             <input
               className="block w-3/4 rounded-md border-0 py-1.5 text-gray-900 placeholder:text-gray-400 placeholder:italic shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:max-w-xs sm:text-sm sm:leading-6"
-              placeholder="www.stackoverflow.com"
+              placeholder="https://www.stackoverflow.com"
               value={socialLinks[8].link}
               onChange={(e) =>
                 updateSocialLink(socialLinks[8].social, e.target.value)
@@ -778,7 +778,7 @@ export const NewUser = () => {
             <FaTiktok className="text-4xl text-black" />
             <input
               className="block w-3/4 rounded-md border-0 py-1.5 text-gray-900 placeholder:text-gray-400 placeholder:italic shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:max-w-xs sm:text-sm sm:leading-6"
-              placeholder="www.tiktok.com"
+              placeholder="https://www.tiktok.com"
               value={socialLinks[9].link}
               onChange={(e) =>
                 updateSocialLink(socialLinks[9].social, e.target.value)
@@ -796,7 +796,7 @@ export const NewUser = () => {
             <FaTwitch className="text-4xl text-purple-500" />
             <input
               className="block w-3/4 rounded-md border-0 py-1.5 text-gray-900 placeholder:text-gray-400 placeholder:italic shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:max-w-xs sm:text-sm sm:leading-6"
-              placeholder="www.twitch.com"
+              placeholder="https://www.twitch.com"
               value={socialLinks[10].link}
               onChange={(e) =>
                 updateSocialLink(socialLinks[10].social, e.target.value)
@@ -814,7 +814,7 @@ export const NewUser = () => {
             <FaXTwitter className="text-4xl text-black" />
             <input
               className="block w-3/4 rounded-md border-0 py-1.5 text-gray-900 placeholder:text-gray-400 placeholder:italic shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:max-w-xs sm:text-sm sm:leading-6"
-              placeholder="www.x.com"
+              placeholder="https://www.x.com"
               value={socialLinks[11].link}
               onChange={(e) =>
                 updateSocialLink(socialLinks[11].social, e.target.value)
@@ -832,7 +832,7 @@ export const NewUser = () => {
             <FaYoutube className="text-4xl text-red-500" />
             <input
               className="block w-3/4 rounded-md border-0 py-1.5 text-gray-900 placeholder:text-gray-400 placeholder:italic shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:max-w-xs sm:text-sm sm:leading-6"
-              placeholder="www.youtube.com"
+              placeholder="https://www.youtube.com"
               value={socialLinks[12].link}
               onChange={(e) =>
                 updateSocialLink(socialLinks[12].social, e.target.value)
@@ -850,7 +850,7 @@ export const NewUser = () => {
             <FaThreads className="text-4xl text-black" />
             <input
               className="block w-3/4 rounded-md border-0 py-1.5 text-gray-900 placeholder:text-gray-400 placeholder:italic shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:max-w-xs sm:text-sm sm:leading-6"
-              placeholder="www.threads.net"
+              placeholder="https://www.threads.net"
               value={socialLinks[13].link}
               onChange={(e) =>
                 updateSocialLink(socialLinks[13].social, e.target.value)
@@ -868,7 +868,7 @@ export const NewUser = () => {
             <FaLink className="text-4xl text-black" />
             <input
               className="block w-3/4 rounded-md border-0 py-1.5 text-gray-900 placeholder:text-gray-400 placeholder:italic shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:max-w-xs sm:text-sm sm:leading-6"
-              placeholder="www.mywebsite.com"
+              placeholder="https://www.mywebsite.com"
               value={socialLinks[14].link}
               onChange={(e) =>
                 updateSocialLink(socialLinks[14].social, e.target.value)
@@ -902,8 +902,12 @@ export const NewUser = () => {
 
   const openNotification = () => {
     api.open({
-      message: 'User Profile Created!',
-      description: <span>Check out your new profile <a href={`/users/${user.id}`}>here</a></span>,
+      message: "User Profile Created!",
+      description: (
+        <span>
+          Check out your new profile <a href={`/users/${user.id}`}>here</a>
+        </span>
+      ),
       icon: <FaUserCheck className="text-green-600" />,
     });
   };
@@ -912,29 +916,29 @@ export const NewUser = () => {
 
   const handleFormSubmit = async (e: SyntheticEvent) => {
     e.preventDefault();
-  
+
     const userData = {
-      "auth_id": user.id,
-      "first_name": firstName,
-      "last_name": lastName,
-      "gender": gender ?? "Male",
-      "birthday": dob,
-      "timezone": timezone,
-      "email_address": email,
-      "education": education,
-      "company": company,
-      "position": position,
-      "city": city,
-      "us_state": usState,
-      "country": country == "" ? "United States of America" : country,
-      "profile_image": profileImg ? true : false,
-      "about": about,
-      "background_image": selectedBackgroundImage,
-      "stack": ultimateProfs,
-      "skills": skills,
-      "socials": finalSocialLinks,
+      auth_id: user.id,
+      first_name: firstName,
+      last_name: lastName,
+      gender: gender ?? "Male",
+      birthday: dob,
+      timezone: timezone,
+      email_address: email,
+      education: education,
+      company: company,
+      position: position,
+      city: city,
+      us_state: usState,
+      country: country == "" ? "United States of America" : country,
+      profile_image: profileImg ? true : false,
+      about: about,
+      background_image: selectedBackgroundImage,
+      stack: ultimateProfs,
+      skills: skills,
+      socials: finalSocialLinks,
     };
-  
+
     if (
       userData.first_name.trim() === "" ||
       userData.last_name.trim() === "" ||
@@ -948,36 +952,36 @@ export const NewUser = () => {
       });
       return;
     }
-  
+
     try {
       // First, upload user data
       const { data: userDataResponse, error: userDataError } = await supabase
         .from("coders")
         .upsert(userData)
         .select();
-  
+
       if (userDataError) {
         console.log("Faulty data:", userData);
         console.log("Error uploading user data:", userDataError);
         return;
       }
-  
+
       console.log("User data uploaded:", userDataResponse);
-  
+
       // Then, upload the profile image if provided
       if (profileImg) {
         const { data: imageData, error: imageError } = await supabase.storage
           .from("avatars")
           .upload(`profileImg-${user.id}`, profileImg, { upsert: true });
-  
+
         if (imageError) {
           console.log("Error uploading profile image:", imageError);
           return;
         }
-  
+
         console.log("Profile image uploaded:", imageData);
       }
-  
+
       // Redirect to user's profile page if everything is successful
       if (userDataResponse) {
         // router.push(`/users/${user.id}`);
@@ -987,7 +991,6 @@ export const NewUser = () => {
       console.log("Error during submission:", error);
     }
   };
-  
 
   const handleFormCancel = () => {
     setFirstName("");

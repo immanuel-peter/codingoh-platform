@@ -3,31 +3,41 @@ import { StaticImageData } from "next/image";
 // dummy/questions.ts
 export interface Question {
   id: number;
+  created_at?: Date | string;
+  asker: Coder;
   question: string;
-  asker: User;
-  description: string;
-  time: string;
-  date: string;
-  isAnswered: boolean;
-  answer?: string;
-  contributors?: Contributor[];
   tags?: string[];
+  description: string;
+  answer_preference: string;
+  notify_email: boolean;
+  notify_desktop: boolean;
+  answer?: string;
+  artificial_date?: Date | null;
+  contributors?: Contributor[];
 }
 
-export interface User {
+export interface Coder {
   id: number;
-  name: string;
-  about?: string;
-  email: string;
-  position?: string;
-  fileAttachments?: string[];
-  codingLanguages?: Proficiency[];
-  isOnline: boolean;
-  location?: string;
+  created_at?: Date | string;
+  first_name: string;
+  last_name: string;
+  gender?: string;
+  birthday?: string;
+  timezone: string;
+  email_address: string;
   company?: string;
+  position?: string;
+  city?: string;
+  us_state?: string;
+  country?: string;
+  about?: string;
+  background_image?: number;
   skills?: string[];
+  socials?: Social[];
+  stack?: Proficiency[];
   education?: string;
-  platforms?: string[];
+  auth_id: string;
+  profile_image: boolean;
 }
 
 export interface UserType {
@@ -57,22 +67,25 @@ export interface Proficiency {
 }
 
 export interface Contributor {
-  user: User;
-  contributionTime: string;
+  id: number;
+  created_at?: Date | string;
+  question_id: Question;
+  user_id: Coder;
 }
 
 export interface Project {
   id: number;
-  owner: User;
+  created_at: Date | string;
+  owner: Coder;
   name: string;
   description: string;
-  startDate: Date;
-  endDate?: Date;
+  start_date: string;
+  end_date?: string;
   github?: string;
-  status: "ongoing" | "completed" | "on_hold";
-  image: string;
+  status?: string;
+  project_image?: string;
   stack?: string[];
-  needed?: string[];
+  skills?: string[];
   application?: string;
 }
 
@@ -95,7 +108,7 @@ export interface Tag {
 }
 
 export interface InboxIem {
-  randUser: User;
+  randUser: Coder;
   randName: string;
   randQuestion: string;
   link: string;

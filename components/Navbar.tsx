@@ -54,9 +54,10 @@ const Navbar = () => {
     background_image: 0,
     profile_image: false,
   });
-  const [coderPic, setCoderPic] =
-    useState<string>(`https://${process.env.NEXT_PUBLIC_SUPABASE_URL}.supabase.co/storage/v1/object/public/avatars/profileImg-${user.id}
-  `);
+  const [coderPic, setCoderPic] = useState<string>("");
+  console.log(coderPic);
+
+  // https://rrbpjhuhydqnlhyklwbs.supabase.co/storage/v1/object/public/avatars/profileImg-74a66627-6f52-4be1-a4ab-c5b46efcd5b3
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -73,6 +74,8 @@ const Navbar = () => {
           .single();
         if (data) {
           setCoder(data);
+          setCoderPic(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/avatars/profileImg-${user.id}
+          `);
         } else {
           console.error(error);
         }
@@ -171,13 +174,13 @@ const Navbar = () => {
                     handleSuggestionClick(suggestion.question, suggestion.id)
                   }
                   className={`px-4 py-2 cursor-pointer hover:bg-blue-50 ${
-                    suggestion.isAnswered
+                    suggestion.answer
                       ? "flex flex-row justify-between items-center"
                       : ""
                   }`}
                 >
                   {suggestion.question}
-                  {suggestion.isAnswered ? (
+                  {suggestion.answer ? (
                     <FaCheckCircle className="text-green-500 bg-inherit" />
                   ) : null}
                 </li>
@@ -240,7 +243,7 @@ const Navbar = () => {
                       size="md"
                       className="hover:text-blue-500 hover:bg-blue-300/50"
                     >
-                      {coder.first_name != "" && coder.last_name != ""
+                      {coder.first_name && coder.last_name
                         ? `${coder.first_name[0]}${coder.last_name[0]}`
                         : "</>"}
                     </Avatar>

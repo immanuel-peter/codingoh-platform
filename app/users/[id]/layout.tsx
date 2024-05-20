@@ -1,11 +1,5 @@
 import { Metadata } from "next";
-
-import { users } from "@/dummy/questions";
-import { User } from "@/types";
-
-const getUser = (userId: string): User | undefined => {
-  return users.find((user) => user.id === Number(userId));
-};
+import { createClient } from "@/utils/supabase/server";
 
 export async function generateMetadata({
   params,
@@ -13,11 +7,23 @@ export async function generateMetadata({
   params: { id: string };
 }): Promise<Metadata> {
   // read route params
-  const user = getUser(params.id);
+  const supabase = createClient();
 
-  return {
-    title: `${user?.name} | CodingOH`,
-  };
+  const { data: user, error } = await supabase
+    .from("coders")
+    .select("first_name, last_name")
+    .eq("auth_id", params.id)
+    .single();
+
+  if (user) {
+    return {
+      title: `${user?.first_name} ${user?.last_name} | CodingOH`,
+    };
+  } else {
+    return {
+      title: "User | CodingOH",
+    };
+  }
 }
 
 export default function PageLayout({

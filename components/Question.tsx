@@ -14,8 +14,15 @@ import { Avatar, AvatarGroup } from "@mui/joy";
 
 import { daysBetweenDateAndToday } from "@/utils";
 import avatar from "../public/avatar.png";
-import { Contributor } from "@/types";
+import { Coder, Contributor, Question as QuestionType } from "@/types";
 import { ellipsis } from "@/utils";
+
+interface Response {
+  id: number;
+  created_at?: Date | string;
+  question_id: QuestionType;
+  user_id: Coder;
+}
 
 interface QuestionProps {
   question: string;
@@ -71,7 +78,7 @@ const Question = ({
           {contributors.length < 5 ? (
             contributors.map((contributor) => (
               <Image
-                key={contributor.user.id}
+                key={contributor.user_id?.id}
                 src={avatar}
                 alt="contributor"
                 className="inline-block h-6 w-6 rounded-full ring-2 ring-white"
@@ -79,30 +86,14 @@ const Question = ({
             ))
           ) : (
             <div className="px-2 flex items-center">
-              <Image
-                key={1}
-                src={avatar}
-                alt="contributor"
-                className="inline-block h-7 w-7 rounded-full ring-2 ring-white"
-              />
-              <Image
-                key={2}
-                src={avatar}
-                alt="contributor"
-                className="inline-block h-7 w-7 rounded-full ring-2 ring-white"
-              />
-              <Image
-                key={3}
-                src={avatar}
-                alt="contributor"
-                className="inline-block h-7 w-7 rounded-full ring-2 ring-white"
-              />
-              <Image
-                key={4}
-                src={avatar}
-                alt="contributor"
-                className="inline-block h-7 w-7 rounded-full ring-2 ring-white"
-              />
+              {contributors.map((contributor) => (
+                <Image
+                  key={contributor.user_id?.id}
+                  src={avatar}
+                  alt="contributor"
+                  className="inline-block h-6 w-6 rounded-full ring-2 ring-white"
+                />
+              ))}
               <div
                 key={5}
                 className="flex h-7 w-7 rounded-full bg-slate-200 ring-2 ring-white items-center justify-center text-center text-xs"
