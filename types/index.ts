@@ -76,14 +76,14 @@ export interface Contributor {
 export interface Project {
   id: number;
   created_at: Date | string;
-  owner: Coder;
+  owner: Coder | null;
   name: string;
   description: string;
   start_date: string;
   end_date?: string;
   github?: string;
-  status?: string;
-  project_image?: string;
+  status: string;
+  project_image?: boolean;
   stack?: string[];
   skills?: string[];
   application?: string;

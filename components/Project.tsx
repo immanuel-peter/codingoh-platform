@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, Fragment } from "react";
+import React, { useState, Fragment, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { FaEdit } from "react-icons/fa";
@@ -8,6 +8,7 @@ import { FaCirclePlus, FaGithub } from "react-icons/fa6";
 import { Dialog, Transition } from "@headlessui/react";
 import { Tag, Tooltip } from "antd";
 import { useRouter } from "next/navigation";
+import { createClient } from "@/utils/supabase/client";
 
 import { projects } from "@/dummy/questions";
 import { Project as ProjectType } from "@/types";
@@ -28,8 +29,37 @@ const getBgColor = (status: string): string => {
 };
 
 const Project = ({ project }: { project: ProjectType }) => {
+  const supabase = createClient();
+  const [user, setUser] = useState<{ id: string; [key: string]: any }>();
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const {
+        data: { user },
+        error,
+      } = await supabase.auth.getUser();
+      if (user) {
+        setUser(user);
+      } else {
+        console.error("User not found:", error);
+      }
+    };
+    fetchUser();
+  });
+
   const [isProjectModalOpen, setIsProjectModalOpen] = useState<boolean>(false);
-  const router = useRouter();
+  const [projectImage, setProjectImage] = useState<string>("");
+
+  // setProjectImage(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/avatars/projImage-${user.id}`);
+
+  useEffect(() => {
+    const fetchProjectImage = async () => {
+      setProjectImage(
+        `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/projectImages/projImage-${project.id}`
+      );
+    };
+    fetchProjectImage();
+  });
 
   return (
     <>
@@ -42,8 +72,9 @@ const Project = ({ project }: { project: ProjectType }) => {
         <img
           alt="Office"
           src={
-            project.image ||
-            "https://images.unsplash.com/photo-1600880292203-757bb62b4baf?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80"
+            project.project_image
+              ? projectImage
+              : "https://images.unsplash.com/photo-1600880292203-757bb62b4baf?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80"
           }
           className="h-56 w-full object-cover"
         />
@@ -75,13 +106,19 @@ const Project = ({ project }: { project: ProjectType }) => {
             } ${getBgColor(project.status)}`}
           >
             <Link
-              href={`/users/${project.owner?.id}`}
+              href={`/users/${project.owner?.auth_id}`}
               className="bg-inherit text-sm hover:underline"
             >
-              {project.owner?.name}
+              {`${project.owner?.first_name} ${project.owner?.last_name}`}
             </Link>
             {project.github && (
-              <Link href="https://www.github.com">
+              <Link
+                href={
+                  project.github.startsWith("https://")
+                    ? project.github
+                    : `https://${project.github}`
+                }
+              >
                 <FaGithub
                   className={`${getBgColor(
                     project.status
@@ -130,8 +167,9 @@ const Project = ({ project }: { project: ProjectType }) => {
                   <img
                     alt="Office"
                     src={
-                      project.image ||
-                      "https://images.unsplash.com/photo-1600880292203-757bb62b4baf?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80"
+                      project.project_image
+                        ? projectImage
+                        : "https://images.unsplash.com/photo-1600880292203-757bb62b4baf?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8&auto=format&fit=crop&w=1770&q=80"
                     }
                     className="h-[300px] w-full object-cover mb-4 rounded-t-2xl border border-solid border-gray-700"
                   />
@@ -141,12 +179,20 @@ const Project = ({ project }: { project: ProjectType }) => {
                   >
                     <div className="flex flex-row items-end gap-3">
                       {project.name}{" "}
-                      <Link href={`/projects/${project.id}/edit`}>
-                        <FaEdit className="text-base hover:text-blue-600 hover:cursor-pointer" />
-                      </Link>
+                      {user?.id === project.owner?.auth_id && (
+                        <Link href={`/projects/${project.id}/edit`}>
+                          <FaEdit className="text-base hover:text-blue-600 hover:cursor-pointer" />
+                        </Link>
+                      )}
                     </div>
                     {project.github && (
-                      <Link href={project.github}>
+                      <Link
+                        href={
+                          project.github.startsWith("https://")
+                            ? project.github
+                            : `https://${project.github}`
+                        }
+                      >
                         <FaGithub
                           className={`${getBgColor(
                             project.status
@@ -156,12 +202,12 @@ const Project = ({ project }: { project: ProjectType }) => {
                     )}
                   </Dialog.Title>
                   <Link
-                    href={`/users/${project.owner?.id}`}
+                    href={`/users/${project.owner?.auth_id}`}
                     className="text-left"
                   >
                     <div className="text-left">
                       <span className="p-2 text-sm hover:underline hover:cursor-pointer hover:text-blue-500">
-                        {project.owner.name}
+                        {`${project.owner?.first_name} ${project.owner?.last_name}`}
                       </span>
                     </div>
                   </Link>
@@ -181,7 +227,7 @@ const Project = ({ project }: { project: ProjectType }) => {
                     </>
                   )}
                   <div className="flex justify-between items-start">
-                    {project.needed && (
+                    {project.skills && (
                       <div>
                         <h2 className="pl-2 mt-2 font-bold text-left text-xl">
                           Needed Skills
@@ -190,7 +236,7 @@ const Project = ({ project }: { project: ProjectType }) => {
                           id="project-tags"
                           className="p-2 gap-2 flex justify-start items-start flex-wrap"
                         >
-                          {project.needed?.map((item) => (
+                          {project.skills?.map((item) => (
                             <Tag bordered={false}>{item}</Tag>
                           ))}
                         </div>

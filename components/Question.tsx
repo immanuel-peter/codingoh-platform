@@ -86,7 +86,7 @@ const Question = ({
             ))
           ) : (
             <div className="px-2 flex items-center">
-              {contributors.map((contributor) => (
+              {contributors.slice(0, 4).map((contributor) => (
                 <Image
                   key={contributor.user_id?.id}
                   src={avatar}

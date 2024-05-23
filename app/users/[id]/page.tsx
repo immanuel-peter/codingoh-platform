@@ -2,18 +2,18 @@
 
 import React, { Fragment, useState, useEffect } from "react";
 import Image from "next/image";
-import { Badge } from "@mui/joy";
+import { Badge, Avatar as MAvatar } from "@mui/joy";
 import { FaEdit, FaThumbsUp, FaHome } from "react-icons/fa";
 import { FaPlus, FaXTwitter, FaThreads } from "react-icons/fa6";
-import { Progress, Tooltip, Select } from "antd";
-import { MdOutlineKeyboardDoubleArrowRight } from "react-icons/md";
+import { Progress, Tooltip } from "antd";
+import { MdOutlineKeyboardDoubleArrowRight, MdLogout } from "react-icons/md";
 import { BsFilePlusFill } from "react-icons/bs";
 import Link from "next/link";
 import { Dialog, Transition } from "@headlessui/react";
 import { SocialIcon } from "react-social-icons";
 import { createClient } from "@/utils/supabase/client";
+import sortedIcons from "@/utils/icons";
 
-import { users, questions, projects, techSkills } from "@/dummy/questions";
 import {
   Project as ProjectType,
   Proficiency,
@@ -22,14 +22,8 @@ import {
 } from "@/types";
 import { getTopLanguages, getTopQuestions } from "@/utils";
 import { Navbar, Question, Project, FAB, NewProjectForm } from "@/components";
-import { sortQuestionsAndContributions, projectsMap } from "@/utils";
 import Banner from "@/public/banner.png";
 import Avatar from "@/public/avatar.png";
-import sortedIcons from "@/utils/icons";
-
-const getUser = (userId: string): Coder | undefined => {
-  return users.find((user) => user.id === Number(userId));
-};
 
 type UserResponse = {
   id: string;
@@ -101,17 +95,9 @@ interface CoderProject {
 const UserPage = ({ params }: { params: { id: string } }) => {
   const supabase = createClient();
   const [supabaseUser, setSupabaseUser] = useState<UserResponse>({ id: "" });
-  const [coder, setCoder] = useState<Coder>({
-    id: 0,
-    first_name: "",
-    last_name: "",
-    timezone: "",
-    email_address: "",
-    auth_id: "",
-    profile_image: false,
-  });
+  const [coder, setCoder] = useState<Coder>();
   const [coderQuestions, setCoderQuestions] = useState<CoderQuestion[]>([]);
-  const [coderProjects, setCoderProjects] = useState<CoderProject[]>([]);
+  const [coderProjects, setCoderProjects] = useState<ProjectType[]>([]);
   const [coderResponses, setCoderResponses] = useState<CoderQuestion[]>([]);
   const combined = Array.from(new Set([...coderQuestions, ...coderResponses]));
 
@@ -123,22 +109,26 @@ const UserPage = ({ params }: { params: { id: string } }) => {
       } = await supabase.auth.getUser();
       if (user) {
         setSupabaseUser(user);
-        const { data, error } = await supabase
-          .from("coders")
-          .select("*")
-          .eq("auth_id", user?.id)
-          .single();
-        if (data) {
-          setCoder(data);
-        } else {
-          console.error(error);
-        }
+      } else {
+        console.error(error);
+      }
+    };
+    const fetchCoder = async () => {
+      const { data, error } = await supabase
+        .from("coders")
+        .select("*")
+        .eq("auth_id", params.id)
+        .single();
+      if (data) {
+        setCoder(data);
       } else {
         console.error(error);
       }
     };
     fetchUser();
+    fetchCoder();
   }, []);
+  console.log(coder);
 
   const [questionTypeMode, setQuestionTypeMode] = useState<string>("all");
   const [isStackOpen, setIsStackOpen] = useState<boolean>(false);
@@ -157,7 +147,7 @@ const UserPage = ({ params }: { params: { id: string } }) => {
       const { data: questions, error: questionsError } = await supabase
         .from("questions")
         .select("*")
-        .eq("asker", coder.id);
+        .eq("asker", coder?.id);
 
       if (questionsError) {
         console.error(questionsError);
@@ -202,13 +192,14 @@ const UserPage = ({ params }: { params: { id: string } }) => {
         };
       });
 
+      console.log(updatedQuestions);
       setCoderQuestions(updatedQuestions);
     };
     const fetchCoderProjects = async () => {
       const { data: projects, error: projectsError } = await supabase
         .from("projects")
         .select("*")
-        .eq("owner", coder.id);
+        .eq("owner", coder?.id);
 
       if (projectsError) {
         console.error(projectsError);
@@ -229,39 +220,51 @@ const UserPage = ({ params }: { params: { id: string } }) => {
         return { ...p, owner: user || p.owner }; // Ensures owner is not null if user not found
       });
 
+      console.log(updatedProjects);
       setCoderProjects(updatedProjects);
     };
     const fetchCoderResponses = async () => {
-      let cResponseArray: CoderQuestion[] = [];
+      // Fetch contributions made by the coder
       const { data: contributions, error: contributionsError } = await supabase
         .from("contributors")
         .select("*")
-        .eq("user_id", coder.id);
+        .eq("user_id", coder?.id);
 
       if (contributionsError) {
-        console.error(contributionsError);
+        throw contributionsError;
+      }
+
+      if (!contributions || contributions.length === 0) {
+        // No contributions found for the coder
+        setCoderResponses([]);
         return;
       }
 
+      // Fetch users for the asker and contributor details
       const { data: users, error: usersError } = await supabase
         .from("coders")
         .select("*");
 
       if (usersError) {
-        console.error(usersError);
-        return;
+        throw usersError;
       }
 
+      // Extract question_ids from the contributions
+      const questionIds = contributions.map((c) => c.question_id);
+
+      // Fetch only the questions that the user has contributed to
       const { data: questions, error: questionsError } = await supabase
         .from("questions")
-        .select("*");
+        .select("*")
+        .in("id", questionIds);
 
       if (questionsError) {
-        console.error(questionsError);
-        return;
+        throw questionsError;
       }
 
       const questionMap: { [key: number]: CoderQuestion } = {};
+
+      // Populate questionMap with questions and their askers
       questions.forEach((q) => {
         const user = users.find((u) => u.id === q.asker);
         const question: CoderQuestion = {
@@ -272,6 +275,7 @@ const UserPage = ({ params }: { params: { id: string } }) => {
         questionMap[q.id] = question;
       });
 
+      // Populate the contributors field in questions
       contributions.forEach((c) => {
         const question = questionMap[c.question_id];
         const user = users.find((u) => u.id === c.user_id);
@@ -285,13 +289,14 @@ const UserPage = ({ params }: { params: { id: string } }) => {
         }
       });
 
-      cResponseArray = Object.values(questionMap);
+      const cResponseArray: CoderQuestion[] = Object.values(questionMap);
+      console.log(cResponseArray);
       setCoderResponses(cResponseArray);
     };
     fetchCoderQuestions();
     fetchCoderProjects();
     fetchCoderResponses();
-  }, [coder.id]);
+  }, [coder]);
 
   // const topLanguages: Proficiency[] = user.codingLanguages
   //   ? getTopLanguages(user.codingLanguages, 5)
@@ -326,11 +331,18 @@ const UserPage = ({ params }: { params: { id: string } }) => {
     }
   };
 
-  const coderTopLanguages: Proficiency[] = coder.stack
-    ? getTopLanguages(coder.stack, 5)
+  const coderTopLanguages: Proficiency[] = coder?.stack
+    ? getTopLanguages(coder?.stack, 5)
     : [];
 
   const isOnline = Math.random() > 0.5;
+
+  const handleSignOut = async () => {
+    const { error } = await supabase.auth.signOut();
+    if (error) {
+      console.error(error);
+    }
+  };
 
   return (
     <>
@@ -347,27 +359,36 @@ const UserPage = ({ params }: { params: { id: string } }) => {
                 anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
                 badgeInset="10%"
               >
-                <Image
-                  src={Avatar}
-                  alt="profile picture"
-                  className="h-full w-full rounded-full"
-                />
+                {coder?.profile_image ? (
+                  <Image
+                    src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/avatars/profileImg-${params.id}`}
+                    alt="profile picture"
+                    className="h-full w-full rounded-full"
+                    height={108}
+                    width={108}
+                  />
+                ) : (
+                  <MAvatar sx={{ "--Avatar-size": "108px" }}>
+                    {coder?.first_name[0]}
+                    {coder?.last_name[0]}
+                  </MAvatar>
+                )}
               </Badge>
             </div>
             <div className="flex-grow">
               <h1 className="text-xl font-bold">
-                {coder.first_name} {coder.last_name}
+                {coder?.first_name} {coder?.last_name}
               </h1>
-              <span className="text-lg font-normal">{coder.position}</span>
+              <span className="text-lg font-normal">{coder?.position}</span>
               <div className="flex flex-row gap-2">
                 <SocialIcon
                   key="email"
                   network="email"
-                  url={`mailto:${coder.email_address}`}
+                  url={`mailto:${coder?.email_address}`}
                   style={{ height: 35, width: 35, marginTop: 10 }}
                 />
-                {coder.socials
-                  ? coder.socials.map((social, index) =>
+                {coder?.socials
+                  ? coder?.socials.map((social, index) =>
                       social.social !== "X" && social.social !== "Threads" ? (
                         <SocialIcon
                           key={index}
@@ -388,9 +409,9 @@ const UserPage = ({ params }: { params: { id: string } }) => {
                               ? social.link
                               : `https://${social.link}`
                           }
-                          // className="h-[35px] w-[35px] mt-[10px] rounded-full bg-black text-white flex items-center justify-center"
+                          className="h-[35px] w-[35px] mt-[10px] rounded-full bg-black text-white flex items-center justify-center"
                         >
-                          <FaXTwitter className="h-[35px] w-[35px] mt-[10px] rounded-full bg-black text-white text-base flex items-center justify-center" />
+                          <FaXTwitter className="text-base" />
                         </Link>
                       ) : (
                         <Link
@@ -409,15 +430,24 @@ const UserPage = ({ params }: { params: { id: string } }) => {
               </div>
             </div>
           </div>
-          <div>
-            <Link
-              href={`/users/${supabaseUser.id}/edit`}
-              className="p-3 bg-cyan-300 hover:bg-cyan-400 border border-solid border-cyan-400 hover:border-cyan-500 items-center justify-center flex flex-row rounded-lg"
-            >
-              <FaEdit className="mr-3 bg-inherit" />
-              Edit Profile
-            </Link>
-          </div>
+          {supabaseUser.id === params.id && (
+            <div className="flex flex-row gap-3">
+              <Link
+                href={`/users/${supabaseUser.id}/edit`}
+                className="p-3 bg-cyan-300 hover:bg-cyan-400 border border-solid border-cyan-400 hover:border-cyan-500 items-center justify-center flex flex-row rounded-lg"
+              >
+                <FaEdit className="mr-3 bg-inherit" />
+                Edit Profile
+              </Link>
+              <div
+                onClick={handleSignOut}
+                className="p-3 cursor-pointer bg-red-300 hover:bg-red-400 border border-solid border-red-400 hover:border-red-500 items-center justify-center flex flex-row rounded-lg"
+              >
+                <MdLogout className="mr-3 bg-inherit" />
+                Log Out
+              </div>
+            </div>
+          )}
         </div>
         <Image
           src={Banner}
@@ -430,10 +460,10 @@ const UserPage = ({ params }: { params: { id: string } }) => {
           <h1 className="p-2 ml-3 text-2xl font-bold rounded-t-xl">Stack</h1>
           <hr
             className={`border-solid border border-black ${
-              coder.stack && coder.stack.length > 0 ? "mb-4" : null
+              coder?.stack && coder?.stack.length > 0 ? "mb-4" : null
             }`}
           />
-          {coder.stack && coder.stack?.length > 0 ? (
+          {coder?.stack && coder?.stack?.length > 0 ? (
             <div className="pb-3 grid grid-cols-4 gap-4 items-center content-evenly justify-evenly justify-items-center rounded-b-xl">
               {coderTopLanguages
                 .sort((a, b) => b.proficiency - a.proficiency)
@@ -475,8 +505,8 @@ const UserPage = ({ params }: { params: { id: string } }) => {
           <h1 className="text-2xl font-bold ml-3 underline underline-offset-4">
             About
           </h1>
-          <p className={`ml-3 mt-2 ${coder.about ? null : "text-green-500"}`}>
-            {coder.about || "Still Finding Myself..."}
+          <p className={`ml-3 mt-2 ${coder?.about ? null : "text-green-500"}`}>
+            {coder?.about || "Still Finding Myself..."}
           </p>
         </div>
         <div className="col-span-3 col-start-2 row-span-6 border border-solid border-gray-300 rounded-t-xl h-fit">
@@ -781,7 +811,7 @@ const UserPage = ({ params }: { params: { id: string } }) => {
                 Education
               </dt>
               <dd className="mr-2 text-base leading-6 text-gray-700 sm:flex-1 sm:text-right">
-                {coder.education || "N/A"}
+                {coder?.education || "N/A"}
               </dd>
             </div>
             <div className="p-1 sm:flex sm:items-center sm:gap-4 sm:px-0">
@@ -789,7 +819,7 @@ const UserPage = ({ params }: { params: { id: string } }) => {
                 Employer
               </dt>
               <dd className="mr-2 text-base leading-6 text-gray-700 sm:flex-1 sm:text-right">
-                {coder.company || "N/A"}
+                {coder?.company || "N/A"}
               </dd>
             </div>
             <div className="p-1 sm:flex sm:items-center sm:gap-4 sm:px-0">
@@ -797,7 +827,7 @@ const UserPage = ({ params }: { params: { id: string } }) => {
                 Location
               </dt>
               <dd className="mr-2 text-base leading-6 text-gray-700 sm:flex-1 sm:text-right">
-                {formatLocation(coder.city, coder.us_state, coder.country)}
+                {formatLocation(coder?.city, coder?.us_state, coder?.country)}
               </dd>
             </div>
             <div className="p-1 sm:flex sm:items-center sm:gap-4 sm:px-0">
@@ -818,8 +848,8 @@ const UserPage = ({ params }: { params: { id: string } }) => {
                 skillsOpen ? "block" : "hidden"
               }`}
             >
-              {coder.skills &&
-                coder.skills.map((skill, index) => (
+              {coder?.skills &&
+                coder?.skills.map((skill, index) => (
                   <>
                     <dt></dt>
                     <dd
@@ -839,10 +869,12 @@ const UserPage = ({ params }: { params: { id: string } }) => {
               <h1 className="text-2xl font-bold ml-3 p-2 rounded-tl-xl">
                 Projects
               </h1>
-              <BsFilePlusFill
-                className="text-2xl hover:text-green-500 cursor-pointer"
-                onClick={() => setNewProjectModalOpen(true)}
-              />
+              {supabaseUser.id === params.id && (
+                <BsFilePlusFill
+                  className="text-2xl hover:text-green-500 cursor-pointer"
+                  onClick={() => setNewProjectModalOpen(true)}
+                />
+              )}
             </div>
             <div className="flex flex-row justify-between items-center gap-2 mb-1 mr-3 rounded-tr-xl">
               <button
@@ -1147,8 +1179,8 @@ const UserPage = ({ params }: { params: { id: string } }) => {
                   </Dialog.Title>
                   <hr className="border-solid border-black border" />
                   <div className="p-3 overflow-auto grid grid-cols-4 gap-4 items-center content-evenly justify-evenly justify-items-center rounded-b-xl">
-                    {coder.stack &&
-                      coder.stack.map((language, index) => (
+                    {coder?.stack &&
+                      coder?.stack.map((language, index) => (
                         <>
                           <div key={index} className="col-span-1">
                             <Tooltip

@@ -1,35 +1,52 @@
-import React from "react";
+"use client";
+
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
-import { CircularProgress } from "@mui/material";
-import { palette } from "@mui/system";
+import { CircularProgress } from "@mui/joy";
+import { Avatar as MAvatar } from "@mui/joy";
+import { createClient } from "@/utils/supabase/client";
 
 import Avatar from "../public/avatar.png";
 import Banner from "../public/banner.png";
 import { getTopLanguages } from "@/utils";
-import { Proficiency } from "@/types";
+import { Proficiency, Coder } from "@/types";
+import backgrounds from "@/public/backgrounds";
 
 interface CardProps {
+  id: number;
   name: string;
-  position: string;
+  position?: string;
   isOnline: boolean;
   languages?: Proficiency[];
   extraStyles?: string;
 }
 
 const Card = ({
+  id,
   name,
   position,
   isOnline,
   languages,
   extraStyles,
 }: CardProps) => {
-  // let filteredLanguages: Proficiency[];
+  const supabase = createClient();
+  const [coder, setCoder] = useState<Coder>();
 
-  // if (languages && languages.length !== 0) {
-  //   filteredLanguages = getTopLanguages(languages, 3);
-  // } else {
-  //   return [];
-  // }
+  useEffect(() => {
+    const fetchCoder = async () => {
+      const { data: coder, error } = await supabase
+        .from("coders")
+        .select("*")
+        .eq("id", id)
+        .single();
+      if (coder) {
+        setCoder(coder);
+      } else {
+        console.error(error);
+      }
+    };
+    fetchCoder();
+  });
 
   const filteredLanguages: Proficiency[] =
     languages && languages.length !== 0 ? getTopLanguages(languages, 3) : [];
@@ -37,21 +54,34 @@ const Card = ({
   return (
     <>
       <div
-        className={`flex flex-col justify-center items-center mt-2 ${extraStyles}`}
+        className={`flex flex-col justify-center items-center mt-2 px-4 ${extraStyles}`}
       >
         <div className="relative flex flex-col items-center rounded-[20px] w-[300px] mx-auto p-4 border-2 border-slate-300 border-solid bg-white bg-clip-border shadow-3xl shadow-shadow-500 dark:!bg-navy-800 dark:text-white dark:!shadow-none">
           <div className="relative flex h-32 w-full justify-center rounded-xl bg-cover">
             <Image
-              src={Banner}
+              src={
+                coder?.background_image
+                  ? backgrounds[coder.background_image]
+                  : backgrounds[0]
+              }
               alt="background cover"
               className="absolute flex h-32 w-full justify-center rounded-xl bg-cover"
             />
             <div className="absolute -bottom-12 flex h-[87px] w-[87px] items-center justify-center rounded-full border-[4px] border-white bg-pink-400 dark:!border-navy-700">
-              <Image
-                src={Avatar}
-                alt="profile picture"
-                className="h-full w-full rounded-full"
-              />
+              {coder?.profile_image ? (
+                <Image
+                  src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/avatars/profileImg-${coder.auth_id}`}
+                  alt="profile picture"
+                  className="h-full w-full rounded-full"
+                  height={87}
+                  width={87}
+                />
+              ) : (
+                <MAvatar className="h-full w-full text-4xl text-blue-500 bg-blue-300">
+                  {coder?.first_name[0]}
+                  {coder?.last_name[0]}
+                </MAvatar>
+              )}
             </div>
           </div>
           <div className="mt-16 flex flex-col items-center bg-white">
@@ -84,12 +114,19 @@ const Card = ({
             </div>
           </div>
           {filteredLanguages && filteredLanguages.length > 0 ? (
-            <div className="mt-6 mb-3 flex gap-14 bg-white md:!gap-14">
+            <div className="mt-6 mb-3 flex gap-6 bg-white md:gap-10">
               <div className="flex flex-col items-center justify-center bg-white">
                 <p className="text-2xl font-bold text-navy-700 bg-inherit">
                   <CircularProgress
-                    variant="determinate"
+                    determinate
+                    variant={"plain"}
                     value={filteredLanguages[0].proficiency}
+                    color={
+                      filteredLanguages[0].proficiency == 100
+                        ? "success"
+                        : "primary"
+                    }
+                    size="sm"
                   />
                 </p>
                 <p className="text-sm font-normal bg-inherit text-gray-600">
@@ -99,8 +136,15 @@ const Card = ({
               <div className="flex flex-col items-center justify-center bg-inherit">
                 <p className="text-2xl font-bold text-navy-700 bg-inherit">
                   <CircularProgress
-                    variant="determinate"
+                    determinate
+                    variant="plain"
                     value={filteredLanguages[1].proficiency}
+                    color={
+                      filteredLanguages[1].proficiency == 100
+                        ? "success"
+                        : "primary"
+                    }
+                    size="sm"
                   />
                 </p>
                 <p className="text-sm font-normal text-gray-600 bg-inherit">
@@ -110,8 +154,15 @@ const Card = ({
               <div className="flex flex-col items-center justify-center bg-inherit">
                 <p className="text-2xl font-bold text-navy-700 bg-inherit dark:text-white">
                   <CircularProgress
-                    variant="determinate"
+                    determinate
+                    variant="plain"
                     value={filteredLanguages[2].proficiency}
+                    color={
+                      filteredLanguages[2].proficiency == 100
+                        ? "success"
+                        : "primary"
+                    }
+                    size="sm"
                   />
                 </p>
                 <p className="text-sm font-normal text-gray-600 bg-inherit">

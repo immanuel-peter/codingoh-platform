@@ -1023,641 +1023,643 @@ export const NewUser = () => {
       {contextHolder}
       <Navbar />
 
-      <form
-        className="mt-5 flex items-center justify-center max-w-7xl"
-        onSubmit={handleFormSubmit}
-      >
-        <div className="space-y-12">
-          <div className="border-b border-gray-900/10 pb-12">
-            <h2 className="text-base font-semibold leading-3 text-gray-900">
-              New User
-            </h2>
-            <span className="text-xs">
-              <sup className="text-red-500">*</sup> Required fields
-            </span>
+      <div className="flex items-center justify-center">
+        <form
+          className="mt-5 mb-5 w-full px-4 max-w-7xl"
+          onSubmit={handleFormSubmit}
+        >
+          <div className="space-y-12">
+            <div className="border-b border-gray-900/10 pb-12">
+              <h2 className="text-base font-semibold leading-3 text-gray-900">
+                New User
+              </h2>
+              <span className="text-xs">
+                <sup className="text-red-500">*</sup> Required fields
+              </span>
 
-            <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
-              <div className="sm:col-span-2">
-                <label
-                  htmlFor="first-name"
-                  className="block text-sm font-medium leading-6 text-gray-900"
-                >
-                  First name <sup className="text-red-500">*</sup>
-                </label>
-                <div className="mt-2">
-                  <input
-                    value={firstName}
-                    onChange={(e) => setFirstName(e.target.value)}
-                    type="text"
-                    name="first-name"
-                    id="first-name"
-                    autoComplete="given-name"
-                    placeholder="Bill"
-                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
-                  />
-                </div>
-              </div>
-
-              <div className="sm:col-span-2">
-                <label
-                  htmlFor="last-name"
-                  className="block text-sm font-medium leading-6 text-gray-900"
-                >
-                  Last name <sup className="text-red-500">*</sup>
-                </label>
-                <div className="mt-2">
-                  <input
-                    value={lastName}
-                    onChange={(e) => setLastName(e.target.value)}
-                    type="text"
-                    name="last-name"
-                    id="last-name"
-                    autoComplete="family-name"
-                    placeholder="Gates"
-                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
-                  />
-                </div>
-              </div>
-
-              <div className="sm:col-span-2">
-                <label
-                  htmlFor="gender"
-                  className="block text-sm font-medium leading-6 text-gray-900"
-                >
-                  Gender
-                </label>
-                <div className="mt-2">
-                  <select
-                    value={gender}
-                    onChange={(e) => setGender(e.target.value)}
-                    id="gender"
-                    name="gender"
-                    autoComplete="sex"
-                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:max-w-xs sm:text-sm sm:leading-6"
+              <div className="mt-10 grid grid-cols-1 gap-x-6 gap-y-8 sm:grid-cols-6">
+                <div className="sm:col-span-2">
+                  <label
+                    htmlFor="first-name"
+                    className="block text-sm font-medium leading-6 text-gray-900"
                   >
-                    {genderOptions.map((gender) => (
-                      <option>{gender}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              <div className="sm:col-span-4">
-                <label
-                  htmlFor="dob"
-                  className="block text-sm font-medium leading-6 text-gray-900"
-                >
-                  Date of Birth
-                </label>
-                <div className="mt-2">
-                  <input
-                    value={formattedDob}
-                    onChange={(e) => {
-                      const newDate = new Date(e.target.value);
-                      setDob(isNaN(newDate.getTime()) ? undefined : newDate);
-                    }}
-                    type="date"
-                    name="dob"
-                    id="dob"
-                    autoComplete="bday"
-                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
-                  />
-                </div>
-              </div>
-
-              <div className="sm:col-span-2">
-                <label
-                  htmlFor="timezone"
-                  className="block text-sm font-medium leading-6 text-gray-900"
-                >
-                  Timezone <sup className="text-red-500">*</sup>
-                </label>
-                <div className="mt-2">
-                  <select
-                    value={timezone}
-                    onChange={(e) => setTimezone(e.target.value)}
-                    id="timezone"
-                    name="timezone"
-                    placeholder="UTC"
-                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:max-w-xs sm:text-sm sm:leading-6"
-                  >
-                    {timezones.map((timezone, index) => (
-                      <option key={index}>{timezone}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              <div className="sm:col-span-3">
-                <label
-                  htmlFor="email"
-                  className="block text-sm font-medium leading-6 text-gray-900"
-                >
-                  Email address <sup className="text-red-500">*</sup>
-                </label>
-                <div className="mt-2">
-                  <input
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    id="email"
-                    name="email"
-                    type="email"
-                    autoComplete="email"
-                    placeholder="bill.gates@example.com"
-                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
-                  />
-                </div>
-              </div>
-
-              <div className="sm:col-span-3">
-                <label
-                  htmlFor="education"
-                  className="block text-sm font-medium leading-6 text-gray-900"
-                >
-                  Education
-                </label>
-                <div className="mt-2">
-                  <input
-                    value={education}
-                    onChange={(e) => setEducation(e.target.value)}
-                    id="education"
-                    name="education"
-                    type="text"
-                    placeholder="Harvard University"
-                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
-                  />
-                </div>
-              </div>
-
-              <div className="sm:col-span-3">
-                <label
-                  htmlFor="company"
-                  className="block text-sm font-medium leading-6 text-gray-900"
-                >
-                  Company
-                </label>
-                <div className="mt-2">
-                  <input
-                    value={company}
-                    onChange={(e) => setCompany(e.target.value)}
-                    id="company"
-                    name="company"
-                    type="text"
-                    placeholder="Microsoft Corporation"
-                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
-                  />
-                </div>
-              </div>
-
-              <div className="sm:col-span-3">
-                <label
-                  htmlFor="position"
-                  className="block text-sm font-medium leading-6 text-gray-900"
-                >
-                  Position
-                </label>
-                <div className="mt-2">
-                  <input
-                    value={position}
-                    onChange={(e) => setPosition(e.target.value)}
-                    id="position"
-                    name="position"
-                    type="text"
-                    placeholder="Chief Executive Officer"
-                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
-                  />
-                </div>
-              </div>
-
-              <div className="sm:col-span-2">
-                <label
-                  htmlFor="city"
-                  className="block text-sm font-medium leading-6 text-gray-900"
-                >
-                  City
-                </label>
-                <div className="mt-2">
-                  <input
-                    value={city}
-                    onChange={(e) => setCity(e.target.value)}
-                    id="city"
-                    name="city"
-                    type="text"
-                    placeholder="Seattle"
-                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
-                  />
-                </div>
-              </div>
-
-              <div className="sm:col-span-2">
-                <label
-                  htmlFor="state"
-                  className="text-sm font-medium leading-6 text-gray-900 flex flex-row items-center"
-                >
-                  State{" "}
-                  <span className="block ml-2 text-sm font-thin leading-6 text-gray-400">
-                    (Optional)
-                  </span>
-                </label>
-                <div className="mt-2">
-                  <input
-                    value={usState}
-                    onChange={(e) => setUsState(e.target.value)}
-                    id="state"
-                    name="state"
-                    type="text"
-                    placeholder="Washington"
-                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
-                  />
-                </div>
-              </div>
-
-              <div className="sm:col-span-2">
-                <label
-                  htmlFor="country"
-                  className="block text-sm font-medium leading-6 text-gray-900"
-                >
-                  Country
-                </label>
-                <div className="mt-2">
-                  <select
-                    value={country}
-                    onChange={(e) => setCountry(e.target.value)}
-                    id="country"
-                    name="country"
-                    autoComplete="country-name"
-                    placeholder="United States"
-                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:max-w-xs sm:text-sm sm:leading-6"
-                  >
-                    {countryList.map((country) => (
-                      <option>{country}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-
-              <div className="sm:col-span-1">
-                <label
-                  htmlFor="avatar"
-                  className="block text-sm font-medium leading-6 text-gray-900"
-                >
-                  Avatar
-                </label>
-                <div className="mt-2 flex flex-row justify-start gap-3 items-center">
-                  {profileImg ? (
-                    <Avatar size="lg" src={URL.createObjectURL(profileImg)} />
-                  ) : firstName !== "" && lastName !== "" ? (
-                    <Avatar size="lg">{`${firstName[0]}${lastName[0]}`}</Avatar>
-                  ) : (
-                    <Avatar size="lg" />
-                  )}
-                  <label className="p-1 border border-solid rounded-lg cursor-pointer bg-white hover:bg-gray-50 shadow-sm font-medium">
-                    Change
-                    <input
-                      type="file"
-                      name="profile-img"
-                      onChange={onImageChange} // need to work on this
-                      className="hidden"
-                    />
+                    First name <sup className="text-red-500">*</sup>
                   </label>
+                  <div className="mt-2">
+                    <input
+                      value={firstName}
+                      onChange={(e) => setFirstName(e.target.value)}
+                      type="text"
+                      name="first-name"
+                      id="first-name"
+                      autoComplete="given-name"
+                      placeholder="Bill"
+                      className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
+                    />
+                  </div>
                 </div>
-              </div>
 
-              <div className="sm:col-span-5">
-                <label
-                  htmlFor="about"
-                  className="block text-sm font-medium leading-6 text-gray-900"
-                >
-                  About
-                </label>
-                <div className="mt-2">
-                  <textarea
-                    value={about}
-                    onChange={(e) => setAbout(e.target.value)}
-                    id="about"
-                    name="about"
-                    rows={3}
-                    className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
-                    placeholder="I'm a software engineer and philanthropist. I'm the co-founder of Microsoft, and I've been passionate about coding since I was a kid. I believe that coding is a powerful tool that can be used to solve some of the world's biggest problems. I want to learn from other programmers and share my own knowledge. I'm always looking for new ways to improve my skills, and I'm always excited to help others."
-                    defaultValue={""}
-                  />
+                <div className="sm:col-span-2">
+                  <label
+                    htmlFor="last-name"
+                    className="block text-sm font-medium leading-6 text-gray-900"
+                  >
+                    Last name <sup className="text-red-500">*</sup>
+                  </label>
+                  <div className="mt-2">
+                    <input
+                      value={lastName}
+                      onChange={(e) => setLastName(e.target.value)}
+                      type="text"
+                      name="last-name"
+                      id="last-name"
+                      autoComplete="family-name"
+                      placeholder="Gates"
+                      className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
+                    />
+                  </div>
                 </div>
-              </div>
 
-              <div className="col-span-full">
-                <label
-                  htmlFor="cover-photo"
-                  className="block text-sm font-medium leading-6 text-gray-900"
-                >
-                  Background Image
-                </label>
-                <div className="mt-2 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10">
-                  <div className="grid grid-cols-4 gap-5">
-                    {backgrounds.map((img, index) => (
-                      <Badge
-                        color="success"
-                        badgeContent={<CheckIcon className="h-2 w-2" />}
-                        invisible={selectedBackgroundImage !== index}
-                      >
-                        <Image
-                          src={img}
-                          alt={`Background ${index + 1}`}
-                          height={128}
-                          width={256}
-                          className="rounded-lg cursor-pointer"
-                          onClick={() => setSelectedBackgroundImage(index)}
-                        />
-                      </Badge>
-                    ))}
+                <div className="sm:col-span-2">
+                  <label
+                    htmlFor="gender"
+                    className="block text-sm font-medium leading-6 text-gray-900"
+                  >
+                    Gender
+                  </label>
+                  <div className="mt-2">
+                    <select
+                      value={gender}
+                      onChange={(e) => setGender(e.target.value)}
+                      id="gender"
+                      name="gender"
+                      autoComplete="sex"
+                      className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:max-w-xs sm:text-sm sm:leading-6"
+                    >
+                      {genderOptions.map((gender) => (
+                        <option>{gender}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div className="sm:col-span-4">
+                  <label
+                    htmlFor="dob"
+                    className="block text-sm font-medium leading-6 text-gray-900"
+                  >
+                    Date of Birth
+                  </label>
+                  <div className="mt-2">
+                    <input
+                      value={formattedDob}
+                      onChange={(e) => {
+                        const newDate = new Date(e.target.value);
+                        setDob(isNaN(newDate.getTime()) ? undefined : newDate);
+                      }}
+                      type="date"
+                      name="dob"
+                      id="dob"
+                      autoComplete="bday"
+                      className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
+                    />
+                  </div>
+                </div>
+
+                <div className="sm:col-span-2">
+                  <label
+                    htmlFor="timezone"
+                    className="block text-sm font-medium leading-6 text-gray-900"
+                  >
+                    Timezone <sup className="text-red-500">*</sup>
+                  </label>
+                  <div className="mt-2">
+                    <select
+                      value={timezone}
+                      onChange={(e) => setTimezone(e.target.value)}
+                      id="timezone"
+                      name="timezone"
+                      placeholder="UTC"
+                      className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:max-w-xs sm:text-sm sm:leading-6"
+                    >
+                      {timezones.map((timezone, index) => (
+                        <option key={index}>{timezone}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div className="sm:col-span-3">
+                  <label
+                    htmlFor="email"
+                    className="block text-sm font-medium leading-6 text-gray-900"
+                  >
+                    Email address <sup className="text-red-500">*</sup>
+                  </label>
+                  <div className="mt-2">
+                    <input
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      id="email"
+                      name="email"
+                      type="email"
+                      autoComplete="email"
+                      placeholder="bill.gates@example.com"
+                      className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
+                    />
+                  </div>
+                </div>
+
+                <div className="sm:col-span-3">
+                  <label
+                    htmlFor="education"
+                    className="block text-sm font-medium leading-6 text-gray-900"
+                  >
+                    Education
+                  </label>
+                  <div className="mt-2">
+                    <input
+                      value={education}
+                      onChange={(e) => setEducation(e.target.value)}
+                      id="education"
+                      name="education"
+                      type="text"
+                      placeholder="Harvard University"
+                      className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
+                    />
+                  </div>
+                </div>
+
+                <div className="sm:col-span-3">
+                  <label
+                    htmlFor="company"
+                    className="block text-sm font-medium leading-6 text-gray-900"
+                  >
+                    Company
+                  </label>
+                  <div className="mt-2">
+                    <input
+                      value={company}
+                      onChange={(e) => setCompany(e.target.value)}
+                      id="company"
+                      name="company"
+                      type="text"
+                      placeholder="Microsoft Corporation"
+                      className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
+                    />
+                  </div>
+                </div>
+
+                <div className="sm:col-span-3">
+                  <label
+                    htmlFor="position"
+                    className="block text-sm font-medium leading-6 text-gray-900"
+                  >
+                    Position
+                  </label>
+                  <div className="mt-2">
+                    <input
+                      value={position}
+                      onChange={(e) => setPosition(e.target.value)}
+                      id="position"
+                      name="position"
+                      type="text"
+                      placeholder="Chief Executive Officer"
+                      className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
+                    />
+                  </div>
+                </div>
+
+                <div className="sm:col-span-2">
+                  <label
+                    htmlFor="city"
+                    className="block text-sm font-medium leading-6 text-gray-900"
+                  >
+                    City
+                  </label>
+                  <div className="mt-2">
+                    <input
+                      value={city}
+                      onChange={(e) => setCity(e.target.value)}
+                      id="city"
+                      name="city"
+                      type="text"
+                      placeholder="Seattle"
+                      className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
+                    />
+                  </div>
+                </div>
+
+                <div className="sm:col-span-2">
+                  <label
+                    htmlFor="state"
+                    className="text-sm font-medium leading-6 text-gray-900 flex flex-row items-center"
+                  >
+                    State{" "}
+                    <span className="block ml-2 text-sm font-thin leading-6 text-gray-400">
+                      (Optional)
+                    </span>
+                  </label>
+                  <div className="mt-2">
+                    <input
+                      value={usState}
+                      onChange={(e) => setUsState(e.target.value)}
+                      id="state"
+                      name="state"
+                      type="text"
+                      placeholder="Washington"
+                      className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
+                    />
+                  </div>
+                </div>
+
+                <div className="sm:col-span-2">
+                  <label
+                    htmlFor="country"
+                    className="block text-sm font-medium leading-6 text-gray-900"
+                  >
+                    Country
+                  </label>
+                  <div className="mt-2">
+                    <select
+                      value={country}
+                      onChange={(e) => setCountry(e.target.value)}
+                      id="country"
+                      name="country"
+                      autoComplete="country-name"
+                      placeholder="United States"
+                      className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:max-w-xs sm:text-sm sm:leading-6"
+                    >
+                      {countryList.map((country) => (
+                        <option>{country}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div className="sm:col-span-1">
+                  <label
+                    htmlFor="avatar"
+                    className="block text-sm font-medium leading-6 text-gray-900"
+                  >
+                    Avatar
+                  </label>
+                  <div className="mt-2 flex flex-row justify-start gap-3 items-center">
+                    {profileImg ? (
+                      <Avatar size="lg" src={URL.createObjectURL(profileImg)} />
+                    ) : firstName !== "" && lastName !== "" ? (
+                      <Avatar size="lg">{`${firstName[0]}${lastName[0]}`}</Avatar>
+                    ) : (
+                      <Avatar size="lg" />
+                    )}
+                    <label className="p-1 border border-solid rounded-lg cursor-pointer bg-white hover:bg-gray-50 shadow-sm font-medium">
+                      Change
+                      <input
+                        type="file"
+                        name="profile-img"
+                        onChange={onImageChange} // need to work on this
+                        className="hidden"
+                      />
+                    </label>
+                  </div>
+                </div>
+
+                <div className="sm:col-span-5">
+                  <label
+                    htmlFor="about"
+                    className="block text-sm font-medium leading-6 text-gray-900"
+                  >
+                    About
+                  </label>
+                  <div className="mt-2">
+                    <textarea
+                      value={about}
+                      onChange={(e) => setAbout(e.target.value)}
+                      id="about"
+                      name="about"
+                      rows={3}
+                      className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
+                      placeholder="I'm a software engineer and philanthropist. I'm the co-founder of Microsoft, and I've been passionate about coding since I was a kid. I believe that coding is a powerful tool that can be used to solve some of the world's biggest problems. I want to learn from other programmers and share my own knowledge. I'm always looking for new ways to improve my skills, and I'm always excited to help others."
+                      defaultValue={""}
+                    />
+                  </div>
+                </div>
+
+                <div className="col-span-full">
+                  <label
+                    htmlFor="cover-photo"
+                    className="block text-sm font-medium leading-6 text-gray-900"
+                  >
+                    Background Image
+                  </label>
+                  <div className="mt-2 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10">
+                    <div className="grid grid-cols-4 gap-5">
+                      {backgrounds.map((img, index) => (
+                        <Badge
+                          color="success"
+                          badgeContent={<CheckIcon className="h-2 w-2" />}
+                          invisible={selectedBackgroundImage !== index}
+                        >
+                          <Image
+                            src={img}
+                            alt={`Background ${index + 1}`}
+                            height={128}
+                            width={256}
+                            className="rounded-lg cursor-pointer"
+                            onClick={() => setSelectedBackgroundImage(index)}
+                          />
+                        </Badge>
+                      ))}
+                    </div>
                   </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          <div className="border-b border-gray-900/10 pb-12">
-            <h2 className="text-base font-semibold leading-7 mb-7l text-gray-900">
-              Frameworks
-            </h2>
+            <div className="border-b border-gray-900/10 pb-12">
+              <h2 className="text-base font-semibold leading-7 mb-7l text-gray-900">
+                Frameworks
+              </h2>
 
-            <div className="flex flex-row mt-10 items-start justify-between">
-              <div className="flex flex-row items-center gap-6 mb-6">
-                <div id="autocomplete-wrapper" className="relative">
-                  <input
-                    type="text"
-                    value={inputValue}
-                    onChange={handleInputChange}
-                    placeholder="Ex: Python"
-                    className="border rounded-lg p-2 w-64 h-8"
+              <div className="flex flex-row mt-10 items-start justify-between">
+                <div className="flex flex-row items-center gap-6 mb-6">
+                  <div id="autocomplete-wrapper" className="relative">
+                    <input
+                      type="text"
+                      value={inputValue}
+                      onChange={handleInputChange}
+                      placeholder="Ex: Python"
+                      className="border rounded-lg p-2 w-64 h-8"
+                    />
+                    {showOptions && filteredOptions.length > 0 && (
+                      <ul className="absolute bg-white border rounded w-48 mt-1 max-h-40 overflow-y-auto">
+                        {filteredOptions.map((option) => (
+                          <li
+                            key={option}
+                            onClick={() => handleOptionClick(option)}
+                            className="cursor-pointer p-2 hover:bg-gray-100"
+                          >
+                            {option}
+                          </li>
+                        ))}
+                      </ul>
+                    )}
+                  </div>
+
+                  <BsPlusCircleFill
+                    className={`text-2xl ${
+                      inputValue === ""
+                        ? "disabled text-gray-500"
+                        : "cursor-pointer text-blue-400 hover:text-blue-600"
+                    }
+        `}
+                    onClick={() => handleAddLang(inputValue)}
                   />
-                  {showOptions && filteredOptions.length > 0 && (
-                    <ul className="absolute bg-white border rounded w-48 mt-1 max-h-40 overflow-y-auto">
-                      {filteredOptions.map((option) => (
-                        <li
-                          key={option}
-                          onClick={() => handleOptionClick(option)}
-                          className="cursor-pointer p-2 hover:bg-gray-100"
-                        >
-                          {option}
-                        </li>
-                      ))}
-                    </ul>
-                  )}
                 </div>
 
-                <BsPlusCircleFill
-                  className={`text-2xl ${
-                    inputValue === ""
-                      ? "disabled text-gray-500"
-                      : "cursor-pointer text-blue-400 hover:text-blue-600"
-                  }
-        `}
-                  onClick={() => handleAddLang(inputValue)}
-                />
-              </div>
-
-              <div className="flex flex-col ml-20">
-                {userLangs.length > 0 && (
-                  <>
-                    <div className="flex flex-row items-center justify-between font-bold">
-                      <h3>Language</h3>
-                      <h3>Proficiency</h3>
-                    </div>
-                    <span className="text-sm text-gray-500 text-center mb-7">
-                      If you want to delete a language, rate your skill level as{" "}
-                      <span className="font-bold text-red-400">-1</span>
-                    </span>
-                  </>
-                )}
-
-                {userLangs.length > 0 &&
-                  userLangs.map((userlang, index) => (
-                    <div className="grid grid-cols-6 justify-between m-2">
-                      <div key={index} className="col-span-1 mr-20">
-                        <Tooltip
-                          title={userlang}
-                          arrow={false}
-                          placement="right"
-                        >
-                          {sortedIcons[userlang]}
-                        </Tooltip>
+                <div className="flex flex-col ml-20">
+                  {userLangs.length > 0 && (
+                    <>
+                      <div className="flex flex-row items-center justify-between font-bold">
+                        <h3>Language</h3>
+                        <h3>Proficiency</h3>
                       </div>
-                      <Slider
-                        size="md"
-                        color="neutral"
-                        valueLabelDisplay="on"
-                        min={-1}
-                        max={100}
-                        step={1}
-                        className="col-span-5"
-                        defaultValue={0}
-                        onChange={(e, v) => handleAddProf(e, v, userlang)}
-                      />
-                    </div>
-                  ))}
+                      <span className="text-sm text-gray-500 text-center mb-7">
+                        If you want to delete a language, rate your skill level
+                        as <span className="font-bold text-red-400">-1</span>
+                      </span>
+                    </>
+                  )}
+
+                  {userLangs.length > 0 &&
+                    userLangs.map((userlang, index) => (
+                      <div className="grid grid-cols-6 justify-between m-2">
+                        <div key={index} className="col-span-1 mr-20">
+                          <Tooltip
+                            title={userlang}
+                            arrow={false}
+                            placement="right"
+                          >
+                            {sortedIcons[userlang]}
+                          </Tooltip>
+                        </div>
+                        <Slider
+                          size="md"
+                          color="neutral"
+                          valueLabelDisplay="on"
+                          min={-1}
+                          max={100}
+                          step={1}
+                          className="col-span-5"
+                          defaultValue={0}
+                          onChange={(e, v) => handleAddProf(e, v, userlang)}
+                        />
+                      </div>
+                    ))}
+                </div>
               </div>
             </div>
-          </div>
 
-          <div className="flex flex-row justify-between border-b border-gray-900/10 pb-12">
-            <h2 className="text-base font-semibold leading-7 mb-7 text-gray-900">
-              Skills
-            </h2>
-            <Select
-              className="w-11/12 grow-0"
-              mode="tags"
-              placeholder="Project Management, Kanban, Cloud Computing..."
-              options={labelValues(uniqueArray(inDemandSkills))}
-              allowClear
-              clearIcon={
-                <IoCloseCircleOutline className="text-red-300 hover:text-red-600" />
-              }
-              onChange={handleSkillChange}
-            />
-          </div>
-
-          <div className="border-b border-gray-900/10 pb-12">
-            <div className="flex flex-row items-center justify-between">
-              <h2 className="text-base font-semibold leading-7 text-gray-900">
-                Links
+            <div className="flex flex-row justify-between border-b border-gray-900/10 pb-12">
+              <h2 className="text-base font-semibold leading-7 mb-7 text-gray-900">
+                Skills
               </h2>
-              <div className="flex flex-row items-center justify-between gap-4">
-                <FaDiscord
-                  onClick={() => setSocials([...socials, "discord"])}
-                  className={`text-violet-500 text-4xl
+              <Select
+                className="w-11/12 grow-0"
+                mode="tags"
+                placeholder="Project Management, Kanban, Cloud Computing..."
+                options={labelValues(uniqueArray(inDemandSkills))}
+                allowClear
+                clearIcon={
+                  <IoCloseCircleOutline className="text-red-300 hover:text-red-600" />
+                }
+                onChange={handleSkillChange}
+              />
+            </div>
+
+            <div className="border-b border-gray-900/10 pb-12">
+              <div className="flex flex-row items-center justify-between">
+                <h2 className="text-base font-semibold leading-7 text-gray-900">
+                  Links
+                </h2>
+                <div className="flex flex-row items-center justify-between gap-4">
+                  <FaDiscord
+                    onClick={() => setSocials([...socials, "discord"])}
+                    className={`text-violet-500 text-4xl
               ${
                 socials.includes("discord")
                   ? "text-opacity-20 cursor-text"
                   : "hover:text-violet-700 hover:cursor-pointer"
               }
                 `}
-                />
-                <FaDropbox
-                  onClick={() => setSocials([...socials, "dropbox"])}
-                  className={`text-blue-500 text-4xl
+                  />
+                  <FaDropbox
+                    onClick={() => setSocials([...socials, "dropbox"])}
+                    className={`text-blue-500 text-4xl
               ${
                 socials.includes("dropbox")
                   ? "text-opacity-20 cursor-text"
                   : "hover:text-blue-700 hover:cursor-pointer"
               }
                 `}
-                />
-                <FaFacebook
-                  onClick={() => setSocials([...socials, "facebook"])}
-                  className={`text-blue-600 text-4xl
+                  />
+                  <FaFacebook
+                    onClick={() => setSocials([...socials, "facebook"])}
+                    className={`text-blue-600 text-4xl
               ${
                 socials.includes("facebook")
                   ? "text-opacity-20 cursor-text"
                   : "hover:text-blue-900 hover:cursor-pointer"
               }
                 `}
-                />
-                <FaGithub
-                  onClick={() => setSocials([...socials, "github"])}
-                  className={`text-black text-4xl
+                  />
+                  <FaGithub
+                    onClick={() => setSocials([...socials, "github"])}
+                    className={`text-black text-4xl
               ${
                 socials.includes("github")
                   ? "text-opacity-20 cursor-text"
                   : "hover:text-gray-600 hover:cursor-pointer"
               }
                 `}
-                />
-                <FaInstagram
-                  onClick={() => setSocials([...socials, "instagram"])}
-                  className={`text-pink-500 text-4xl
+                  />
+                  <FaInstagram
+                    onClick={() => setSocials([...socials, "instagram"])}
+                    className={`text-pink-500 text-4xl
               ${
                 socials.includes("instagram")
                   ? "text-opacity-20 cursor-text"
                   : "hover:text-pink-800 hover:cursor-pointer"
               }
                 `}
-                />
-                <FaLinkedin
-                  onClick={() => setSocials([...socials, "linkedin"])}
-                  className={`text-blue-500 text-4xl
+                  />
+                  <FaLinkedin
+                    onClick={() => setSocials([...socials, "linkedin"])}
+                    className={`text-blue-500 text-4xl
               ${
                 socials.includes("linkedin")
                   ? "text-opacity-20 cursor-text"
                   : "hover:text-blue-700 hover:cursor-pointer"
               }
                 `}
-                />
-                <FaMedium
-                  onClick={() => setSocials([...socials, "medium"])}
-                  className={`text-black text-4xl
+                  />
+                  <FaMedium
+                    onClick={() => setSocials([...socials, "medium"])}
+                    className={`text-black text-4xl
               ${
                 socials.includes("medium")
                   ? "text-opacity-20 cursor-text"
                   : "hover:text-gray-600 hover:cursor-pointer"
               }
                 `}
-                />
-                <FaReddit
-                  onClick={() => setSocials([...socials, "reddit"])}
-                  className={`text-orange-500 text-4xl
+                  />
+                  <FaReddit
+                    onClick={() => setSocials([...socials, "reddit"])}
+                    className={`text-orange-500 text-4xl
               ${
                 socials.includes("reddit")
                   ? "text-opacity-20 cursor-text"
                   : "hover:text-orange-600 hover:cursor-pointer"
               }
                 `}
-                />
-                <FaStackOverflow
-                  onClick={() => setSocials([...socials, "stackoverflow"])}
-                  className={`text-orange-400 text-4xl
+                  />
+                  <FaStackOverflow
+                    onClick={() => setSocials([...socials, "stackoverflow"])}
+                    className={`text-orange-400 text-4xl
               ${
                 socials.includes("stackoverflow")
                   ? "text-opacity-20 cursor-text"
                   : "hover:text-orange-600 hover:cursor-pointer"
               }
                 `}
-                />
-                <FaTiktok
-                  onClick={() => setSocials([...socials, "tiktok"])}
-                  className={`text-black text-4xl
+                  />
+                  <FaTiktok
+                    onClick={() => setSocials([...socials, "tiktok"])}
+                    className={`text-black text-4xl
               ${
                 socials.includes("tiktok")
                   ? "text-opacity-20 cursor-text"
                   : "hover:text-gray-600 hover:cursor-pointer"
               }
                 `}
-                />
-                <FaTwitch
-                  onClick={() => setSocials([...socials, "twitch"])}
-                  className={`text-purple-500 text-4xl
+                  />
+                  <FaTwitch
+                    onClick={() => setSocials([...socials, "twitch"])}
+                    className={`text-purple-500 text-4xl
               ${
                 socials.includes("twitch")
                   ? "text-opacity-20 cursor-text"
                   : "hover:text-purple-700 hover:cursor-pointer"
               }
                 `}
-                />
-                <FaXTwitter
-                  onClick={() => setSocials([...socials, "x"])}
-                  className={`text-black text-4xl
+                  />
+                  <FaXTwitter
+                    onClick={() => setSocials([...socials, "x"])}
+                    className={`text-black text-4xl
               ${
                 socials.includes("x")
                   ? "text-opacity-20 cursor-text"
                   : "hover:text-gray-600 hover:cursor-pointer"
               }
                 `}
-                />
-                <FaYoutube
-                  onClick={() => setSocials([...socials, "youtube"])}
-                  className={`text-red-500 text-4xl
+                  />
+                  <FaYoutube
+                    onClick={() => setSocials([...socials, "youtube"])}
+                    className={`text-red-500 text-4xl
               ${
                 socials.includes("youtube")
                   ? "text-opacity-20 cursor-text"
                   : "hover:text-red-700 hover:cursor-pointer"
               }
                 `}
-                />
-                <FaThreads
-                  onClick={() => setSocials([...socials, "threads"])}
-                  className={`text-black text-4xl
+                  />
+                  <FaThreads
+                    onClick={() => setSocials([...socials, "threads"])}
+                    className={`text-black text-4xl
               ${
                 socials.includes("threads")
                   ? "text-opacity-20 cursor-text"
                   : "hover:text-gray-600 hover:cursor-pointer"
               }
                 `}
-                />
-                <FaLink
-                  onClick={() => setSocials([...socials, "personal"])}
-                  className={`text-black text-4xl
+                  />
+                  <FaLink
+                    onClick={() => setSocials([...socials, "personal"])}
+                    className={`text-black text-4xl
               ${
                 socials.includes("personal")
                   ? "text-opacity-20 cursor-text"
                   : "hover:text-gray-600 hover:cursor-pointer"
               }
                 `}
-                />
+                  />
+                </div>
               </div>
+              {userSocials.length > 0 && (
+                <div className="w-full mt-5 grid grid-cols-3 justify-between">
+                  {userSocials.map((icon, index) => icon.node)}
+                </div>
+              )}
             </div>
-            {userSocials.length > 0 && (
-              <div className="w-full mt-5 grid grid-cols-3 justify-between">
-                {userSocials.map((icon, index) => icon.node)}
-              </div>
-            )}
-          </div>
 
-          <div className="mt-6 flex items-center justify-end gap-x-6">
-            <button
-              type="button"
-              className="text-sm font-semibold leading-6 text-gray-900"
-              onClick={handleFormCancel}
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              className="rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
-            >
-              Save
-            </button>
+            <div className="mt-6 flex items-center justify-end gap-x-6">
+              <button
+                type="button"
+                className="text-sm font-semibold leading-6 text-gray-900"
+                onClick={handleFormCancel}
+              >
+                Cancel
+              </button>
+              <button
+                type="submit"
+                className="rounded-md bg-blue-600 px-3 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
+              >
+                Save
+              </button>
+            </div>
           </div>
-        </div>
-      </form>
+        </form>
+      </div>
     </>
   );
 };

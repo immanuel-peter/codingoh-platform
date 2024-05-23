@@ -1,22 +1,13 @@
 "use client";
 
 import React, { useState, useEffect, Fragment } from "react";
-import {
-  FaCode,
-  FaSun,
-  FaRegSun,
-  FaRegCircleUser,
-  FaInbox,
-  FaHandshakeAngle,
-} from "react-icons/fa6";
+import { FaCode, FaInbox } from "react-icons/fa6";
 import { FaCheckCircle, FaThumbsUp, FaSearch } from "react-icons/fa";
 import {
   FaArrowUpRightFromSquare,
   FaCheck,
   FaCirclePlus,
 } from "react-icons/fa6";
-import { FcPlus } from "react-icons/fc";
-import { BsFillSunFill, BsSun, BsMoon } from "react-icons/bs";
 import { HiDocumentText } from "react-icons/hi2";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -25,7 +16,7 @@ import { Avatar } from "@mui/joy";
 import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 
-import { questions, inboxItems } from "@/dummy/questions";
+import { inboxItems } from "@/dummy/questions";
 import { Question } from "@/types";
 
 type UserResponse = {
@@ -86,15 +77,28 @@ const Navbar = () => {
     fetchUser();
   }, []);
 
+  const [allQuestions, setAllQuestions] = useState<Question[]>([]);
   const [query, setQuery] = useState<string>("");
   const [suggestedQueries, setSuggestedQueries] = useState<Question[]>([]);
   const [openInbox, setOpenInbox] = useState<boolean>(false);
+
+  useEffect(() => {
+    const fetchQuestions = async () => {
+      const { data, error } = await supabase.from("questions").select("*");
+      if (data) {
+        setAllQuestions(data);
+      } else {
+        console.error(error);
+      }
+    };
+    fetchQuestions();
+  }, []);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const inputValue: string = e.target.value;
     setQuery(inputValue);
 
-    const filteredQueries: Question[] = questions.filter((question) =>
+    const filteredQueries: Question[] = allQuestions.filter((question) =>
       question.question.toLowerCase().includes(inputValue.toLowerCase())
     );
     setSuggestedQueries(filteredQueries);
@@ -180,7 +184,7 @@ const Navbar = () => {
                   }`}
                 >
                   {suggestion.question}
-                  {suggestion.answer ? (
+                  {Math.random() > 0.5 ? (
                     <FaCheckCircle className="text-green-500 bg-inherit" />
                   ) : null}
                 </li>
@@ -232,7 +236,7 @@ const Navbar = () => {
                     <Avatar
                       size="md"
                       alt={
-                        coder.first_name != "" && coder.last_name != ""
+                        coder.first_name && coder.last_name
                           ? `${coder.first_name[0]}${coder.last_name[0]}`
                           : "</>"
                       }
@@ -243,9 +247,11 @@ const Navbar = () => {
                       size="md"
                       className="hover:text-blue-500 hover:bg-blue-300/50"
                     >
-                      {coder.first_name && coder.last_name
+                      {/* {coder.first_name && coder.last_name
                         ? `${coder.first_name[0]}${coder.last_name[0]}`
-                        : "</>"}
+                        : "</>"} */}
+                      {coder.first_name[0]}
+                      {coder.last_name[0]}
                     </Avatar>
                   )}
                 </Link>

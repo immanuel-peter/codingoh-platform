@@ -1,20 +1,37 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { UserOutlined } from "@ant-design/icons";
 import { Input } from "antd";
 import { Autocomplete } from "@mui/joy";
 import Link from "next/link";
+import { createClient } from "@/utils/supabase/client";
 
 import { Navbar, Card, FAB } from "@/components";
+import { Coder } from "@/types";
 import { users } from "@/dummy/questions";
 import sortedIcons from "@/utils/icons";
-import { User } from "@/types";
 
 // const langOptions = Object.keys(sortedIcons).map((key) => ({ value: key }));
 
 const allUsers = () => {
-  const [displayedUsers, setDisplayedUsers] = useState<User[]>(users);
+  const supabase = createClient();
+  const [coders, setCoders] = useState<Coder[]>();
+
+  useEffect(() => {
+    const fetchCoders = async () => {
+      const { data: coders, error } = await supabase.from("coders").select("*");
+      if (coders) {
+        setCoders(coders);
+        setDisplayedUsers(coders);
+      } else {
+        console.error(error);
+      }
+    };
+    fetchCoders();
+  }, []);
+
+  const [displayedUsers, setDisplayedUsers] = useState(coders);
   const [userQuery, setUserQuery] = useState<string>("");
   const [langQuery, setLangQuery] = useState<string>("");
 
@@ -24,15 +41,27 @@ const allUsers = () => {
     const value = event.target.value;
 
     if (value === "") {
-      setDisplayedUsers(users);
+      setDisplayedUsers(coders);
     }
 
     setUserQuery(value);
 
-    const filteredUsers = users.filter((user) =>
-      user.name.toLowerCase().includes(value.toLowerCase())
-    );
-    setDisplayedUsers(filteredUsers);
+    const filteredCoders = coders?.filter((coder) => {
+      const updatedCoder = {
+        ...coder,
+        full_name: `${coder.first_name} ${coder.last_name}`,
+      };
+      return (
+        updatedCoder.full_name.toLowerCase().includes(value.toLowerCase()) ||
+        updatedCoder.about?.toLowerCase().includes(value.toLowerCase()) ||
+        updatedCoder.position?.toLowerCase().includes(value.toLowerCase())
+      );
+    });
+
+    // const filteredUsers = users.filter((user) =>
+    //   user.name.toLowerCase().includes(value.toLowerCase())
+    // );
+    setDisplayedUsers(filteredCoders);
   };
 
   const handleLangQueryChange = (
@@ -61,13 +90,20 @@ const allUsers = () => {
     //   setLangQuery(value);
     // }
 
-    const filteredUsers = users.filter(
-      (user) =>
-        user.codingLanguages?.some((lang) =>
+    const filteredCoders = coders?.filter(
+      (coder) =>
+        coder.stack?.some((lang) =>
           lang.language.toLowerCase().includes(langQuery.toLowerCase())
         )
     );
-    setDisplayedUsers(filteredUsers);
+
+    // const filteredUsers = users.filter(
+    //   (user) =>
+    //     user.codingLanguages?.some((lang) =>
+    //       lang.language.toLowerCase().includes(langQuery.toLowerCase())
+    //     )
+    // );
+    setDisplayedUsers(filteredCoders);
   };
 
   return (
@@ -93,20 +129,21 @@ const allUsers = () => {
       </div>
       <div
         className={`${
-          displayedUsers.length > 0
+          displayedUsers?.length ?? 0 > 0
             ? "p-2 m-2 grid grid-cols-4 gap-4"
             : "flex flex-col gap-2 items-center justify-center h-[85vh]"
         }`}
       >
-        {displayedUsers.length > 0 ? (
-          displayedUsers.map((user, index) => (
-            <Link href={`/users/${user.id}`}>
+        {displayedUsers?.length ?? 0 > 0 ? (
+          displayedUsers?.map((coder, index) => (
+            <Link href={`/users/${coder.auth_id}`}>
               <Card
+                id={coder.id}
                 key={index}
-                name={user.name}
-                position={user.position || "Undefined"}
-                isOnline={user.isOnline}
-                languages={user.codingLanguages || []}
+                name={`${coder.first_name} ${coder.last_name}`}
+                position={coder.position || "Undefined"}
+                isOnline={Math.random() > 0.5}
+                languages={coder.stack || []}
               />
             </Link>
           ))

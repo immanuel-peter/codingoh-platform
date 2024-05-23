@@ -1,12 +1,13 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { message, Select } from "antd";
 import { FaUpload, FaCamera } from "react-icons/fa6";
 import { IoCloseCircleOutline } from "react-icons/io5";
+import { createClient } from "@/utils/supabase/client";
 
-import { Project as ProjectType } from "@/types";
+import { Project as ProjectType, Coder } from "@/types";
 import { users, techSkills } from "@/dummy/questions";
 import sortedIcons from "@/utils/icons";
 import { labelValues, uniqueArray } from "@/utils";
@@ -14,22 +15,70 @@ import { labelValues, uniqueArray } from "@/utils";
 const { Option } = Select;
 
 const NewProjectForm = () => {
+  const supabase = createClient();
+  const [user, setUser] = useState<{ id: string; [key: string]: any }>();
+  const [coder, setCoder] = useState<Coder>();
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const {
+        data: { user },
+        error,
+      } = await supabase.auth.getUser();
+      if (user) {
+        setUser(user);
+        const { data: coder, error } = await supabase
+          .from("coders")
+          .select("*")
+          .eq("auth_id", user.id)
+          .single();
+        if (coder) {
+          setCoder(coder);
+        } else {
+          console.error(error);
+        }
+      } else {
+        console.error(error);
+      }
+    };
+    fetchUser();
+  }, []);
+
   const [newProjectImage, setNewProjectImage] = useState<string>("");
   const [newProject, setNewProject] = useState<ProjectType>({
     id: 0, // Provide default values or replace with actual values
-    owner: users[0],
+    created_at: new Date(),
+    owner: coder || null, // Add null check to ensure coder is not undefined
     name: "",
     description: "",
-    startDate: new Date(),
-    endDate: undefined, // or specify a default value
+    start_date: new Date().toDateString(),
+    end_date: undefined, // or specify a default value
     github: "",
     status: "ongoing",
-    image: newProjectImage || "",
+    project_image: newProjectImage ? true : false,
     stack: [],
-    needed: [], // Initialize as an empty array
+    skills: [], // Initialize as an empty array
     application: "",
   });
-  console.log(newProject.needed);
+  console.log(newProject.skills);
+
+  /*
+  export interface Project {
+  id: number;
+  created_at: Date | string;
+  owner: Coder;
+  name: string;
+  description: string;
+  start_date: string;
+  end_date?: string;
+  github?: string;
+  status: string;
+  project_image?: string;
+  stack?: string[];
+  skills?: string[];
+  application?: string;
+}
+  */
 
   const onImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
@@ -48,7 +97,7 @@ const NewProjectForm = () => {
   const handleSkillChange = (value: string) => {
     setNewProject({
       ...newProject,
-      needed: newProject.needed ? [...newProject.needed, value] : [value],
+      skills: newProject.skills ? [...newProject.skills, value] : [value],
     });
   };
 
@@ -76,7 +125,7 @@ const NewProjectForm = () => {
 
     if (
       newProject.application?.trim() !== "" &&
-      newProject.needed?.length === 0
+      newProject.skills?.length === 0
     ) {
       messageApi.open({
         type: "error",
@@ -226,7 +275,7 @@ const NewProjectForm = () => {
                         name="file-upload"
                         type="file"
                         className="sr-only"
-                        value={newProject.image}
+                        value={newProjectImage}
                         onChange={onImageChange}
                       />
                     </label>
