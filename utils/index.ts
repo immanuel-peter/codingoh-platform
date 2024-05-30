@@ -2,10 +2,10 @@ import { questions, users } from "@/dummy/questions";
 import {
   Proficiency,
   Question,
-  User,
   Contributor,
   Project,
   RecordType,
+  Coder,
 } from "@/types";
 import sortedIcons from "./icons";
 import { Metadata } from "next";
@@ -87,74 +87,74 @@ export const getTopLanguages = (languages: Proficiency[], rank: number) => {
 };
 
 // Function to sort questions and contributions based on users
-export const sortQuestionsAndContributions = (
-  questions: Question[],
-  users: User[]
-) => {
-  const userMap: {
-    [userId: number]: {
-      name: string;
-      allQuestions: Question[];
-      askedQuestions: Question[];
-      contributedQuestions: Question[];
-      addedQuestionIds: Set<number>;
-    };
-  } = {};
+// export const sortQuestionsAndContributions = (
+//   questions: Question[],
+//   users: User[]
+// ) => {
+//   const userMap: {
+//     [userId: number]: {
+//       name: string;
+//       allQuestions: Question[];
+//       askedQuestions: Question[];
+//       contributedQuestions: Question[];
+//       addedQuestionIds: Set<number>;
+//     };
+//   } = {};
 
-  // Initialize the user map with empty arrays for each user
-  users.forEach((user) => {
-    userMap[user.id] = {
-      name: user.name,
-      allQuestions: [],
-      askedQuestions: [],
-      contributedQuestions: [],
-      addedQuestionIds: new Set<number>(),
-    };
-  });
+//   // Initialize the user map with empty arrays for each user
+//   users.forEach((user) => {
+//     userMap[user.id] = {
+//       name: user.name,
+//       allQuestions: [],
+//       askedQuestions: [],
+//       contributedQuestions: [],
+//       addedQuestionIds: new Set<number>(),
+//     };
+//   });
 
-  // Iterate through the questions and populate the user map
-  questions.forEach((question) => {
-    const askerId = question.asker.id;
-    if (!userMap[askerId].addedQuestionIds.has(question.id)) {
-      userMap[askerId].allQuestions.push(question);
-      userMap[askerId].askedQuestions.push(question);
-      userMap[askerId].addedQuestionIds.add(question.id);
-    }
+//   // Iterate through the questions and populate the user map
+//   questions.forEach((question) => {
+//     const askerId = question.asker.id;
+//     if (!userMap[askerId].addedQuestionIds.has(question.id)) {
+//       userMap[askerId].allQuestions.push(question);
+//       userMap[askerId].askedQuestions.push(question);
+//       userMap[askerId].addedQuestionIds.add(question.id);
+//     }
 
-    question.contributors?.forEach((contributor) => {
-      const contributorId = contributor.user.id;
-      if (!userMap[contributorId].addedQuestionIds.has(question.id)) {
-        userMap[contributorId].allQuestions.push(question);
-        userMap[contributorId].contributedQuestions.push(question);
-        userMap[contributorId].addedQuestionIds.add(question.id);
-      } else {
-        userMap[contributorId].contributedQuestions.push(question);
-      }
-    });
-  });
+//     question.contributors?.forEach((contributor) => {
+//       const contributorId = contributor.user.id;
+//       if (!userMap[contributorId].addedQuestionIds.has(question.id)) {
+//         userMap[contributorId].allQuestions.push(question);
+//         userMap[contributorId].contributedQuestions.push(question);
+//         userMap[contributorId].addedQuestionIds.add(question.id);
+//       } else {
+//         userMap[contributorId].contributedQuestions.push(question);
+//       }
+//     });
+//   });
 
-  for (const userId in userMap) {
-    userMap[userId].allQuestions.sort((a, b) => {
-      const aDateTime = new Date(a.date + " " + a.time).getTime();
-      const bDateTime = new Date(b.date + " " + b.time).getTime();
-      return bDateTime - aDateTime;
-    });
+//   for (const userId in userMap) {
+//     userMap[userId].allQuestions.sort((a, b) => {
+//       const aDateTime = new Date(a.date + " " + a.time).getTime();
+//       const bDateTime = new Date(b.date + " " + b.time).getTime();
+//       return bDateTime - aDateTime;
+//     });
 
-    userMap[userId].askedQuestions.sort((a, b) => {
-      const aDateTime = new Date(a.date + " " + a.time).getTime();
-      const bDateTime = new Date(b.date + " " + b.time).getTime();
-      return bDateTime - aDateTime;
-    });
+//     userMap[userId].askedQuestions.sort((a, b) => {
+//       const aDateTime = new Date(a.date + " " + a.time).getTime();
+//       const bDateTime = new Date(b.date + " " + b.time).getTime();
+//       return bDateTime - aDateTime;
+//     });
 
-    userMap[userId].contributedQuestions.sort((a, b) => {
-      const aDateTime = new Date(a.date + " " + a.time).getTime();
-      const bDateTime = new Date(b.date + " " + b.time).getTime();
-      return bDateTime - aDateTime;
-    });
-  }
+//     userMap[userId].contributedQuestions.sort((a, b) => {
+//       const aDateTime = new Date(a.date + " " + a.time).getTime();
+//       const bDateTime = new Date(b.date + " " + b.time).getTime();
+//       return bDateTime - aDateTime;
+//     });
+//   }
 
-  return userMap;
-};
+//   return userMap;
+// };
 
 export const getTopQuestions = (questions: Question[], rank: number) => {
   return questions.slice(0, rank);
@@ -203,16 +203,18 @@ export function convertToComparableDate(date: string, time: string) {
   return comparableDate;
 }
 
-export const projectsMap = (projects: Project[], user: User) => {
+export const projectsMap = (projects: Project[], user: Coder) => {
   const userProjectsMap = new Map<number, Project[]>();
 
   for (const project of projects) {
     const userId = project.owner?.id;
 
-    if (userProjectsMap.has(userId)) {
-      userProjectsMap.get(userId)?.push(project);
-    } else {
-      userProjectsMap.set(userId, [project]);
+    if (userId) {
+      if (userProjectsMap.has(userId)) {
+        userProjectsMap.get(userId)?.push(project);
+      } else {
+        userProjectsMap.set(userId, [project]);
+      }
     }
   }
 
@@ -294,3 +296,25 @@ export async function generateMetadata(
     description: question?.description,
   };
 }
+
+// Function to format date and time
+export const formatDateTime = (dateString: string) => {
+  // Create a Date object from the input string
+  const date = new Date(dateString);
+
+  // Extract and format the date (MM/DD/YYYY)
+  const formattedDate = new Intl.DateTimeFormat("en-US", {
+    month: "2-digit",
+    day: "2-digit",
+    year: "numeric",
+  }).format(date);
+
+  // Extract and format the time (HH:MM AM/PM)
+  const formattedTime = new Intl.DateTimeFormat("en-US", {
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: true,
+  }).format(date);
+
+  return { date: formattedDate, time: formattedTime };
+};

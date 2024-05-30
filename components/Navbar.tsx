@@ -178,13 +178,13 @@ const Navbar = () => {
                     handleSuggestionClick(suggestion.question, suggestion.id)
                   }
                   className={`px-4 py-2 cursor-pointer hover:bg-blue-50 ${
-                    suggestion.answer
+                    suggestion.id % 2 === 0
                       ? "flex flex-row justify-between items-center"
                       : ""
                   }`}
                 >
                   {suggestion.question}
-                  {Math.random() > 0.5 ? (
+                  {suggestion.id % 2 === 0 ? (
                     <FaCheckCircle className="text-green-500 bg-inherit" />
                   ) : null}
                 </li>

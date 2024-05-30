@@ -4,12 +4,14 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { Select, message } from "antd";
 import ReactMarkdown from "react-markdown";
+import { createClient } from "@/utils/supabase/client";
+import { useRouter } from "next/navigation";
 
 import { Navbar, RenderMd } from "@/components";
 import { FaArrowTurnDown, FaMarkdown } from "react-icons/fa6";
 import { IoClose } from "react-icons/io5";
 import { tags } from "@/dummy/questions";
-import { Tag } from "@/types";
+import { Tag, Coder } from "@/types";
 
 const placeholderMdText: string = `# Fibonacci sequence not working
 
@@ -42,6 +44,36 @@ I'm not sure what else to try. Can anyone help me figure out what's wrong with m
 `;
 
 const AddQuestion = () => {
+  const router = useRouter();
+  const supabase = createClient();
+  const [user, setUser] = useState<{ id: string; [key: string]: any }>();
+  const [coder, setCoder] = useState<Coder>();
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const {
+        data: { user },
+        error,
+      } = await supabase.auth.getUser();
+      if (user) {
+        setUser(user);
+        const { data: coder, error } = await supabase
+          .from("coders")
+          .select("*")
+          .eq("auth_id", user.id)
+          .single();
+        if (coder) {
+          setCoder(coder);
+        } else {
+          console.error(error);
+        }
+      } else {
+        console.error(error);
+      }
+    };
+    fetchUser();
+  }, []);
+
   const [messageApi, contextHolder] = message.useMessage();
   var titleCheck: boolean,
     descCheck: boolean,
@@ -89,8 +121,33 @@ const AddQuestion = () => {
     setNewQuestion({ ...newQuestion, tags: newTags });
   };
 
+  const possibleData = {
+    asker: coder?.id,
+    question: newQuestion.title,
+    tags: newQuestion.tags,
+    description: newQuestion.description,
+    answer_preference: newQuestion.preferences,
+    notify_email: newQuestion.notifications.email,
+    notify_desktop: newQuestion.notifications.desktop,
+  };
+  console.log(possibleData);
+
+  // I am writing a function that generates a random set of numbers. I can print the numbers as separate ints, but I am trying to put the numbers into an array and return the array so I can assign it to another empty array in another function so I can manipulate the array. I looked everywhere, but I couldn't find something that can satisfy my criteria.
+
+  // This function only prints the numbers, but I want it to return it so I can manipulate it. I tried using pointers, but it didn't or I didn't do it right.
+
   const handleQuestionSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
+
+    const questionData = {
+      asker: coder?.id,
+      question: newQuestion.title,
+      tags: newQuestion.tags,
+      description: newQuestion.description,
+      answer_preference: newQuestion.preferences,
+      notify_email: newQuestion.notifications.email,
+      notify_desktop: newQuestion.notifications.desktop,
+    };
 
     if (newQuestion.title.trim() === "") {
       messageApi.open({
@@ -130,8 +187,23 @@ const AddQuestion = () => {
         // Make database call
         // console.log("Added question to database:", question.title);
         // Redirect to dev profile page /questions/{/* id given by database */}
+        const { data: questionDataResponse, error: questionDataError } =
+          await supabase.from("questions").insert(questionData).select();
+
+        if (questionDataError) {
+          console.log("Faulty data:", questionData);
+          console.log("Error uploading user data:", questionDataError);
+          return;
+        }
+
+        if (questionDataResponse) {
+          console.log("Question added:", questionDataResponse);
+
+          router.push(`/questions/${questionDataResponse[0].id}`);
+          // openNotification();
+        }
       } catch (error) {
-        // console.log("Error:", error)
+        console.log("Error:", error);
       }
     }
   };
@@ -156,7 +228,7 @@ const AddQuestion = () => {
       <Navbar />
 
       <form
-        className="mt-5 flex items-center justify-center max-w-7xl"
+        className="mt-5 mb-5 flex items-center justify-center max-w-7xl"
         onSubmit={handleQuestionSubmit}
       >
         <div className="space-y-12 py-4">
@@ -236,6 +308,7 @@ const AddQuestion = () => {
                       Don't know how to write in Markdown? Check out this{" "}
                       <Link
                         href="https://www.markdownguide.org/"
+                        target="_blank"
                         className="text-blue-500 hover:underline hover:underline-offset-2"
                       >
                         guide
@@ -247,7 +320,7 @@ const AddQuestion = () => {
                   <div className="mt-2 w-full p-2 rounded-md border border-solid border-black">
                     <RenderMd
                       markdown={markdown}
-                      className="bg-inherit leading-loose"
+                      className="bg-inherit leading-7"
                     />
                   </div>
                 )}

@@ -4,21 +4,10 @@ const nextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: `${process.env.NEXT_PUBLIC_SUPABASE_URL}`,
+        hostname: "**.supabase.co",
       },
     ],
   },
 };
 
 module.exports = nextConfig;
-
-/*
-images: {
-    remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "img.clerk.com",
-      },
-    ],
-  },
-*/
