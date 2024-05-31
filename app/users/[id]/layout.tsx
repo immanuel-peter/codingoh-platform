@@ -1,5 +1,6 @@
 import { Metadata } from "next";
 import { createClient } from "@/utils/supabase/server";
+import { redirect } from "next/navigation";
 
 export async function generateMetadata({
   params,
@@ -9,15 +10,15 @@ export async function generateMetadata({
   // read route params
   const supabase = createClient();
 
-  const { data: user, error } = await supabase
+  const { data: dev, error } = await supabase
     .from("coders")
     .select("first_name, last_name")
     .eq("auth_id", params.id)
     .single();
 
-  if (user) {
+  if (dev) {
     return {
-      title: `${user?.first_name} ${user?.last_name} | CodingOH`,
+      title: `${dev?.first_name} ${dev?.last_name} | CodingOH`,
     };
   } else {
     return {
@@ -26,7 +27,7 @@ export async function generateMetadata({
   }
 }
 
-export default function PageLayout({
+export default async function PageLayout({
   children,
 }: {
   children: React.ReactNode;

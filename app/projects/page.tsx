@@ -1,11 +1,13 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Select } from "antd";
+import { createClient } from "@/utils/supabase/client";
 
 import { projects } from "@/dummy/questions";
 import { Navbar, Project, FAB, NewFAB } from "@/components";
 import { combineText } from "@/utils";
+import { Coder, Project as ProjectType } from "@/types";
 
 const statusOptions = [
   { value: "all", label: "All" },
@@ -15,12 +17,66 @@ const statusOptions = [
 ];
 
 const Page = () => {
-  const sortedProjects = projects.sort(
-    (a, b) => b.startDate.getTime() - a.startDate.getTime()
-  );
+  const supabase = createClient();
+  const [user, setUser] = useState<{ id: string; [key: string]: any }>();
+  const [coder, setCoder] = useState<Coder>();
+  const [projects, setProjects] = useState<ProjectType[]>([]);
 
   const [projQuery, setProjQuery] = useState<string>("");
   const [status, setStatus] = useState<string>("all");
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const {
+        data: { user },
+        error,
+      } = await supabase.auth.getUser();
+      if (user) {
+        setUser(user);
+        const { data: coder, error } = await supabase
+          .from("coders")
+          .select("*")
+          .eq("auth_id", user.id)
+          .single();
+        if (coder) {
+          setCoder(coder);
+        } else {
+          console.error(error);
+        }
+      } else {
+        console.error(error);
+      }
+    };
+    const fetchProjects = async () => {
+      const { data: projects, error: projectsError } = await supabase
+        .from("projects")
+        .select("*");
+      if (projects) {
+        let ownerIds = projects.map((project) => project.owner);
+        const { data: coders, error: codersError } = await supabase
+          .from("coders")
+          .select("*")
+          .in("id", ownerIds);
+        if (coders) {
+          projects.forEach((project) => {
+            project.owner = coders.find((coder) => coder.id === project.owner);
+          });
+        } else {
+          console.error(codersError);
+        }
+        setProjects(projects);
+      } else {
+        console.error(projectsError);
+      }
+    };
+    fetchUser();
+    fetchProjects();
+  }, []);
+
+  const sortedProjects = projects?.sort(
+    (a, b) =>
+      new Date(b.start_date).getTime() - new Date(a.start_date).getTime()
+  );
 
   const handleChange = (value: string) => {
     setStatus(value);
@@ -48,11 +104,14 @@ const Page = () => {
       <div className="p-20 pt-10 grid grid-cols-4 gap-4">
         {status === "all"
           ? sortedProjects
-              .filter((project) =>
+              ?.filter((project) =>
                 combineText(
                   project.name,
                   project.description,
-                  project.owner.name
+                  project.owner?.first_name ?? "",
+                  project.owner?.last_name ?? "",
+                  project.stack?.join(", ") ?? "",
+                  project.skills?.join(", ") ?? ""
                 )
                   .toLowerCase()
                   .includes(projQuery.toLowerCase())
@@ -61,12 +120,15 @@ const Page = () => {
                 <Project project={project} key={index} />
               ))
           : sortedProjects
-              .filter((project) => project.status === status)
+              ?.filter((project) => project.status === status)
               .filter((project) =>
                 combineText(
                   project.name,
                   project.description,
-                  project.owner.name
+                  project.owner?.first_name ?? "",
+                  project.owner?.last_name ?? "",
+                  project.stack?.join(", ") ?? "",
+                  project.skills?.join(", ") ?? ""
                 )
                   .toLowerCase()
                   .includes(projQuery.toLowerCase())

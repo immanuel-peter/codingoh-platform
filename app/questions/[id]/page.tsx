@@ -54,6 +54,7 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
   );
   // console.log(devScheduling);
 
+  const [isDeleteOpen, setIsDeleteOpen] = useState<boolean>(false);
   const [isScheduleMeetOpen, setIsScheduleMeetOpen] = useState<boolean>(false);
   const [isEditScheduleMeetOpen, setIsEditScheduleMeetOpen] =
     useState<boolean>(false);
@@ -63,7 +64,6 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
   const [dateTime, setDateTime] = useState<Dayjs | null>(null);
   const [scheduleMessage, setScheduleMessage] = useState<string>("");
   const [receiverNote, setReceiverNote] = useState<string>("");
-  // const [didSchedule, setDidSchedule] = useState<boolean>(false);
   const [messageApi, contextHolder] = message.useMessage();
 
   dayjs.extend(advancedFormat);
@@ -464,6 +464,37 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
     }
   };
 
+  const handleQuestionDelete = async () => {
+    try {
+      const { data: questionData, error: questionError } = await supabase
+        .from("questions")
+        .delete()
+        .eq("id", question.id)
+        .select();
+
+      if (questionError) {
+        console.log("Error deleting question:", questionError);
+        messageApi.open({
+          type: "error",
+          content: "Error deleting question",
+          duration: 3,
+        });
+        return;
+      } else {
+        console.log("Question deleted:", questionData);
+        messageApi.open({
+          type: "success",
+          content: "Successfully deleted question",
+          duration: 3,
+        });
+        setIsDeleteOpen(false);
+        router.push(`/users/${coder?.auth_id}`);
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   return (
     <>
       {contextHolder}
@@ -560,13 +591,19 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
                 </div>
               )}
             {user?.id === question.asker.auth_id && (
-              <div className="p-3 flex flex-row items-center justify-center gap-2 border-violet-600 hover:border-violet-800 bg-violet-500 hover:bg-violet-600 text-slate-200 rounded-lg cursor-pointer">
+              <Link
+                href={`/questions/${params.id}/edit`}
+                className="p-3 flex flex-row items-center justify-center gap-2 border-violet-600 hover:border-violet-800 bg-violet-500 hover:bg-violet-600 text-slate-200 rounded-lg cursor-pointer"
+              >
                 <FaEdit className="bg-inherit text-slate-200" />
                 {"Edit Question"}
-              </div>
+              </Link>
             )}
             {user?.id === question.asker.auth_id && (
-              <div className="p-3 flex flex-row items-center justify-center gap-2 border-red-600 hover:border-red-800 bg-red-500 hover:bg-red-700 text-slate-200 rounded-lg cursor-pointer">
+              <div
+                onClick={() => setIsDeleteOpen(true)}
+                className="p-3 flex flex-row items-center justify-center gap-2 border-red-600 hover:border-red-800 bg-red-500 hover:bg-red-700 text-slate-200 rounded-lg cursor-pointer"
+              >
                 <MdLogout className="bg-inherit text-slate-200" />
                 {"Delete Question"}
               </div>
@@ -1117,6 +1154,63 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
                         </div>
                       </>
                     ))}
+                </Dialog.Panel>
+              </Transition.Child>
+            </div>
+          </div>
+        </Dialog>
+      </Transition>
+
+      <Transition appear show={isDeleteOpen} as={Fragment}>
+        <Dialog
+          as="div"
+          className="relative z-10"
+          onClose={() => setIsDeleteOpen(false)}
+        >
+          <Transition.Child
+            as={Fragment}
+            enter="ease-out duration-300"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="ease-in duration-200"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
+            <div className="fixed inset-0 bg-black bg-opacity-25" />
+          </Transition.Child>
+
+          <div className="fixed inset-0 overflow-y-auto">
+            <div className="flex min-h-full items-center justify-center p-4 text-center">
+              <Transition.Child
+                as={Fragment}
+                enter="ease-out duration-300"
+                enterFrom="opacity-0 scale-95"
+                enterTo="opacity-100 scale-100"
+                leave="ease-in duration-200"
+                leaveFrom="opacity-100 scale-100"
+                leaveTo="opacity-0 scale-95"
+              >
+                <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                  <Dialog.Title
+                    as="h3"
+                    className="text-lg font-medium leading-6 text-black items-center justify-center"
+                  >
+                    Are you sure you want to delete your question?
+                  </Dialog.Title>
+                  <div className="flex flex-row items-center justify-center gap-4 mt-3">
+                    <div
+                      onClick={() => setIsDeleteOpen(false)}
+                      className="cursor-pointer rounded-full border border-solid bg-slate-200 px-4 py-2 text-base font-medium text-black hover:bg-slate-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 focus-visible:ring-offset-2"
+                    >
+                      Cancel
+                    </div>
+                    <div
+                      onClick={handleQuestionDelete}
+                      className="cursor-pointer rounded-full border border-solid bg-red-600 px-4 py-2 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-700 focus-visible:ring-offset-2"
+                    >
+                      Delete
+                    </div>
+                  </div>
                 </Dialog.Panel>
               </Transition.Child>
             </div>

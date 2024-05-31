@@ -43,7 +43,21 @@ const Login = () => {
         if (verify) {
           router.push("/users/add");
         } else {
-          router.push(`/users/${data.user?.id}`);
+          // router.push(`/users/${data.user?.id}`);
+          messageApi.open({
+            type: "success",
+            content: (
+              <span>
+                Go to your profile{" "}
+                <a
+                  href={`/users/${data.user?.id}`}
+                  className="text-blue-500 hover:underline"
+                >
+                  here
+                </a>
+              </span>
+            ),
+          });
         }
       } else {
         console.log(error);
@@ -77,6 +91,32 @@ const Login = () => {
     }
     console.log(data.url);
     return data.url;
+  };
+
+  const handleForget = async () => {
+    if (email.trim() === "") {
+      console.log("Please input your email address");
+      messageApi.open({
+        type: "error",
+        content: "Please input your email address",
+        duration: 3,
+      });
+    }
+
+    const { data, error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/update-password`,
+    });
+
+    if (error) {
+      console.log(error);
+    } else {
+      console.log(data);
+      messageApi.open({
+        type: "success",
+        content: "Password reset link has been sent to your email",
+        duration: 3,
+      });
+    }
   };
 
   return (
@@ -124,7 +164,7 @@ const Login = () => {
             <Input.Password
               name="password"
               placeholder="Generate a password"
-              className="mb-3"
+              className="mb-2"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
@@ -135,16 +175,24 @@ const Login = () => {
               onClick={handleLogin}
               className="rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
             >
-              Sign Up
+              Sign In
             </button>
           </div>
 
-          <Link
-            href="/signup"
-            className="px-4 py-2 flex justify-center items-center text-violet-500 hover:cursor-pointer hover:underline"
-          >
-            New user? Sign up here &rarr;
-          </Link>
+          <div className="flex flex-row items-center justify-between mt-1">
+            <button
+              onClick={handleForget}
+              className="px-4 py-2 text-violet-500 hover:cursor-pointer hover:underline"
+            >
+              Forgot password?
+            </button>
+            <Link
+              href="/signup"
+              className="px-4 py-2 flex justify-center items-center text-violet-500 hover:cursor-pointer hover:underline"
+            >
+              New user?
+            </Link>
+          </div>
         </div>
       </div>
     </>

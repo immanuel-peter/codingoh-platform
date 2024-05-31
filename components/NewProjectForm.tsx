@@ -6,6 +6,7 @@ import { message, Select } from "antd";
 import { FaUpload, FaCamera } from "react-icons/fa6";
 import { IoCloseCircleOutline } from "react-icons/io5";
 import { createClient } from "@/utils/supabase/client";
+import { useRouter } from "next/navigation";
 
 import { Project as ProjectType, Coder } from "@/types";
 import { users, techSkills } from "@/dummy/questions";
@@ -15,6 +16,7 @@ import { labelValues, uniqueArray } from "@/utils";
 const { Option } = Select;
 
 const NewProjectForm = () => {
+  const router = useRouter();
   const supabase = createClient();
   const [user, setUser] = useState<{ id: string; [key: string]: any }>();
   const [coder, setCoder] = useState<Coder>();
@@ -44,7 +46,7 @@ const NewProjectForm = () => {
     fetchUser();
   }, []);
 
-  const [newProjectImage, setNewProjectImage] = useState<string>("");
+  const [newProjectImage, setNewProjectImage] = useState<File | null>(null);
   const [newProject, setNewProject] = useState<ProjectType>({
     id: 0, // Provide default values or replace with actual values
     created_at: new Date(),
@@ -62,28 +64,10 @@ const NewProjectForm = () => {
   });
   console.log(newProject.skills);
 
-  /*
-  export interface Project {
-  id: number;
-  created_at: Date | string;
-  owner: Coder;
-  name: string;
-  description: string;
-  start_date: string;
-  end_date?: string;
-  github?: string;
-  status: string;
-  project_image?: string;
-  stack?: string[];
-  skills?: string[];
-  application?: string;
-}
-  */
-
   const onImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
       let img = event.target.files[0];
-      setNewProjectImage(URL.createObjectURL(img));
+      setNewProjectImage(img);
     }
   };
 
@@ -94,17 +78,20 @@ const NewProjectForm = () => {
     });
   };
 
-  const handleSkillChange = (value: string) => {
+  const handleSkillChange = (value: string[]) => {
     setNewProject({
       ...newProject,
-      skills: newProject.skills ? [...newProject.skills, value] : [value],
+      skills: value,
     });
   };
 
   // Form Actions
   const [messageApi, contextHolder] = message.useMessage();
+  let nameCheck = false;
+  let descriptionCheck = false;
+  let appCheck = false;
 
-  const handleFormSubmit = (e: React.SyntheticEvent) => {
+  const handleFormSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
 
     if (newProject.name.trim() === "") {
@@ -113,6 +100,8 @@ const NewProjectForm = () => {
         content: "Please provide a project title",
         duration: 3,
       });
+    } else {
+      nameCheck = true;
     }
 
     if (newProject.description.trim() === "") {
@@ -121,6 +110,8 @@ const NewProjectForm = () => {
         content: "Please provide a project description",
         duration: 3,
       });
+    } else {
+      descriptionCheck = true;
     }
 
     if (
@@ -134,12 +125,81 @@ const NewProjectForm = () => {
         duration: 3,
       });
     } else {
+      appCheck = true;
+    }
+
+    if (nameCheck && descriptionCheck && appCheck) {
       try {
-        // Make database call
-        // console.log("Added user to database:", userData.firstName, userData.lastName)
-        // Redirect to dev profile page /users/{/* id given by database */}
+        const newProjectData = {
+          owner: coder?.id,
+          name: newProject.name,
+          description: newProject.description,
+          github: newProject.github,
+          status: newProject.status,
+          project_image: newProjectImage ? true : false,
+          stack: newProject.stack,
+          skills: newProject.skills,
+          application: newProject.application,
+        };
+
+        const { data: projectDataResponse, error: projectDataError } =
+          await supabase.from("projects").insert(newProjectData).select();
+
+        if (projectDataError) {
+          console.log("Faulty data:", newProjectData);
+          console.log("Error uploading new project data:", projectDataError);
+          return;
+        }
+
+        console.log("Project data uploaded:", projectDataResponse);
+
+        if (newProjectImage) {
+          let maxProjectId = 0;
+          let imageUploaded = false;
+          let attempt = 0;
+
+          const { data, error } = await supabase
+            .from("projects")
+            .select("id")
+            .order("id", { ascending: false })
+            .limit(1);
+
+          if (data) {
+            maxProjectId = data[0].id;
+          }
+
+          while (!imageUploaded) {
+            const fileName = `projImage-${maxProjectId + attempt}`;
+
+            const { data: existingFileData, error: existingFileError } =
+              await supabase.storage.from("projectImages").list("", {
+                search: fileName,
+              });
+
+            if (existingFileData && existingFileData.length === 0) {
+              const { data: imageData, error: imageError } =
+                await supabase.storage
+                  .from("projectImages")
+                  .upload(fileName, newProjectImage, {
+                    upsert: false, // Set to false to avoid overwriting
+                  });
+
+              if (imageError) {
+                console.log("Error uploading profile image:", imageError);
+                return;
+              }
+
+              console.log("Profile image uploaded:", imageData);
+              imageUploaded = true;
+            } else {
+              attempt++;
+            }
+          }
+
+          router.refresh();
+        }
       } catch (error) {
-        // console.log("Error:", error)
+        console.log("Error:", error);
       }
     }
   };
@@ -220,9 +280,9 @@ const NewProjectForm = () => {
                 }
                 className="flex flex-col w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
               >
-                <option>Ongoing</option>
-                <option>Completed</option>
-                <option>On Hold</option>
+                <option value="ongoing">Ongoing</option>
+                <option value="completed">Completed</option>
+                <option value="on_hold">On Hold</option>
               </select>
             </div>
           </div>
@@ -238,7 +298,7 @@ const NewProjectForm = () => {
               id="github"
               name="github"
               type="text"
-              placeholder="www.github.com"
+              placeholder="https://www.github.com"
               value={newProject.github === "" ? "" : newProject.github}
               onChange={(e) =>
                 setNewProject({
@@ -258,7 +318,7 @@ const NewProjectForm = () => {
               Associated Picture
             </label>
             <div className="flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10">
-              {newProjectImage === "" ? (
+              {!newProjectImage ? (
                 <div className="text-center">
                   <FaCamera
                     className="mx-auto h-12 w-12 text-gray-300"
@@ -275,7 +335,11 @@ const NewProjectForm = () => {
                         name="file-upload"
                         type="file"
                         className="sr-only"
-                        value={newProjectImage}
+                        value={
+                          newProjectImage
+                            ? URL.createObjectURL(newProjectImage)
+                            : ""
+                        }
                         onChange={onImageChange}
                       />
                     </label>
@@ -287,7 +351,9 @@ const NewProjectForm = () => {
                 </div>
               ) : (
                 <Image
-                  src={newProjectImage}
+                  src={
+                    newProjectImage ? URL.createObjectURL(newProjectImage) : ""
+                  }
                   width={424}
                   height={172}
                   alt="New Project Picture"

@@ -142,35 +142,41 @@ export default function Home() {
       <Navbar />
       <div className="flex">
         <div className="basis-3/4 px-3">
-          <ul role="list" className="divide-y divide-gray-600">
-            {latestQuestions.map((question, index) => (
-              <li key={index} className="hover:bg-slate-100">
-                <Link
-                  href={`/questions/${question.id}`}
-                  className="flex justify-between gap-x-6 py-5"
-                >
-                  <Question
-                    question={question.question}
-                    asker={`${question.asker.first_name} ${question.asker.last_name}`}
-                    contributors={question.contributors || []}
-                    date={
-                      question.created_at
-                        ? new Date(question.created_at).toLocaleDateString(
-                            "en-US",
-                            {
-                              year: "numeric",
-                              month: "long",
-                              day: "numeric",
-                            }
-                          )
-                        : ""
-                    }
-                    extraStyles={["cursor-pointer"]}
-                  />
-                </Link>
-              </li>
-            ))}
-          </ul>
+          {latestQuestions.length === 0 ? (
+            <h1 className="flex items-center justify-center font-bold mt-3 text-black">
+              No unanswered questions
+            </h1>
+          ) : (
+            <ul role="list" className="divide-y divide-gray-600">
+              {latestQuestions.map((question, index) => (
+                <li key={index} className="hover:bg-slate-100">
+                  <Link
+                    href={`/questions/${question.id}`}
+                    className="flex justify-between gap-x-6 py-5"
+                  >
+                    <Question
+                      question={question.question}
+                      asker={`${question.asker.first_name} ${question.asker.last_name}`}
+                      contributors={question.contributors || []}
+                      date={
+                        question.created_at
+                          ? new Date(question.created_at).toLocaleDateString(
+                              "en-US",
+                              {
+                                year: "numeric",
+                                month: "long",
+                                day: "numeric",
+                              }
+                            )
+                          : ""
+                      }
+                      extraStyles={["cursor-pointer"]}
+                    />
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          )}
         </div>
         <div className="basis-1/4 items-center justify-center">
           {coders.length !== 0 ? (

@@ -46,7 +46,7 @@ const Navbar = () => {
     profile_image: false,
   });
   const [coderPic, setCoderPic] = useState<string>("");
-  console.log(coderPic);
+  // console.log(coderPic);
 
   // https://rrbpjhuhydqnlhyklwbs.supabase.co/storage/v1/object/public/avatars/profileImg-74a66627-6f52-4be1-a4ab-c5b46efcd5b3
 
