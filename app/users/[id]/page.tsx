@@ -128,7 +128,7 @@ const UserPage = ({ params }: { params: { id: string } }) => {
     fetchUser();
     fetchCoder();
   }, []);
-  console.log(coder);
+  // console.log(coder);
 
   const [questionTypeMode, setQuestionTypeMode] = useState<string>("all");
   const [isStackOpen, setIsStackOpen] = useState<boolean>(false);
@@ -163,32 +163,43 @@ const UserPage = ({ params }: { params: { id: string } }) => {
         return;
       }
 
-      const { data: contributions, error: contributionsError } = await supabase
-        .from("contributors")
+      const { data: comments, error: commentsError } = await supabase
+        .from("comments")
         .select("*");
 
-      if (contributionsError) {
-        console.error(contributionsError);
+      if (commentsError) {
+        console.error(commentsError);
         return;
       }
 
+      // Create a map of users for quick lookup
+      const userMap = new Map(users.map((user) => [user.id, user]));
+
       const updatedQuestions = questions.map((q) => {
-        const user = users.find((u) => u.id === q.asker);
-        const questionContributors = contributions
+        const askerUser = userMap.get(q.asker) || q.asker;
+
+        // Get unique contributors for this question
+        const contributorSet = new Set();
+        comments
           .filter((c) => c.question_id === q.id)
-          .map((c) => {
-            const contributorUser = users.find((u) => u.id === c.user_id);
-            return {
-              ...c,
-              question_id: q,
-              user_id: contributorUser || c.user_id,
-            };
+          .forEach((c) => {
+            const contributorUser = userMap.get(c.commenter) || c.commenter;
+            const contributorJson = JSON.stringify({
+              question_id: q.id,
+              user_id: contributorUser.id || contributorUser,
+            });
+            contributorSet.add(contributorJson);
           });
+
+        // Convert the set back to an array of unique contributors
+        const uniqueContributors = Array.from(contributorSet).map(
+          (contributorJson) => JSON.parse(contributorJson as string)
+        );
 
         return {
           ...q,
-          asker: user || q.asker,
-          contributors: questionContributors,
+          asker: askerUser,
+          contributors: uniqueContributors,
         };
       });
 
@@ -225,16 +236,17 @@ const UserPage = ({ params }: { params: { id: string } }) => {
     };
     const fetchCoderResponses = async () => {
       // Fetch contributions made by the coder
-      const { data: contributions, error: contributionsError } = await supabase
-        .from("contributors")
+      const { data: comments, error: commentsError } = await supabase
+        .from("comments")
         .select("*")
-        .eq("user_id", coder?.id);
+        .eq("commenter", coder?.id);
+      console.log("Comments:", comments);
 
-      if (contributionsError) {
-        throw contributionsError;
+      if (commentsError) {
+        throw commentsError;
       }
 
-      if (!contributions || contributions.length === 0) {
+      if (!comments || comments.length === 0) {
         // No contributions found for the coder
         setCoderResponses([]);
         return;
@@ -250,7 +262,7 @@ const UserPage = ({ params }: { params: { id: string } }) => {
       }
 
       // Extract question_ids from the contributions
-      const questionIds = contributions.map((c) => c.question_id);
+      const questionIds = comments.map((c) => c.question);
 
       // Fetch only the questions that the user has contributed to
       const { data: questions, error: questionsError } = await supabase
@@ -275,21 +287,53 @@ const UserPage = ({ params }: { params: { id: string } }) => {
         questionMap[q.id] = question;
       });
 
+      // const updatedComments = Array.from(
+      //   new Set(comments.map((c) => JSON.stringify(c)))
+      // ).map((str) => JSON.parse(str));
+
+      // // Populate the contributors field in questions
+      // updatedComments.forEach((c) => {
+      //   const question = questionMap[c.question];
+      //   const user = users.find((u) => u.id === c.commenter);
+
+      //   if (question) {
+      //     question.contributors?.push({
+      //       question_id: question,
+      //       user_id: user || c.commenter,
+      //     });
+      //   }
+      // });
+
+      // const cResponseArray: CoderQuestion[] = Object.values(questionMap);
+      // console.log(cResponseArray);
+      // setCoderResponses(cResponseArray);
+
+      // Use a Map to ensure uniqueness
+      const uniqueCommentsMap = new Map();
+
+      comments.forEach((c) => {
+        const key = `${c.commenter}-${c.question}`;
+        if (!uniqueCommentsMap.has(key)) {
+          uniqueCommentsMap.set(key, c);
+        }
+      });
+
+      const uniqueComments = Array.from(uniqueCommentsMap.values());
+
       // Populate the contributors field in questions
-      contributions.forEach((c) => {
-        const question = questionMap[c.question_id];
-        const user = users.find((u) => u.id === c.user_id);
+      uniqueComments.forEach((c) => {
+        const question = questionMap[c.question];
+        const user = users.find((u) => u.id === c.commenter);
 
         if (question) {
           question.contributors?.push({
-            ...c,
             question_id: question,
-            user_id: user || c.user_id,
+            user_id: user || c.commenter,
           });
         }
       });
 
-      const cResponseArray: CoderQuestion[] = Object.values(questionMap);
+      const cResponseArray = Object.values(questionMap);
       console.log(cResponseArray);
       setCoderResponses(cResponseArray);
     };

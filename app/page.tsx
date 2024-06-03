@@ -61,44 +61,53 @@ export default function Home() {
         throw usersError;
       }
 
-      // Fetch all contributions
-      const { data: contributions, error: contributionsError } = await supabase
-        .from("contributors")
+      // Fetch all comments
+      const { data: comments, error: commentsError } = await supabase
+        .from("comments")
         .select("*");
 
-      if (contributionsError) {
-        throw contributionsError;
+      if (commentsError) {
+        throw commentsError;
       }
 
       // Create a map of users for quick lookup
       const userMap = new Map(users.map((user) => [user.id, user]));
 
-      // Create a map of question_id to its contributors
-      const contributionsMap = contributions.reduce((acc, contribution) => {
-        const { question_id, user_id } = contribution;
-        if (!acc[question_id]) {
-          acc[question_id] = [];
-        }
-        acc[question_id].push({
-          ...contribution,
-          user_id: userMap.get(user_id) || user_id,
-        });
-        return acc;
-      }, {});
+      // Create a unique list of contributors for each question
+      const updatedQuestions = questions.map((question) => {
+        const asker = userMap.get(question.asker) || question.asker;
 
-      // Replace the asker value in each question with the corresponding user object
-      // and append contributors field
-      const updatedQuestions = questions
-        .map((question) => ({
+        // Get unique contributors for this question
+        const contributorSet = new Set();
+        comments
+          .filter((comment) => comment.question === question.id)
+          .forEach((comment) => {
+            const contributorJson = JSON.stringify({
+              user_id: asker,
+              question_id: question,
+            });
+            contributorSet.add(contributorJson);
+          });
+
+        // Convert the set back to an array of unique contributors
+        const contributors = Array.from(contributorSet).map((contributorJson) =>
+          JSON.parse(contributorJson as string)
+        );
+
+        return {
           ...question,
-          asker: userMap.get(question.asker) || question.asker,
-          contributors: contributionsMap[question.id] || [],
-        }))
-        .filter((question) => Math.random() > 0.5); // Your existing filter logic
+          asker,
+          contributors,
+        };
+      });
 
-      setDbQuestions(updatedQuestions);
+      // Apply your existing filter logic
+      const finalQuestions = updatedQuestions.filter(
+        (question) => Math.random() > 0.5
+      );
+
+      setDbQuestions(finalQuestions);
     };
-
     const fetchCoders = async () => {
       const { data: coders, error } = await supabase.from("coders").select("*");
       if (coders) {
