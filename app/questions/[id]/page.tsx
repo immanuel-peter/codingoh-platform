@@ -45,6 +45,7 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
   const [coder, setCoder] = useState<Coder>();
   const [question, setQuestion] = useState<Question>();
   const [comments, setComments] = useState<Comment[]>([]);
+  const [toSendContributors, setToSendContributors] = useState<Contributor[]>();
   const [schedulings, setSchedulings] = useState<Scheduling[]>([]);
   const devScheduling: Scheduling | undefined = schedulings.find(
     (scheduling) =>
@@ -180,6 +181,26 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
           });
         }
         setComments(newComments);
+        setToSendContributors((prevToSendContributors) => {
+          // Create a set from the existing toSendContributors
+          const combinedSet = new Set(
+            prevToSendContributors?.map((contributor) =>
+              JSON.stringify(contributor)
+            )
+          );
+
+          // Add the new unique comments
+          newComments.forEach((comment) => {
+            const newEntry = JSON.stringify({
+              question_id: questionRef,
+              user_id: comment.commenter,
+            });
+            combinedSet.add(newEntry);
+          });
+
+          // Convert the set back to an array of objects
+          return Array.from(combinedSet).map((json) => JSON.parse(json));
+        });
       } else {
         console.error("Error fetching comments:", commentsError);
       }
@@ -571,6 +592,7 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
               )
             )}
             {user?.id === question.asker.auth_id &&
+              !question.answer &&
               schedulings.filter((s) => s.status === null).length > 0 && (
                 <div
                   onClick={() => setIsViewMeetingRequestsOpen(true)}
@@ -581,6 +603,7 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
                 </div>
               )}
             {user?.id === question.asker.auth_id &&
+              !question.answer &&
               schedulings.filter((s) => s.status === "accept").length > 0 && (
                 <div
                   onClick={() => setIsViewMeetingsOpen(true)}
@@ -629,7 +652,7 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
         <Comments
           question={question}
           coder={coder}
-          contributors={question.contributors || []}
+          contributors={toSendContributors || []}
         />
       )}
 

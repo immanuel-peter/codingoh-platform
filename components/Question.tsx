@@ -53,7 +53,7 @@ const Question = ({
   return (
     <>
       <div
-        className={`flex gap-x-4 basis-1/2 justify-items-center ${
+        className={`flex gap-x-4 basis-3/5 justify-items-center pl-3 ${
           extraStyles ? extraStyles[0] : null
         }`}
       >
@@ -74,26 +74,44 @@ const Question = ({
         {/* <p className="text-sm leading-6 text-gray-900">
           
         </p> */}
-        <div className="flex -space-x-1 overflow-hidden">
+        <div className="flex -space-x-1 overflow-hidden pr-3">
           {contributors.length < 5 ? (
-            contributors.map((contributor) => (
-              <Image
-                key={contributor.user_id?.id}
-                src={avatar}
-                alt="contributor"
-                className="inline-block h-6 w-6 rounded-full ring-2 ring-white"
-              />
-            ))
-          ) : (
-            <div className="px-2 flex items-center">
-              {contributors.slice(0, 4).map((contributor) => (
+            contributors.map((contributor) =>
+              contributor.user_id.profile_image ? (
                 <Image
                   key={contributor.user_id?.id}
-                  src={avatar}
+                  src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/avatars/profileImg-${contributor.user_id.auth_id}`}
                   alt="contributor"
                   className="inline-block h-6 w-6 rounded-full ring-2 ring-white"
+                  height={24}
+                  width={24}
                 />
-              ))}
+              ) : (
+                <Avatar sx={{ "--Avatar-size": "24px" }}>
+                  {contributor.user_id.first_name[0]}
+                  {contributor.user_id.last_name[0]}
+                </Avatar>
+              )
+            )
+          ) : (
+            <div className="flex items-center">
+              {contributors.slice(0, 4).map((contributor) =>
+                contributor.user_id.profile_image ? (
+                  <Image
+                    key={contributor.user_id?.id}
+                    src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/avatars/profileImg-${contributor.user_id.auth_id}`}
+                    alt="contributor"
+                    className="inline-block h-6 w-6 rounded-full ring-2 ring-white"
+                    height={24}
+                    width={24}
+                  />
+                ) : (
+                  <Avatar sx={{ "--Avatar-size": "24px" }}>
+                    {contributor.user_id.first_name[0]}
+                    {contributor.user_id.last_name[0]}
+                  </Avatar>
+                )
+              )}
               <div
                 key={5}
                 className="flex h-7 w-7 rounded-full bg-slate-200 ring-2 ring-white items-center justify-center text-center text-xs"
@@ -103,13 +121,13 @@ const Question = ({
             </div>
           )}
         </div>
-        <p className="mt-1 text-xs leading-5 text-gray-500">
+        <p className="mt-1 text-xs leading-5 text-gray-500 pr-3">
           {`${contributors.length} ${
             contributors.length === 1 ? "contributor" : "contributors"
           }`}
         </p>
       </div>
-      {!answered ? (
+      {/* {!answered ? (
         <div
           className={`flex flex-col basis-2/12 items-center justify-center ${
             extraStyles ? extraStyles[0] : null
@@ -140,7 +158,7 @@ const Question = ({
             <p className="bg-green-500 text-slate-200">Answered</p>
           </div>
         </div>
-      )}
+      )} */}
 
       <Transition appear show={isScheduleMeetOpen} as={Fragment}>
         <Dialog

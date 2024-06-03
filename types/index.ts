@@ -67,7 +67,7 @@ export interface Proficiency {
 }
 
 export interface Contributor {
-  id: number;
+  id?: number;
   created_at?: Date | string;
   question_id: Question;
   user_id: Coder;

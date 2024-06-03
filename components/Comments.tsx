@@ -1,10 +1,17 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, Fragment } from "react";
 import Image from "next/image";
-import { AiFillHeart, AiOutlineCheck, AiFillMessage } from "react-icons/ai";
-import { Badge } from "antd";
+import {
+  AiFillHeart,
+  AiOutlineCheck,
+  AiFillMessage,
+  AiFillDelete,
+  AiFillEdit,
+} from "react-icons/ai";
+import { Badge, message } from "antd";
 import { Avatar, AvatarGroup } from "@mui/joy";
+import { Transition, Dialog } from "@headlessui/react";
 import { createClient } from "@/utils/supabase/client";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -43,9 +50,11 @@ const convertToNestedComments = (comments: CommentType[]) => {
 const Comment = ({
   comment,
   onAddNestedComment,
+  onDeleteComment,
 }: {
   comment: CommentType;
   onAddNestedComment: (text: string, parentId: number) => void;
+  onDeleteComment: (commentId: number) => void;
 }) => {
   const router = useRouter();
   const supabase = createClient();
@@ -58,6 +67,10 @@ const Comment = ({
   });
   const [openNewComment, setOpenNewComment] = useState<boolean>(false);
   const [newCommentText, setNewCommentText] = useState<string>("");
+  const [deleteCommentOpen, setDeleteCommentOpen] = useState<boolean>(false);
+  const [editCommentOpen, setEditCommentOpen] = useState<boolean>(false);
+  const [editCommentText, setEditCommentText] = useState<string>(comment.text);
+  const [messageApi, contextHolder] = message.useMessage();
 
   useEffect(() => {
     const fetchCoder = async () => {
@@ -184,19 +197,87 @@ const Comment = ({
     }
   };
 
+  const handleDeleteComment = async () => {
+    try {
+      const { data: commentData, error: commentError } = await supabase
+        .from("comments")
+        .delete()
+        .eq("id", comment.id)
+        .select();
+
+      // const { data: contributionData, error: contributionError } = await supabase.from("contributors").delete().eq("question_id", comment.question.id).eq("user_id", coder?.id).select();
+
+      if (commentError) {
+        console.log("Error deleting comment:", commentError);
+        messageApi.open({
+          type: "error",
+          content: "Error deleting comment",
+          duration: 3,
+        });
+        return;
+      } else {
+        console.log("Comment deleted:", commentData);
+        messageApi.open({
+          type: "success",
+          content: "Successfully deleted comment",
+          duration: 3,
+        });
+        onDeleteComment(comment.id);
+        setDeleteCommentOpen(false);
+        router.refresh();
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleEditComment = async () => {
+    comment.text = editCommentText;
+
+    try {
+      const { data: commentData, error: commentError } = await supabase
+        .from("comments")
+        .update({ text: editCommentText })
+        .eq("id", comment.id)
+        .select();
+
+      if (commentError) {
+        console.log("Error editing comment:", commentError);
+        messageApi.open({
+          type: "error",
+          content: "Error editing comment",
+          duration: 3,
+        });
+        return;
+      } else {
+        console.log("Comment edited:", commentData);
+        messageApi.open({
+          type: "success",
+          content: "Successfully edited comment",
+          duration: 3,
+        });
+        setEditCommentOpen(false);
+        router.refresh();
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   return (
     <>
+      {contextHolder}
       <div
-        className={`flex justify-between border rounded shadow mb-4 ${
+        className={`flex flex-col border rounded shadow mb-4 ${
           isChecked ? "bg-green-100" : "bg-white"
         }`}
       >
         <RenderMd
-          className="text-gray-800 basis-4/5 grow-0 items-center p-4"
+          className="text-gray-800 items-center p-4"
           markdown={comment.text}
         />
-        <div className="flex flex-col justify-between gap-8 p-4">
-          <div className="flex flex-row justify-center items-center gap-3 text-4xl">
+        <div className="flex flex-row items-end justify-between gap-8 p-4">
+          <div className="flex flex-row justify-center items-center gap-3 text-3xl">
             {coder?.id === comment.question.asker.id && (
               <AiOutlineCheck
                 onClick={handleCheck}
@@ -206,12 +287,12 @@ const Comment = ({
               />
             )}
 
-            <Badge count={likeCount.count}>
+            <Badge count={likeCount.count} size="small">
               <AiFillHeart
                 onClick={handleAddLike}
                 className={`text-red-500/50 cursor-pointer ${
                   !likeCount.disabled ? "hover:text-red-600" : "text-red-600"
-                } text-4xl`}
+                } text-3xl`}
               />
             </Badge>
 
@@ -219,6 +300,20 @@ const Comment = ({
               onClick={() => setOpenNewComment(!openNewComment)}
               className="text-blue-400/50 hover:text-blue-500 cursor-pointer"
             />
+
+            {coder?.id === comment.commenter.id && (
+              <AiFillDelete
+                onClick={() => setDeleteCommentOpen(true)}
+                className="text-red-500/50 hover:text-red-500 cursor-pointer"
+              />
+            )}
+
+            {coder?.id === comment.commenter.id && (
+              <AiFillEdit
+                onClick={() => setEditCommentOpen(true)}
+                className="text-blue-400/50 hover:text-blue-500 cursor-pointer"
+              />
+            )}
           </div>
           <div className="flex items-center justify-center gap-2 text-gray-400 text-sm">
             <Link
@@ -253,6 +348,117 @@ const Comment = ({
           </div>
         </div>
       )}
+
+      <Transition appear show={deleteCommentOpen} as={Fragment}>
+        <Dialog
+          as="div"
+          className="relative z-10"
+          onClose={() => setDeleteCommentOpen(false)}
+        >
+          <Transition.Child
+            as={Fragment}
+            enter="ease-out duration-300"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="ease-in duration-200"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
+            <div className="fixed inset-0 bg-black bg-opacity-25" />
+          </Transition.Child>
+
+          <div className="fixed inset-0 overflow-y-auto">
+            <div className="flex min-h-full items-center justify-center p-4 text-center">
+              <Transition.Child
+                as={Fragment}
+                enter="ease-out duration-300"
+                enterFrom="opacity-0 scale-95"
+                enterTo="opacity-100 scale-100"
+                leave="ease-in duration-200"
+                leaveFrom="opacity-100 scale-100"
+                leaveTo="opacity-0 scale-95"
+              >
+                <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                  <Dialog.Title
+                    as="h3"
+                    className="text-lg font-medium leading-6 text-black items-center justify-center"
+                  >
+                    Are you sure you want to delete your comment?
+                  </Dialog.Title>
+                  <div className="flex flex-row items-center justify-center gap-4 mt-3">
+                    <div
+                      onClick={() => setDeleteCommentOpen(false)}
+                      className="cursor-pointer rounded-full border border-solid bg-slate-200 px-4 py-2 text-base font-medium text-black hover:bg-slate-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-500 focus-visible:ring-offset-2"
+                    >
+                      Cancel
+                    </div>
+                    <div
+                      onClick={handleDeleteComment}
+                      className="cursor-pointer rounded-full border border-solid bg-red-600 px-4 py-2 text-base font-medium text-white hover:bg-red-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-700 focus-visible:ring-offset-2"
+                    >
+                      Delete
+                    </div>
+                  </div>
+                </Dialog.Panel>
+              </Transition.Child>
+            </div>
+          </div>
+        </Dialog>
+      </Transition>
+
+      <Transition appear show={editCommentOpen} as={Fragment}>
+        <Dialog
+          as="div"
+          className="relative z-10"
+          onClose={() => setEditCommentOpen(false)}
+        >
+          <Transition.Child
+            as={Fragment}
+            enter="ease-out duration-300"
+            enterFrom="opacity-0"
+            enterTo="opacity-100"
+            leave="ease-in duration-200"
+            leaveFrom="opacity-100"
+            leaveTo="opacity-0"
+          >
+            <div className="fixed inset-0 bg-black bg-opacity-25" />
+          </Transition.Child>
+
+          <div className="fixed inset-0 overflow-y-auto">
+            <div className="flex min-h-full items-center justify-center p-4 text-center">
+              <Transition.Child
+                as={Fragment}
+                enter="ease-out duration-300"
+                enterFrom="opacity-0 scale-95"
+                enterTo="opacity-100 scale-100"
+                leave="ease-in duration-200"
+                leaveFrom="opacity-100 scale-100"
+                leaveTo="opacity-0 scale-95"
+              >
+                <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                  <Dialog.Title
+                    as="h3"
+                    className="text-lg font-medium leading-6 text-blue-600 inline-flex items-center gap-2"
+                  >
+                    Edit Your Meeting <AiFillEdit />
+                  </Dialog.Title>
+                  <textarea
+                    value={editCommentText}
+                    onChange={(e) => setEditCommentText(e.target.value)}
+                    className="mt-3 rounded-lg w-full"
+                  />
+                  <div
+                    onClick={handleEditComment}
+                    className="cursor-pointer w-fit rounded-lg border border-solid bg-blue-500 px-4 py-2 text-base font-medium text-white hover:bg-blue-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
+                  >
+                    Edit Comment
+                  </div>
+                </Dialog.Panel>
+              </Transition.Child>
+            </div>
+          </div>
+        </Dialog>
+      </Transition>
     </>
   );
 };
@@ -260,19 +466,26 @@ const Comment = ({
 const NestedComments = ({
   comments,
   onAddNestedComment,
+  onDeleteComment,
 }: {
   comments: CommentType[];
   onAddNestedComment: (text: string, parentId: number) => void;
+  onDeleteComment: (commentId: number) => void;
 }) => {
   return (
     <div className="ml-4 space-y-4">
       {comments.map((comment) => (
         <div key={comment.id}>
-          <Comment comment={comment} onAddNestedComment={onAddNestedComment} />
+          <Comment
+            comment={comment}
+            onAddNestedComment={onAddNestedComment}
+            onDeleteComment={onDeleteComment}
+          />
           {comment.replies && comment.replies.length > 0 && (
             <NestedComments
               comments={comment.replies}
               onAddNestedComment={onAddNestedComment}
+              onDeleteComment={onDeleteComment}
             />
           )}
         </div>
@@ -427,6 +640,21 @@ const Comments = ({
     }
   };
 
+  const handleDeleteComment = (commentId: number) => {
+    const deleteComment = (
+      comments: CommentType[],
+      commentId: number
+    ): CommentType[] => {
+      return comments
+        .filter((comment) => comment.id !== commentId)
+        .map((comment) => ({
+          ...comment,
+          replies: deleteComment(comment.replies || [], commentId),
+        }));
+    };
+    setComments(deleteComment(comments, commentId));
+  };
+
   const renderComments = (comments: CommentType[], level: number) => {
     return comments.map((comment) => {
       // Set the level property for this comment
@@ -437,6 +665,7 @@ const Comments = ({
           <Comment
             comment={comment}
             onAddNestedComment={handleAddNestedComment}
+            onDeleteComment={handleDeleteComment}
           />
           {comment.replies && comment.replies.length > 0 && (
             <div
@@ -463,11 +692,13 @@ const Comments = ({
                 <Comment
                   comment={comment}
                   onAddNestedComment={handleAddNestedComment}
+                  onDeleteComment={handleDeleteComment}
                 />
                 {comment.replies && comment.replies.length > 0 && (
                   <NestedComments
                     comments={comment.replies}
                     onAddNestedComment={handleAddNestedComment}
+                    onDeleteComment={handleDeleteComment}
                   />
                 )}
               </div>

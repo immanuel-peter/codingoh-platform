@@ -14,29 +14,29 @@ export function varStatus() {
   return Math.random() > 0.5;
 }
 
-export function parseDateString(dateString: string): Date {
-  const months: { [key: string]: number } = {
-    January: 0,
-    February: 1,
-    March: 2,
-    April: 3,
-    May: 4,
-    June: 5,
-    July: 6,
-    August: 7,
-    September: 8,
-    October: 9,
-    November: 10,
-    December: 11,
-  };
+// export function parseDateString(dateString: string): Date {
+//   const months: { [key: string]: number } = {
+//     January: 0,
+//     February: 1,
+//     March: 2,
+//     April: 3,
+//     May: 4,
+//     June: 5,
+//     July: 6,
+//     August: 7,
+//     September: 8,
+//     October: 9,
+//     November: 10,
+//     December: 11,
+//   };
 
-  const dateParts = dateString.split(" ");
-  const month = months[dateParts[0]];
-  const day = parseInt(dateParts[1].replace(",", ""));
-  const year = parseInt(dateParts[2]);
+//   const dateParts = dateString.split(" ");
+//   const month = months[dateParts[0]];
+//   const day = parseInt(dateParts[1].replace(",", ""));
+//   const year = parseInt(dateParts[2]);
 
-  return new Date(year, month, day);
-}
+//   return new Date(year, month, day);
+// }
 
 export function daysBetweenDateAndToday(dateString: string): string {
   const oneDayInMilliseconds = 24 * 60 * 60 * 1000; // Number of milliseconds in a day
@@ -57,7 +57,26 @@ export function daysBetweenDateAndToday(dateString: string): string {
     Math.round(timeDifference / oneDayInMilliseconds)
   );
 
-  return daysDifference !== 0 ? `${daysDifference} d` : "Today";
+  // Check if the difference is greater than or equal to 365 days (1 year)
+  if (daysDifference >= 365) {
+    const years = Math.floor(daysDifference / 365);
+    return years === 1 ? `${years} year` : `${years} years`;
+  }
+
+  // Check if the difference is greater than or equal to 30 days (1 month)
+  if (daysDifference >= 30) {
+    const months = Math.floor(daysDifference / 30);
+    return months === 1 ? `${months} month` : `${months} months`;
+  }
+
+  // Return the number of days if less than 30 days
+  return daysDifference !== 0 ? `${daysDifference} days` : "Today";
+}
+
+// Helper function to parse the date string
+function parseDateString(dateString: string): Date {
+  // Assumes the input dateString is in a format parseable by the Date constructor
+  return new Date(dateString);
 }
 
 export function stringifyList(array: string[] | number[]): any {
