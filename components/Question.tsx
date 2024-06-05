@@ -53,7 +53,7 @@ const Question = ({
   return (
     <>
       <div
-        className={`flex gap-x-4 basis-3/5 justify-items-center pl-3 ${
+        className={`flex gap-x-4 basis-3/5 justify-items-center pl-3 ${answered && "bg-green-300"} ${
           extraStyles ? extraStyles[0] : null
         }`}
       >
@@ -74,7 +74,9 @@ const Question = ({
         {/* <p className="text-sm leading-6 text-gray-900">
           
         </p> */}
-        <div className="flex -space-x-1 overflow-hidden pr-3">
+        <div
+          className={`flex -space-x-1 overflow-hidden pr-3 ${answered && "bg-green-300"}`}
+        >
           {contributors.length < 5 ? (
             contributors.map((contributor) =>
               contributor.user_id?.profile_image ? (

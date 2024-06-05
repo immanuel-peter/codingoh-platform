@@ -518,6 +518,15 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
     }
   };
 
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(window.location.href);
+    messageApi.open({
+      type: "info",
+      content: "Link copied to clipboard",
+      duration: 3,
+    });
+  };
+
   return (
     <>
       {contextHolder}
@@ -633,7 +642,10 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
                 {"Delete Question"}
               </div>
             )}
-            <div className="p-3 flex flex-row items-center justify-center gap-2 border-amber-600 hover:border-amber-800 bg-amber-500 hover:bg-amber-600 text-slate-200 rounded-lg cursor-pointer">
+            <div
+              onClick={handleCopyLink}
+              className="p-3 flex flex-row items-center justify-center gap-2 border-amber-600 hover:border-amber-800 bg-amber-500 hover:bg-amber-600 text-slate-200 rounded-lg cursor-pointer"
+            >
               <FaShare className="bg-inherit text-slate-200" />
               {"Share Question"}
             </div>

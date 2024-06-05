@@ -4,8 +4,8 @@ import React, { Fragment, useState, useEffect } from "react";
 import Image from "next/image";
 import { Badge, Avatar as MAvatar } from "@mui/joy";
 import { FaEdit, FaThumbsUp, FaHome } from "react-icons/fa";
-import { FaPlus, FaXTwitter, FaThreads } from "react-icons/fa6";
-import { Progress, Tooltip } from "antd";
+import { FaPlus, FaXTwitter, FaThreads, FaShare } from "react-icons/fa6";
+import { Progress, Tooltip, message } from "antd";
 import { MdOutlineKeyboardDoubleArrowRight, MdLogout } from "react-icons/md";
 import { BsFilePlusFill } from "react-icons/bs";
 import Link from "next/link";
@@ -100,6 +100,7 @@ const UserPage = ({ params }: { params: { id: string } }) => {
   const [coderProjects, setCoderProjects] = useState<ProjectType[]>([]);
   const [coderResponses, setCoderResponses] = useState<CoderQuestion[]>([]);
   const combined = Array.from(new Set([...coderQuestions, ...coderResponses]));
+  const [messageApi, contextHolder] = message.useMessage();
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -388,8 +389,18 @@ const UserPage = ({ params }: { params: { id: string } }) => {
     }
   };
 
+  const handleCopyLink = () => {
+    navigator.clipboard.writeText(window.location.href);
+    messageApi.open({
+      type: "info",
+      content: "Link copied to clipboard",
+      duration: 3,
+    });
+  };
+
   return (
     <>
+      {contextHolder}
       <Navbar />
       <div className="p-3 m-0">
         <div className="relative flex h-32 w-full items-center justify-between rounded-xl bg-cover px-10 mb-4">
@@ -483,6 +494,13 @@ const UserPage = ({ params }: { params: { id: string } }) => {
                 <FaEdit className="mr-3 bg-inherit" />
                 Edit Profile
               </Link>
+              <div
+                onClick={handleCopyLink}
+                className="p-3 cursor-pointer bg-orange-300 hover:bg-orange-400 border border-solid border-orange-400 hover:border-orange-500 items-center justify-center flex flex-row rounded-lg"
+              >
+                <FaShare className="mr-3 bg-inherit" />
+                Share Profile
+              </div>
               <div
                 onClick={handleSignOut}
                 className="p-3 cursor-pointer bg-red-300 hover:bg-red-400 border border-solid border-red-400 hover:border-red-500 items-center justify-center flex flex-row rounded-lg"
