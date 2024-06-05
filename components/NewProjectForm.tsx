@@ -9,7 +9,7 @@ import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 
 import { Project as ProjectType, Coder } from "@/types";
-import { users, techSkills } from "@/dummy/questions";
+import { techSkills } from "@/dummy/questions";
 import sortedIcons from "@/utils/icons";
 import { labelValues, uniqueArray } from "@/utils";
 
@@ -31,7 +31,7 @@ const NewProjectForm = () => {
         setUser(user);
         const { data: coder, error } = await supabase
           .from("coders")
-          .select("*")
+          .select("id")
           .eq("auth_id", user.id)
           .single();
         if (coder) {
@@ -94,7 +94,7 @@ const NewProjectForm = () => {
   const handleFormSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
 
-    if (newProject.name.trim() === "") {
+    if (newProject.name?.trim() === "") {
       messageApi.open({
         type: "error",
         content: "Please provide a project title",
@@ -104,7 +104,7 @@ const NewProjectForm = () => {
       nameCheck = true;
     }
 
-    if (newProject.description.trim() === "") {
+    if (newProject.description?.trim() === "") {
       messageApi.open({
         type: "error",
         content: "Please provide a project description",

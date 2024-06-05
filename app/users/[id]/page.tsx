@@ -437,10 +437,10 @@ const UserPage = ({ params }: { params: { id: string } }) => {
                         <SocialIcon
                           key={index}
                           network={social.social
-                            .toLowerCase()
+                            ?.toLowerCase()
                             .replace(/\s/g, "")}
                           url={
-                            social.link.startsWith("https://")
+                            social.link?.startsWith("https://")
                               ? social.link
                               : `https://${social.link}`
                           }
@@ -449,7 +449,7 @@ const UserPage = ({ params }: { params: { id: string } }) => {
                       ) : social.social === "X" ? (
                         <Link
                           href={
-                            social.link.startsWith("https://")
+                            social.link?.startsWith("https://")
                               ? social.link
                               : `https://${social.link}`
                           }
@@ -460,7 +460,7 @@ const UserPage = ({ params }: { params: { id: string } }) => {
                       ) : (
                         <Link
                           href={
-                            social.link.startsWith("https://")
+                            social.link?.startsWith("https://")
                               ? social.link
                               : `https://${social.link}`
                           }
@@ -508,9 +508,13 @@ const UserPage = ({ params }: { params: { id: string } }) => {
             }`}
           />
           {coder?.stack && coder?.stack?.length > 0 ? (
-            <div className="pb-3 grid grid-cols-4 gap-4 items-center content-evenly justify-evenly justify-items-center rounded-b-xl">
+            <div className="pb-3 pr-2 grid grid-cols-4 gap-4 items-center content-evenly justify-evenly justify-items-center rounded-b-xl">
               {coderTopLanguages
-                .sort((a, b) => b.proficiency - a.proficiency)
+                .sort((a, b) =>
+                  b.proficiency && a.proficiency
+                    ? b.proficiency - a.proficiency
+                    : 0
+                )
                 .map((language, index) => (
                   <>
                     <div key={index} className="col-span-1">
@@ -519,7 +523,7 @@ const UserPage = ({ params }: { params: { id: string } }) => {
                         arrow={false}
                         placement="right"
                       >
-                        {sortedIcons[language.language]}
+                        {sortedIcons[language.language ?? ""]}
                       </Tooltip>
                     </div>
                     <Progress
@@ -644,8 +648,8 @@ const UserPage = ({ params }: { params: { id: string } }) => {
                               className="flex justify-between gap-x-6 px-3 py-3"
                             >
                               <Question
-                                question={question.question}
-                                asker={`${question.asker.first_name} ${question.asker.last_name}`}
+                                question={question.question ?? ""}
+                                asker={`${question.asker?.first_name} ${question.asker?.last_name}`}
                                 contributors={question.contributors || []}
                                 date={
                                   question.created_at
@@ -716,8 +720,8 @@ const UserPage = ({ params }: { params: { id: string } }) => {
                                 className="flex justify-between gap-x-6 px-3 py-3"
                               >
                                 <Question
-                                  question={question.question}
-                                  asker={`${question.asker.first_name} ${question.asker.last_name}`}
+                                  question={question.question ?? ""}
+                                  asker={`${question.asker?.first_name} ${question.asker?.last_name}`}
                                   contributors={question.contributors || []}
                                   date={
                                     question.created_at
@@ -789,8 +793,8 @@ const UserPage = ({ params }: { params: { id: string } }) => {
                                 className="flex justify-between gap-x-6 px-3 py-3"
                               >
                                 <Question
-                                  question={question.question}
-                                  asker={`${question.asker.first_name} ${question.asker.last_name}`}
+                                  question={question.question ?? ""}
+                                  asker={`${question.asker?.first_name} ${question.asker?.last_name}`}
                                   contributors={question.contributors || []}
                                   date={
                                     question.created_at
@@ -1232,7 +1236,7 @@ const UserPage = ({ params }: { params: { id: string } }) => {
                               arrow={false}
                               placement="right"
                             >
-                              {sortedIcons[language.language]}
+                              {sortedIcons[language.language ?? ""]}
                             </Tooltip>
                           </div>
                           <Progress

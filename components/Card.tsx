@@ -36,7 +36,9 @@ const Card = ({
     const fetchCoder = async () => {
       const { data: coder, error } = await supabase
         .from("coders")
-        .select("*")
+        .select(
+          "first_name, last_name, background_image, profile_image, auth_id"
+        )
         .eq("id", id)
         .single();
       if (coder) {
@@ -78,8 +80,8 @@ const Card = ({
                 />
               ) : (
                 <MAvatar className="h-full w-full text-4xl text-blue-500 bg-blue-300">
-                  {coder?.first_name[0]}
-                  {coder?.last_name[0]}
+                  {coder?.first_name ? coder.first_name[0] : ""}
+                  {coder?.last_name ? coder.last_name[0] : ""}
                 </MAvatar>
               )}
             </div>

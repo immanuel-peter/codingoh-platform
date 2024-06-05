@@ -3,23 +3,14 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Tooltip } from "@mui/material";
 import { CircularProgress } from "@mui/joy";
-import { FaPlus } from "react-icons/fa6";
 import { PiCaretDoubleUpLight } from "react-icons/pi";
 
 import { Navbar, Question, FAB } from "@/components";
-import { rankSearchQuestions } from "@/api/search";
-import { questions } from "@/dummy/questions";
+import { semanticSearch } from "@/api/search";
 import { Question as QuestionType } from "@/types";
 
-const findQuestion = (q: string): QuestionType | undefined => {
-  const matchedQuestion = questions.find((question) => question.question === q);
-  if (!matchedQuestion) {
-    return;
-  }
-  return matchedQuestion;
-};
+// How can I let each id correspond to a unique set of rows in MySQL?
 
 const SearchPage = () => {
   const searchParams = useSearchParams();
@@ -36,17 +27,9 @@ const SearchPage = () => {
     const fetchQuestions = async () => {
       try {
         setLoading(true);
-        const result = await rankSearchQuestions(originalQuestion);
-        let questionsArray = result.split(",");
-        console.log(questionsArray);
-        questionsArray = questionsArray.map((question: string) =>
-          findQuestion(question)
-        );
-        setQuestionsInOrder(
-          questionsArray.filter(
-            (question: QuestionType) => question !== undefined
-          ) as QuestionType[]
-        );
+        const result = await semanticSearch(originalQuestion);
+        console.log(result);
+        setQuestionsInOrder(result as QuestionType[]);
         setLoading(false);
         console.log(questionsInOrder);
       } catch (error) {
@@ -92,11 +75,21 @@ const SearchPage = () => {
                       className="flex justify-between gap-x-6 py-5"
                     >
                       <Question
-                        question={question.question}
-                        asker={question.asker.name}
+                        question={question.question ?? ""}
+                        asker={`${question.asker?.first_name} ${question.asker?.last_name}`}
                         contributors={question.contributors || []}
-                        date={question.date}
-                        answered={question.isAnswered}
+                        date={
+                          question.created_at
+                            ? new Date(question.created_at).toLocaleDateString(
+                                "en-US",
+                                {
+                                  year: "numeric",
+                                  month: "long",
+                                  day: "numeric",
+                                }
+                              )
+                            : ""
+                        }
                       />
                     </Link>
                   </li>

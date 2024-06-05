@@ -6,7 +6,7 @@ import { Select, message } from "antd";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 
-import { projects, techSkills } from "@/dummy/questions";
+import { techSkills } from "@/dummy/questions";
 import { Project } from "@/types";
 import Navbar from "@/components/Navbar";
 import sortedIcons from "@/utils/icons";
@@ -221,12 +221,12 @@ const Page = ({ params }: { params: { id: string } }) => {
     setProjectImg(
       `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/projectImages/projImage-${params.id}`
     );
-    setName(projectCopy.name);
-    setDescription(projectCopy.description);
+    setName(projectCopy.name ?? "");
+    setDescription(projectCopy.description ?? "");
     setStartDate(projectCopy.start_date ?? null);
     setEndDate(projectCopy.end_date ?? null);
     setGithub(projectCopy.github ?? null);
-    setStatus(projectCopy.status);
+    setStatus(projectCopy.status ?? "ongoing");
     setStack(projectCopy.stack ?? null);
     setNeeded(projectCopy.skills ?? null);
     setApplication(projectCopy.application ?? null);

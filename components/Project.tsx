@@ -2,17 +2,13 @@
 
 import React, { useState, Fragment, useEffect } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { FaEdit } from "react-icons/fa";
 import { FaCirclePlus, FaGithub } from "react-icons/fa6";
 import { Dialog, Transition } from "@headlessui/react";
 import { Tag, Tooltip } from "antd";
-import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 
-import { projects } from "@/dummy/questions";
 import { Project as ProjectType } from "@/types";
-import Avatar from "@/public/avatar.png";
 import sortedIcons from "@/utils/icons";
 
 const getBgColor = (status: string): string => {
@@ -65,7 +61,7 @@ const Project = ({ project }: { project: ProjectType }) => {
     <>
       <article
         className={`overflow-hidden rounded-lg min-h-[350px] border border-gray-200 ${getBgColor(
-          project.status
+          project.status ?? "ongoing"
         )} shadow-sm cursor-pointer`}
         onClick={() => setIsProjectModalOpen(true)}
       >
@@ -80,13 +76,13 @@ const Project = ({ project }: { project: ProjectType }) => {
         />
         <div
           className={`p-4 flex flex-col justify-between flex-grow ${getBgColor(
-            project.status
+            project.status ?? "ongoing"
           )}`}
         >
           <div className="bg-inherit">
             <h3
               className={`text-lg font-medium text-gray-900 ${getBgColor(
-                project.status
+                project.status ?? "ongoing"
               )}`}
               onClick={() => setIsProjectModalOpen(true)}
             >
@@ -103,7 +99,7 @@ const Project = ({ project }: { project: ProjectType }) => {
               project.github
                 ? "justify-items-end items-end"
                 : "justify-items-end items-center"
-            } ${getBgColor(project.status)}`}
+            } ${getBgColor(project.status ?? "ongoing")}`}
           >
             <Link
               href={`/users/${project.owner?.auth_id}`}
@@ -121,7 +117,7 @@ const Project = ({ project }: { project: ProjectType }) => {
               >
                 <FaGithub
                   className={`${getBgColor(
-                    project.status
+                    project.status ?? "ongoing"
                   )} h-7 w-7 hover:scale-150 transition duration-300`}
                 />
               </Link>
@@ -161,7 +157,7 @@ const Project = ({ project }: { project: ProjectType }) => {
               >
                 <Dialog.Panel
                   className={`w-4/6 max-w-full transform overflow-auto rounded-2xl border-slate-200 border border-solid p-6 shadow-xl transition-all ${getBgColor(
-                    project.status
+                    project.status ?? "ongoing"
                   )}`}
                 >
                   <img
@@ -195,7 +191,7 @@ const Project = ({ project }: { project: ProjectType }) => {
                       >
                         <FaGithub
                           className={`${getBgColor(
-                            project.status
+                            project.status ?? "ongoing"
                           )} h-7 w-7 hover:scale-150 transition duration-300`}
                         />
                       </Link>

@@ -13,7 +13,6 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Dialog, Transition } from "@headlessui/react";
 import { Avatar } from "@mui/joy";
-import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 
 import { inboxItems } from "@/dummy/questions";
@@ -35,6 +34,7 @@ type Coder = {
 };
 
 const Navbar = () => {
+  const router = useRouter();
   const supabase = createClient();
   const [user, setUser] = useState<UserResponse>({ id: "" });
   const [coder, setCoder] = useState<Coder>({
@@ -131,16 +131,23 @@ const Navbar = () => {
   const handleSuggestionClick = (suggestion: string, suggestionId: number) => {
     setQuery(suggestion);
     setSuggestedQueries([]);
-    redirect(`/questions/${suggestionId}`);
+    router.push(`/questions/${suggestionId}`);
   };
 
   const handleInputKeyPress = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter") {
       if (query.trim() !== "") {
-        redirect(`/search?q=${encodeURI(query)}`);
+        router.push(`/search?q=${encodeURI(query)}`);
       }
       setSuggestedQueries([]);
     }
+  };
+
+  const handleSearchClick = () => {
+    if (query.trim() !== "") {
+      router.push(`/search?q=${encodeURI(query)}`);
+    }
+    setSuggestedQueries([]);
   };
 
   return (
@@ -160,14 +167,22 @@ const Navbar = () => {
           </Link>
         </nav>
         <div className="relative w-7/12">
-          <input
-            type="text"
-            value={query}
-            onChange={handleInputChange}
-            onKeyDown={handleInputKeyPress}
-            placeholder="What is your query?"
-            className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-          />
+          <div className="flex items-center">
+            <input
+              type="text"
+              value={query}
+              onChange={handleInputChange}
+              onKeyDown={handleInputKeyPress}
+              placeholder="What is your query?"
+              className="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-l-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+            />
+            <button
+              onClick={handleSearchClick}
+              className="bg-blue-500 text-white p-[13px] h-full rounded-r-lg hover:bg-blue-600 focus:ring-2 focus:ring-blue-300"
+            >
+              <FaSearch className="text-base" />
+            </button>
+          </div>
 
           {suggestedQueries.length > 0 && (
             <ul className="absolute z-10 bg-white mt-2 w-full border border-gray-300 rounded-lg shadow-lg divide-y divide-slate-200 max-h-[500px] overflow-y-auto">

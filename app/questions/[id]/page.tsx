@@ -49,7 +49,7 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
   const [schedulings, setSchedulings] = useState<Scheduling[]>([]);
   const devScheduling: Scheduling | undefined = schedulings.find(
     (scheduling) =>
-      scheduling.scheduler_id.id === coder?.id &&
+      scheduling.scheduler_id?.id === coder?.id &&
       scheduling.status !== "reject" &&
       scheduling.status !== "delete"
   );
@@ -254,7 +254,9 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
 
   useEffect(() => {
     setDateTime(
-      devScheduling ? dayjs(new Date(devScheduling.scheduled_time)) : null
+      devScheduling?.scheduled_time
+        ? dayjs(new Date(devScheduling.scheduled_time))
+        : null
     );
     setScheduleMessage(devScheduling?.sender_note || "");
   }, [devScheduling]);
@@ -302,7 +304,7 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
 
     const scheduleData = {
       scheduler_id: coder?.id,
-      receiver_id: question.asker.id,
+      receiver_id: question.asker?.id,
       question_id: question.id,
       scheduled_time: formattedDate ? new Date(formattedDate) : null,
       sender_note: scheduleMessage || null,
@@ -553,9 +555,9 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
             {question.tags?.map((tag) => <Tag>{tag}</Tag>)}
           </div>
           <div className="flex flex-row justify-between items-center my-2 bg-inherit">
-            <Link href={`/users/${question.asker.auth_id}`}>
+            <Link href={`/users/${question.asker?.auth_id}`}>
               <span className="bg-inherit hover:underline hover:text-blue-600">
-                {question.asker.first_name} {question.asker.last_name}
+                {question.asker?.first_name} {question.asker?.last_name}
               </span>
             </Link>
             <span className="bg-inherit">
@@ -573,7 +575,7 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
                 {"Answered"}
               </div>
             ) : (
-              user?.id !== question.asker.auth_id && (
+              user?.id !== question.asker?.auth_id && (
                 <div
                   onClick={
                     !devScheduling
@@ -591,7 +593,7 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
                 </div>
               )
             )}
-            {user?.id === question.asker.auth_id &&
+            {user?.id === question.asker?.auth_id &&
               !question.answer &&
               schedulings.filter((s) => s.status === null).length > 0 && (
                 <div
@@ -602,7 +604,7 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
                   {"View Requests"}
                 </div>
               )}
-            {user?.id === question.asker.auth_id &&
+            {user?.id === question.asker?.auth_id &&
               !question.answer &&
               schedulings.filter((s) => s.status === "accept").length > 0 && (
                 <div
@@ -613,7 +615,7 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
                   {"View Meetings"}
                 </div>
               )}
-            {user?.id === question.asker.auth_id && (
+            {user?.id === question.asker?.auth_id && (
               <Link
                 href={`/questions/${params.id}/edit`}
                 className="p-3 flex flex-row items-center justify-center gap-2 border-violet-600 hover:border-violet-800 bg-violet-500 hover:bg-violet-600 text-slate-200 rounded-lg cursor-pointer"
@@ -622,7 +624,7 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
                 {"Edit Question"}
               </Link>
             )}
-            {user?.id === question.asker.auth_id && (
+            {user?.id === question.asker?.auth_id && (
               <div
                 onClick={() => setIsDeleteOpen(true)}
                 className="p-3 flex flex-row items-center justify-center gap-2 border-red-600 hover:border-red-800 bg-red-500 hover:bg-red-700 text-slate-200 rounded-lg cursor-pointer"
@@ -638,7 +640,7 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
           </div>
         </div>
         <RenderMd
-          markdown={question.description}
+          markdown={question.description ?? ""}
           className="mx-auto max-w-7xl py-3 px-3 mt-3 text-justify border border-solid border-black rounded-lg"
         />
         {/* {question.answer && (
@@ -696,9 +698,9 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
                   </Dialog.Title>
                   <div className="pb-4 mt-4 mb-1">
                     <span className="text-xs">
-                      Reminder: {question.asker.first_name}{" "}
-                      {question.asker.last_name} lives in the{" "}
-                      {question.asker.timezone} timezone.
+                      Reminder: {question.asker?.first_name}{" "}
+                      {question.asker?.last_name} lives in the{" "}
+                      {question.asker?.timezone} timezone.
                     </span>
 
                     <LocalizationProvider dateAdapter={AdapterDayjs}>
@@ -783,9 +785,9 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
                     devScheduling.receiver_note ? (
                       <>
                         <span className="text-blue-400 font-bold text-sm">
-                          {devScheduling.receiver_id.first_name}{" "}
-                          {devScheduling.receiver_id.last_name} (
-                          {devScheduling.receiver_id.timezone})
+                          {devScheduling.receiver_id?.first_name}{" "}
+                          {devScheduling.receiver_id?.last_name} (
+                          {devScheduling.receiver_id?.timezone})
                         </span>{" "}
                         <span className="text-sm">responded:</span>
                         <div className="p-2 mb-2 bg-gray-200 rounded-md text-sm">
@@ -802,9 +804,9 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
                       </>
                     ) : (
                       <span className="text-xs">
-                        Reminder: {devScheduling?.receiver_id.first_name}{" "}
-                        {devScheduling?.receiver_id.last_name} lives in the{" "}
-                        {devScheduling?.receiver_id.timezone} timezone.
+                        Reminder: {devScheduling?.receiver_id?.first_name}{" "}
+                        {devScheduling?.receiver_id?.last_name} lives in the{" "}
+                        {devScheduling?.receiver_id?.timezone} timezone.
                       </span>
                     )}
 
@@ -907,9 +909,9 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
                         <div key={scheduling.id} className="py-4 mt-2">
                           <div className="flex flex-row justify-between items-center">
                             <div className="flex justify-start items-center gap-3 basis-1/2">
-                              {scheduling.scheduler_id.profile_image ? (
+                              {scheduling.scheduler_id?.profile_image ? (
                                 <Image
-                                  src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/avatars/profileImg-${scheduling.scheduler_id.auth_id}`}
+                                  src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/avatars/profileImg-${scheduling.scheduler_id?.auth_id}`}
                                   alt="profile picture"
                                   className="h-[15%] w-[15%] rounded-full border border-solid border-black"
                                   height={30}
@@ -917,17 +919,21 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
                                 />
                               ) : (
                                 <MAvatar sx={{ "--Avatar-size": "30px" }}>
-                                  {scheduling.scheduler_id.first_name[0]}
-                                  {scheduling.scheduler_id.last_name[0]}
+                                  {scheduling.scheduler_id?.first_name
+                                    ? scheduling.scheduler_id.first_name[0]
+                                    : ""}
+                                  {scheduling.scheduler_id?.last_name
+                                    ? scheduling.scheduler_id.last_name[0]
+                                    : ""}
                                 </MAvatar>
                               )}
                               <Link
-                                href={`/users/${scheduling.scheduler_id.auth_id}`}
+                                href={`/users/${scheduling.scheduler_id?.auth_id}`}
                                 target="_blank"
                                 className="text-lg hover:underline hover:text-blue-600"
                               >
-                                {scheduling.scheduler_id.first_name}{" "}
-                                {scheduling.scheduler_id.last_name}
+                                {scheduling.scheduler_id?.first_name}{" "}
+                                {scheduling.scheduler_id?.last_name}
                               </Link>
                             </div>
                             <div className="flex flex-row gap-2 items-center">
@@ -979,7 +985,7 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
                               {/* {MM/DD/YYYY} */}
                               {dayjs
                                 .utc(scheduling.scheduled_time)
-                                .tz(scheduling.receiver_id.timezone)
+                                .tz(scheduling.receiver_id?.timezone)
                                 .format("MM/DD/YYYY")}
                             </span>{" "}
                             @{" "}
@@ -987,7 +993,7 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
                               {/* {HH:MM AP} */}
                               {dayjs
                                 .utc(scheduling.scheduled_time)
-                                .tz(scheduling.receiver_id.timezone)
+                                .tz(scheduling.receiver_id?.timezone)
                                 .format("h:mm A")}
                             </span>
                             {scheduling.sender_note && (
@@ -1005,7 +1011,7 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
                             )}
                             <div className="mt-2">
                               <textarea
-                                placeholder={`Respond to the request here. If you want to reschedule, include the date and time you want. Reminder: ${scheduling.scheduler_id.first_name} ${scheduling.scheduler_id.last_name} lives in the ${scheduling.scheduler_id.timezone} timezone.`}
+                                placeholder={`Respond to the request here. If you want to reschedule, include the date and time you want. Reminder: ${scheduling.scheduler_id?.first_name} ${scheduling.scheduler_id?.last_name} lives in the ${scheduling.scheduler_id?.timezone} timezone.`}
                                 className="placeholder:text-sm text-sm w-full h-24 rounded-lg"
                                 value={receiverNote}
                                 onChange={(e) =>
@@ -1067,9 +1073,9 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
                         <div key={scheduling.id} className="py-4 mt-2">
                           <div className="flex flex-row justify-between items-center">
                             <div className="flex justify-start items-center gap-3 basis-1/2">
-                              {scheduling.scheduler_id.profile_image ? (
+                              {scheduling.scheduler_id?.profile_image ? (
                                 <Image
-                                  src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/avatars/profileImg-${scheduling.scheduler_id.auth_id}`}
+                                  src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/avatars/profileImg-${scheduling.scheduler_id?.auth_id}`}
                                   alt="profile picture"
                                   className="h-[15%] w-[15%] rounded-full border border-solid border-black"
                                   height={30}
@@ -1077,17 +1083,21 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
                                 />
                               ) : (
                                 <MAvatar sx={{ "--Avatar-size": "30px" }}>
-                                  {scheduling.scheduler_id.first_name[0]}
-                                  {scheduling.scheduler_id.last_name[0]}
+                                  {scheduling.scheduler_id?.first_name
+                                    ? scheduling.scheduler_id.first_name[0]
+                                    : ""}
+                                  {scheduling.scheduler_id?.last_name
+                                    ? scheduling.scheduler_id.last_name[0]
+                                    : ""}
                                 </MAvatar>
                               )}
                               <Link
-                                href={`/users/${scheduling.scheduler_id.auth_id}`}
+                                href={`/users/${scheduling.scheduler_id?.auth_id}`}
                                 target="_blank"
                                 className="text-lg hover:underline hover:text-blue-600"
                               >
-                                {scheduling.scheduler_id.first_name}{" "}
-                                {scheduling.scheduler_id.last_name}
+                                {scheduling.scheduler_id?.first_name}{" "}
+                                {scheduling.scheduler_id?.last_name}
                               </Link>
                             </div>
                             <div className="flex flex-row gap-2 items-center">
@@ -1139,7 +1149,7 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
                               {/* {MM/DD/YYYY} */}
                               {dayjs
                                 .utc(scheduling.scheduled_time)
-                                .tz(scheduling.receiver_id.timezone)
+                                .tz(scheduling.receiver_id?.timezone)
                                 .format("MM/DD/YYYY")}
                             </span>{" "}
                             @{" "}
@@ -1147,7 +1157,7 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
                               {/* {HH:MM AP} */}
                               {dayjs
                                 .utc(scheduling.scheduled_time)
-                                .tz(scheduling.receiver_id.timezone)
+                                .tz(scheduling.receiver_id?.timezone)
                                 .format("h:mm A")}
                             </span>
                             {scheduling.sender_note && (
@@ -1165,7 +1175,7 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
                             )}
                             <div className="mt-2">
                               <textarea
-                                placeholder={`Respond to the request here. If you want to reschedule, include the date and time you want. Reminder: ${scheduling.scheduler_id.first_name} ${scheduling.scheduler_id.last_name} lives in the ${scheduling.scheduler_id.timezone} timezone.`}
+                                placeholder={`Respond to the request here. If you want to reschedule, include the date and time you want. Reminder: ${scheduling.scheduler_id?.first_name} ${scheduling.scheduler_id?.last_name} lives in the ${scheduling.scheduler_id?.timezone} timezone.`}
                                 className="placeholder:text-sm text-sm w-full h-24 rounded-lg"
                                 value={receiverNote}
                                 onChange={(e) =>

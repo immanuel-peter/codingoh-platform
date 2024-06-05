@@ -77,7 +77,7 @@ const Question = ({
         <div className="flex -space-x-1 overflow-hidden pr-3">
           {contributors.length < 5 ? (
             contributors.map((contributor) =>
-              contributor.user_id.profile_image ? (
+              contributor.user_id?.profile_image ? (
                 <Image
                   key={contributor.user_id?.id}
                   src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/avatars/profileImg-${contributor.user_id.auth_id}`}
@@ -88,15 +88,19 @@ const Question = ({
                 />
               ) : (
                 <Avatar sx={{ "--Avatar-size": "24px" }}>
-                  {contributor.user_id.first_name[0]}
-                  {contributor.user_id.last_name[0]}
+                  {contributor.user_id?.first_name
+                    ? contributor.user_id.first_name[0]
+                    : ""}
+                  {contributor.user_id?.last_name
+                    ? contributor.user_id.last_name[0]
+                    : ""}
                 </Avatar>
               )
             )
           ) : (
             <div className="flex items-center">
               {contributors.slice(0, 4).map((contributor) =>
-                contributor.user_id.profile_image ? (
+                contributor.user_id?.profile_image ? (
                   <Image
                     key={contributor.user_id?.id}
                     src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/avatars/profileImg-${contributor.user_id.auth_id}`}
@@ -107,8 +111,12 @@ const Question = ({
                   />
                 ) : (
                   <Avatar sx={{ "--Avatar-size": "24px" }}>
-                    {contributor.user_id.first_name[0]}
-                    {contributor.user_id.last_name[0]}
+                    {contributor.user_id?.first_name
+                      ? contributor.user_id.first_name[0]
+                      : ""}
+                    {contributor.user_id?.last_name
+                      ? contributor.user_id.last_name[0]
+                      : ""}
                   </Avatar>
                 )
               )}

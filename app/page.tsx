@@ -2,9 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import { FaLightbulb, FaPlus, FaCaretUp } from "react-icons/fa6";
 import { PiCaretDoubleUpLight } from "react-icons/pi";
-import { Tooltip } from "@mui/material";
 import { createClient } from "@/utils/supabase/client";
 
 import { Navbar, Card, Question, FAB } from "@/components";
@@ -19,8 +17,6 @@ export default function Home() {
   const [dev, setDev] = useState<Coder | null>();
   const [dbQuestions, setDbQuestions] = useState<QuestionType[]>([]);
   const [coders, setCoders] = useState<Coder[]>([]);
-  console.log(dbQuestions, dbQuestions.length);
-  console.log(coders, coders.length);
 
   useEffect(() => {
     const fetchDev = async () => {
@@ -32,7 +28,7 @@ export default function Home() {
         setSupabaseUser(user);
         const { data: dev, error: devError } = await supabase
           .from("coders")
-          .select("*")
+          .select("id")
           .eq("auth_id", user.id)
           .single();
         if (dev) {
@@ -46,7 +42,7 @@ export default function Home() {
       // Fetch all questions
       const { data: questions, error: questionsError } = await supabase
         .from("questions")
-        .select("*");
+        .select("id, created_at, asker, question, answer");
 
       if (questionsError) {
         throw questionsError;
@@ -64,7 +60,7 @@ export default function Home() {
       // Fetch all comments
       const { data: comments, error: commentsError } = await supabase
         .from("comments")
-        .select("*");
+        .select("question, commenter");
 
       if (commentsError) {
         throw commentsError;
@@ -83,7 +79,7 @@ export default function Home() {
           .filter((comment) => comment.question === question.id)
           .forEach((comment) => {
             const contributorJson = JSON.stringify({
-              user_id: asker,
+              user_id: users.find((user) => user.id === comment.commenter),
               question_id: question,
             });
             contributorSet.add(contributorJson);
@@ -103,13 +99,15 @@ export default function Home() {
 
       // Apply your existing filter logic
       const finalQuestions = updatedQuestions.filter(
-        (question) => Math.random() > 0.5
+        (question) => !question.answer
       );
 
       setDbQuestions(finalQuestions);
     };
     const fetchCoders = async () => {
-      const { data: coders, error } = await supabase.from("coders").select("*");
+      const { data: coders, error } = await supabase
+        .from("coders")
+        .select("id, auth_id, first_name, last_name, position, stack");
       if (coders) {
         const updatedCoders = coders.filter((coder) => Math.random() > 0.5);
         setCoders(updatedCoders);
@@ -164,8 +162,8 @@ export default function Home() {
                     className="flex justify-between gap-x-6 py-5"
                   >
                     <Question
-                      question={question.question}
-                      asker={`${question.asker.first_name} ${question.asker.last_name}`}
+                      question={question.question ?? ""}
+                      asker={`${question.asker?.first_name} ${question.asker?.last_name}`}
                       contributors={question.contributors || []}
                       date={
                         question.created_at
@@ -199,7 +197,7 @@ export default function Home() {
               {coders.map((coder, index) => (
                 <Link href={`/users/${coder?.auth_id}`}>
                   <Card
-                    id={coder.id}
+                    id={coder.id ?? 0}
                     key={index}
                     name={`${coder.first_name} ${coder.last_name}`}
                     position={coder.position || "Undefined"}

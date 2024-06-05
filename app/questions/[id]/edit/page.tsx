@@ -3,15 +3,15 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { Select, message } from "antd";
-import ReactMarkdown from "react-markdown";
+import { FaArrowTurnDown, FaMarkdown } from "react-icons/fa6";
+import { IoClose } from "react-icons/io5";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 
 import { Navbar, RenderMd } from "@/components";
-import { FaArrowTurnDown, FaMarkdown } from "react-icons/fa6";
-import { IoClose } from "react-icons/io5";
 import { tags } from "@/dummy/questions";
 import { Tag, Coder, Question } from "@/types";
+import { formatEmbeddingInput } from "@/utils";
 
 const placeholderMdText: string = `# Fibonacci sequence not working
 
@@ -174,15 +174,6 @@ const EditQuestion = ({ params }: { params: { id: string } }) => {
   const handleQuestionSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
 
-    const questionData = {
-      question: updatedQuestion.title,
-      tags: updatedQuestion.tags,
-      description: updatedQuestion.description,
-      answer_preference: updatedQuestion.preferences,
-      notify_email: updatedQuestion.notifications.email,
-      notify_desktop: updatedQuestion.notifications.desktop,
-    };
-
     if (updatedQuestion.title.trim() === "") {
       messageApi.open({
         type: "error",
@@ -218,9 +209,45 @@ const EditQuestion = ({ params }: { params: { id: string } }) => {
 
     if (titleCheck && descCheck && notifCheck) {
       try {
+        // Compute embedding using Fetch API
+        const response = await fetch("https://api.openai.com/v1/embeddings", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_OPENAI_API_KEY}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            model: "text-embedding-3-small",
+            input: formatEmbeddingInput(
+              updatedQuestion.title,
+              updatedQuestion.description,
+              updatedQuestion.tags
+            ),
+            dimensions: 512,
+          }),
+        });
+
+        if (!response.ok) {
+          const errorDetails = await response.json();
+          throw new Error(
+            `API request failed with status ${response.status}: ${errorDetails.message}`
+          );
+        }
+
+        const embeddingData = await response.json();
+        const embedding = embeddingData.data[0].embedding;
+
+        const questionData = {
+          question: updatedQuestion.title,
+          tags: updatedQuestion.tags,
+          description: updatedQuestion.description,
+          answer_preference: updatedQuestion.preferences,
+          notify_email: updatedQuestion.notifications.email,
+          notify_desktop: updatedQuestion.notifications.desktop,
+          embedding: embedding,
+        };
+
         // Make database call
-        // console.log("Added question to database:", question.title);
-        // Redirect to dev profile page /questions/{/* id given by database */}
         const { data: questionDataResponse, error: questionDataError } =
           await supabase
             .from("questions")
@@ -247,10 +274,14 @@ const EditQuestion = ({ params }: { params: { id: string } }) => {
             duration: 3,
           });
           router.push(`/questions/${questionDataResponse[0].id}`);
-          // openNotification();
         }
       } catch (error) {
         console.log("Error:", error);
+        messageApi.open({
+          type: "error",
+          content: "An error occurred while submitting the question.",
+          duration: 3,
+        });
       }
     }
   };

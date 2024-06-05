@@ -4,7 +4,6 @@ import React, { useState, useEffect } from "react";
 import { Select } from "antd";
 import { createClient } from "@/utils/supabase/client";
 
-import { projects } from "@/dummy/questions";
 import { Navbar, Project, FAB, NewFAB } from "@/components";
 import { combineText } from "@/utils";
 import { Coder, Project as ProjectType } from "@/types";
@@ -73,9 +72,10 @@ const Page = () => {
     fetchProjects();
   }, []);
 
-  const sortedProjects = projects?.sort(
-    (a, b) =>
-      new Date(b.start_date).getTime() - new Date(a.start_date).getTime()
+  const sortedProjects = projects?.sort((a, b) =>
+    a.start_date && b.start_date
+      ? new Date(b.start_date).getTime() - new Date(a.start_date).getTime()
+      : 0
   );
 
   const handleChange = (value: string) => {
@@ -106,8 +106,8 @@ const Page = () => {
           ? sortedProjects
               ?.filter((project) =>
                 combineText(
-                  project.name,
-                  project.description,
+                  project.name ?? "",
+                  project.description ?? "",
                   project.owner?.first_name ?? "",
                   project.owner?.last_name ?? "",
                   project.stack?.join(", ") ?? "",
@@ -123,8 +123,8 @@ const Page = () => {
               ?.filter((project) => project.status === status)
               .filter((project) =>
                 combineText(
-                  project.name,
-                  project.description,
+                  project.name ?? "",
+                  project.description ?? "",
                   project.owner?.first_name ?? "",
                   project.owner?.last_name ?? "",
                   project.stack?.join(", ") ?? "",

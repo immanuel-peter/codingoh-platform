@@ -618,9 +618,7 @@ export const NewUser = () => {
               className="block w-3/4 rounded-md border-0 py-1.5 text-gray-900 placeholder:text-gray-400 placeholder:italic shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:max-w-xs sm:text-sm sm:leading-6"
               placeholder="https://www.discord.com"
               value={socialLinks[0].link}
-              onChange={(e) =>
-                updateSocialLink(socialLinks[0].social, e.target.value)
-              }
+              onChange={(e) => updateSocialLink("discord", e.target.value)}
             />
           </div>
         </>
@@ -636,9 +634,7 @@ export const NewUser = () => {
               className="block w-3/4 rounded-md border-0 py-1.5 text-gray-900 placeholder:text-gray-400 placeholder:italic shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:max-w-xs sm:text-sm sm:leading-6"
               placeholder="https://www.dropbox.com"
               value={socialLinks[1].link}
-              onChange={(e) =>
-                updateSocialLink(socialLinks[1].social, e.target.value)
-              }
+              onChange={(e) => updateSocialLink("dropbox", e.target.value)}
             />
           </div>
         </>
@@ -654,9 +650,7 @@ export const NewUser = () => {
               className="block w-3/4 rounded-md border-0 py-1.5 text-gray-900 placeholder:text-gray-400 placeholder:italic shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:max-w-xs sm:text-sm sm:leading-6"
               placeholder="https://www.facebook.com"
               value={socialLinks[2].link}
-              onChange={(e) =>
-                updateSocialLink(socialLinks[2].social, e.target.value)
-              }
+              onChange={(e) => updateSocialLink("facebook", e.target.value)}
             />
           </div>
         </>
@@ -672,9 +666,7 @@ export const NewUser = () => {
               className="block w-3/4 rounded-md border-0 py-1.5 text-gray-900 placeholder:text-gray-400 placeholder:italic shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:max-w-xs sm:text-sm sm:leading-6"
               placeholder="https://www.github.com"
               value={socialLinks[3].link}
-              onChange={(e) =>
-                updateSocialLink(socialLinks[3].social, e.target.value)
-              }
+              onChange={(e) => updateSocialLink("github", e.target.value)}
             />
           </div>
         </>
@@ -690,9 +682,7 @@ export const NewUser = () => {
               className="block w-3/4 rounded-md border-0 py-1.5 text-gray-900 placeholder:text-gray-400 placeholder:italic shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:max-w-xs sm:text-sm sm:leading-6"
               placeholder="https://www.instagram.com"
               value={socialLinks[4].link}
-              onChange={(e) =>
-                updateSocialLink(socialLinks[4].social, e.target.value)
-              }
+              onChange={(e) => updateSocialLink("instagram", e.target.value)}
             />
           </div>
         </>
@@ -708,9 +698,7 @@ export const NewUser = () => {
               className="block w-3/4 rounded-md border-0 py-1.5 text-gray-900 placeholder:text-gray-400 placeholder:italic shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:max-w-xs sm:text-sm sm:leading-6"
               placeholder="https://www.linkedin.com"
               value={socialLinks[5].link}
-              onChange={(e) =>
-                updateSocialLink(socialLinks[5].social, e.target.value)
-              }
+              onChange={(e) => updateSocialLink("linkedin", e.target.value)}
             />
           </div>
         </>
@@ -726,9 +714,7 @@ export const NewUser = () => {
               className="block w-3/4 rounded-md border-0 py-1.5 text-gray-900 placeholder:text-gray-400 placeholder:italic shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:max-w-xs sm:text-sm sm:leading-6"
               placeholder="https://www.medium.com"
               value={socialLinks[6].link}
-              onChange={(e) =>
-                updateSocialLink(socialLinks[6].social, e.target.value)
-              }
+              onChange={(e) => updateSocialLink("medium", e.target.value)}
             />
           </div>
         </>
@@ -744,9 +730,7 @@ export const NewUser = () => {
               className="block w-3/4 rounded-md border-0 py-1.5 text-gray-900 placeholder:text-gray-400 placeholder:italic shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:max-w-xs sm:text-sm sm:leading-6"
               placeholder="https://www.reddit.com"
               value={socialLinks[7].link}
-              onChange={(e) =>
-                updateSocialLink(socialLinks[7].social, e.target.value)
-              }
+              onChange={(e) => updateSocialLink("reddit", e.target.value)}
             />
           </div>
         </>
@@ -763,7 +747,7 @@ export const NewUser = () => {
               placeholder="https://www.stackoverflow.com"
               value={socialLinks[8].link}
               onChange={(e) =>
-                updateSocialLink(socialLinks[8].social, e.target.value)
+                updateSocialLink("stackoverflow", e.target.value)
               }
             />
           </div>
@@ -780,9 +764,7 @@ export const NewUser = () => {
               className="block w-3/4 rounded-md border-0 py-1.5 text-gray-900 placeholder:text-gray-400 placeholder:italic shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:max-w-xs sm:text-sm sm:leading-6"
               placeholder="https://www.tiktok.com"
               value={socialLinks[9].link}
-              onChange={(e) =>
-                updateSocialLink(socialLinks[9].social, e.target.value)
-              }
+              onChange={(e) => updateSocialLink("tiktok", e.target.value)}
             />
           </div>
         </>
@@ -798,9 +780,7 @@ export const NewUser = () => {
               className="block w-3/4 rounded-md border-0 py-1.5 text-gray-900 placeholder:text-gray-400 placeholder:italic shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:max-w-xs sm:text-sm sm:leading-6"
               placeholder="https://www.twitch.com"
               value={socialLinks[10].link}
-              onChange={(e) =>
-                updateSocialLink(socialLinks[10].social, e.target.value)
-              }
+              onChange={(e) => updateSocialLink("twitch", e.target.value)}
             />
           </div>
         </>
@@ -816,9 +796,7 @@ export const NewUser = () => {
               className="block w-3/4 rounded-md border-0 py-1.5 text-gray-900 placeholder:text-gray-400 placeholder:italic shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:max-w-xs sm:text-sm sm:leading-6"
               placeholder="https://www.x.com"
               value={socialLinks[11].link}
-              onChange={(e) =>
-                updateSocialLink(socialLinks[11].social, e.target.value)
-              }
+              onChange={(e) => updateSocialLink("x", e.target.value)}
             />
           </div>
         </>
@@ -834,9 +812,7 @@ export const NewUser = () => {
               className="block w-3/4 rounded-md border-0 py-1.5 text-gray-900 placeholder:text-gray-400 placeholder:italic shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:max-w-xs sm:text-sm sm:leading-6"
               placeholder="https://www.youtube.com"
               value={socialLinks[12].link}
-              onChange={(e) =>
-                updateSocialLink(socialLinks[12].social, e.target.value)
-              }
+              onChange={(e) => updateSocialLink("youtube", e.target.value)}
             />
           </div>
         </>
@@ -852,9 +828,7 @@ export const NewUser = () => {
               className="block w-3/4 rounded-md border-0 py-1.5 text-gray-900 placeholder:text-gray-400 placeholder:italic shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:max-w-xs sm:text-sm sm:leading-6"
               placeholder="https://www.threads.net"
               value={socialLinks[13].link}
-              onChange={(e) =>
-                updateSocialLink(socialLinks[13].social, e.target.value)
-              }
+              onChange={(e) => updateSocialLink("threads", e.target.value)}
             />
           </div>
         </>
@@ -870,9 +844,7 @@ export const NewUser = () => {
               className="block w-3/4 rounded-md border-0 py-1.5 text-gray-900 placeholder:text-gray-400 placeholder:italic shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:max-w-xs sm:text-sm sm:leading-6"
               placeholder="https://www.mywebsite.com"
               value={socialLinks[14].link}
-              onChange={(e) =>
-                updateSocialLink(socialLinks[14].social, e.target.value)
-              }
+              onChange={(e) => updateSocialLink("personal", e.target.value)}
             />
           </div>
         </>

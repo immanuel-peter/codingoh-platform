@@ -33,7 +33,7 @@ import Navbar from "@/components/Navbar";
 import backgrounds from "@/public/backgrounds";
 import { Coder, Proficiency } from "@/types";
 import sortedIcons from "@/utils/icons";
-import { techSkills as inDemandSkills, users } from "@/dummy/questions";
+import { techSkills as inDemandSkills } from "@/dummy/questions";
 import { uniqueArray, labelValues, finalProfsByLangs } from "@/utils";
 
 const timezones: string[] = [
@@ -583,7 +583,7 @@ export const EditUser = ({ params }: { params: { id: string } }) => {
   const [filteredOptions, setFilteredOptions] = useState<string[]>([]);
   const [showOptions, setShowOptions] = useState<boolean>(false);
   const [userLangs, setUserLangs] = useState<string[]>(
-    coder?.stack ? coder?.stack.map((lang) => lang.language) : []
+    coder?.stack ? coder?.stack.map((lang) => lang.language ?? "") : []
   );
   const [newLangs, setNewLangs] = useState<string[]>([]);
   const [selectedOption, setSelectedOption] = useState<string>("");
@@ -750,7 +750,9 @@ export const EditUser = ({ params }: { params: { id: string } }) => {
   ];
   const [socials, setSocials] = useState<string[]>(
     coder?.socials
-      ? coder?.socials.map((p) => p.social.toLowerCase().replace(/\s/g, ""))
+      ? coder?.socials.map(
+          (p) => p.social?.toLowerCase().replace(/\s/g, "") ?? ""
+        )
       : []
   );
   const [socialLinks, setSocialLinks] =
@@ -1470,8 +1472,8 @@ export const EditUser = ({ params }: { params: { id: string } }) => {
                         newProfileImg
                           ? URL.createObjectURL(newProfileImg)
                           : coderPic
-                          ? coderPic
-                          : undefined
+                            ? coderPic
+                            : undefined
                       }
                     >
                       {!coderPic &&

@@ -9,7 +9,6 @@ import { createClient } from "@/utils/supabase/client";
 
 import { Navbar, Card, FAB } from "@/components";
 import { Coder } from "@/types";
-import { users } from "@/dummy/questions";
 import sortedIcons from "@/utils/icons";
 
 // const langOptions = Object.keys(sortedIcons).map((key) => ({ value: key }));
@@ -20,7 +19,9 @@ const allUsers = () => {
 
   useEffect(() => {
     const fetchCoders = async () => {
-      const { data: coders, error } = await supabase.from("coders").select("*");
+      const { data: coders, error } = await supabase
+        .from("coders")
+        .select("id, full_name, last_name, about, position, stack, auth_id");
       if (coders) {
         setCoders(coders);
         setDisplayedUsers(coders);
@@ -73,7 +74,7 @@ const allUsers = () => {
     );
 
     if (value === "") {
-      setDisplayedUsers(users);
+      setDisplayedUsers(coders);
     }
 
     // const langQueryValue =
@@ -90,11 +91,10 @@ const allUsers = () => {
     //   setLangQuery(value);
     // }
 
-    const filteredCoders = coders?.filter(
-      (coder) =>
-        coder.stack?.some((lang) =>
-          lang.language.toLowerCase().includes(langQuery.toLowerCase())
-        )
+    const filteredCoders = coders?.filter((coder) =>
+      coder.stack?.some((lang) =>
+        lang.language?.toLowerCase().includes(langQuery.toLowerCase())
+      )
     );
 
     // const filteredUsers = users.filter(
@@ -138,7 +138,7 @@ const allUsers = () => {
           displayedUsers?.map((coder, index) => (
             <Link href={`/users/${coder.auth_id}`}>
               <Card
-                id={coder.id}
+                id={coder.id ?? 0}
                 key={index}
                 name={`${coder.first_name} ${coder.last_name}`}
                 position={coder.position || "Undefined"}

@@ -337,3 +337,47 @@ export const formatDateTime = (dateString: string) => {
 
   return { date: formattedDate, time: formattedTime };
 };
+
+export function formatEmbeddingInput(
+  title: string,
+  description: string,
+  tags: string[]
+): string {
+  const output = `
+  ${title}
+
+  ${description}
+
+  ${tags.join(", ")}
+  `;
+
+  return output;
+}
+
+// Function to calculate dot product of two vectors
+function dotProduct(vectorA: number[], vectorB: number[]) {
+  if (vectorA.length !== vectorB.length) {
+    throw new Error("Vectors must be of the same length");
+  }
+  return vectorA.reduce((sum, value, index) => sum + value * vectorB[index], 0);
+}
+
+// Function to calculate the magnitude of a vector
+function magnitude(vector: number[]) {
+  return Math.sqrt(vector.reduce((sum, value) => sum + value * value, 0));
+}
+
+// Function to calculate cosine similarity
+export function cosineSimilarity(vectorA: number[], vectorB: number[]) {
+  const dotProd = dotProduct(vectorA, vectorB);
+  const magnitudeA = magnitude(vectorA);
+  const magnitudeB = magnitude(vectorB);
+
+  if (magnitudeA === 0 || magnitudeB === 0) {
+    throw new Error(
+      "Magnitude of a vector is zero, cannot compute cosine similarity"
+    );
+  }
+
+  return dotProd / (magnitudeA * magnitudeB);
+}

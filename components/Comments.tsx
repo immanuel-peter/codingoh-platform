@@ -60,7 +60,9 @@ const Comment = ({
   const supabase = createClient();
   const [coder, setCoder] = useState<Coder>();
 
-  const [isChecked, setIsChecked] = useState<boolean>(comment.is_answer);
+  const [isChecked, setIsChecked] = useState<boolean>(
+    comment.is_answer ?? false
+  );
   const [likeCount, setLikeCount] = useState({
     count: comment.likes,
     disabled: false,
@@ -69,7 +71,9 @@ const Comment = ({
   const [newCommentText, setNewCommentText] = useState<string>("");
   const [deleteCommentOpen, setDeleteCommentOpen] = useState<boolean>(false);
   const [editCommentOpen, setEditCommentOpen] = useState<boolean>(false);
-  const [editCommentText, setEditCommentText] = useState<string>(comment.text);
+  const [editCommentText, setEditCommentText] = useState<string>(
+    comment.text ?? ""
+  );
   const [messageApi, contextHolder] = message.useMessage();
 
   useEffect(() => {
@@ -99,7 +103,9 @@ const Comment = ({
     fetchCoder();
   }, []);
 
-  const currentDate: Date = new Date(comment.created_at);
+  const currentDate: Date = comment.created_at
+    ? new Date(comment.created_at)
+    : new Date();
   const year: string = currentDate.getFullYear().toString().slice(-2);
   const month: string = String(currentDate.getMonth() + 1).padStart(2, "0");
   const day: string = String(currentDate.getDate()).padStart(2, "0");
@@ -125,7 +131,7 @@ const Comment = ({
       const { data: questionData, error: questionError } = await supabase
         .from("questions")
         .update({ answer: newIsChecked })
-        .eq("id", comment.question.id)
+        .eq("id", comment.question?.id)
         .select();
 
       if (questionError) {
@@ -139,7 +145,7 @@ const Comment = ({
   };
 
   const handleAddLike = async () => {
-    const newCount = likeCount.count + (likeCount.disabled ? -1 : 1);
+    const newCount = (likeCount.count ?? 0) + (likeCount.disabled ? -1 : 1);
 
     setLikeCount({
       count: newCount,
@@ -166,13 +172,13 @@ const Comment = ({
   const handleAddComment = async () => {
     const dbCommentText = newCommentText;
 
-    onAddNestedComment(newCommentText, comment.id);
+    onAddNestedComment(newCommentText, comment.id ?? 0);
     setNewCommentText("");
     setOpenNewComment(false);
 
     const newCommentData = {
       commenter: coder?.id,
-      question: comment.question.id,
+      question: comment.question?.id,
       text: dbCommentText,
       parent_comment: comment.id,
     };
@@ -185,7 +191,7 @@ const Comment = ({
 
       const { data: contribution, error: contributionError } = await supabase
         .from("contributors")
-        .insert({ question_id: comment.question.id, user_id: coder?.id })
+        .insert({ question_id: comment.question?.id, user_id: coder?.id })
         .select();
       if (contributionError) {
         console.error(contributionError);
@@ -222,7 +228,7 @@ const Comment = ({
           content: "Successfully deleted comment",
           duration: 3,
         });
-        onDeleteComment(comment.id);
+        onDeleteComment(comment.id ?? 0);
         setDeleteCommentOpen(false);
         router.refresh();
       }
@@ -274,11 +280,11 @@ const Comment = ({
       >
         <RenderMd
           className="text-gray-800 items-center p-4"
-          markdown={comment.text}
+          markdown={comment.text ?? ""}
         />
         <div className="flex flex-row items-end justify-between gap-8 p-4">
           <div className="flex flex-row justify-center items-center gap-3 text-3xl">
-            {coder?.id === comment.question.asker.id && (
+            {coder?.id === comment.question?.asker?.id && (
               <AiOutlineCheck
                 onClick={handleCheck}
                 className={`text-green-500/50 hover:text-green-600 cursor-pointer ${
@@ -301,14 +307,14 @@ const Comment = ({
               className="text-blue-400/50 hover:text-blue-500 cursor-pointer"
             />
 
-            {coder?.id === comment.commenter.id && (
+            {coder?.id === comment.commenter?.id && (
               <AiFillDelete
                 onClick={() => setDeleteCommentOpen(true)}
                 className="text-red-500/50 hover:text-red-500 cursor-pointer"
               />
             )}
 
-            {coder?.id === comment.commenter.id && (
+            {coder?.id === comment.commenter?.id && (
               <AiFillEdit
                 onClick={() => setEditCommentOpen(true)}
                 className="text-blue-400/50 hover:text-blue-500 cursor-pointer"
@@ -317,10 +323,10 @@ const Comment = ({
           </div>
           <div className="flex items-center justify-center gap-2 text-gray-400 text-sm">
             <Link
-              href={`/users/${comment.commenter.auth_id}`}
+              href={`/users/${comment.commenter?.auth_id}`}
               className="hover:underline hover:text-blue-500 hover:cursor-pointer"
             >
-              {comment.commenter.first_name} {comment.commenter.last_name}
+              {comment.commenter?.first_name} {comment.commenter?.last_name}
             </Link>
             <span>{formattedDate}</span>
           </div>
@@ -716,9 +722,9 @@ const Comments = ({
                     {contributors.length < 5 ? (
                       contributors.map((contributor) => (
                         <>
-                          {contributor.user_id.profile_image ? (
+                          {contributor.user_id?.profile_image ? (
                             <Image
-                              key={contributor.user_id.id}
+                              key={contributor.user_id?.id}
                               src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/avatars/profileImg-${contributor.user_id.auth_id}`}
                               alt="contributor"
                               className="inline-block h-6 w-6 rounded-full ring-2 ring-white"
@@ -727,8 +733,12 @@ const Comments = ({
                             />
                           ) : (
                             <Avatar sx={{ "--Avatar-size": "24px" }}>
-                              {contributor.user_id.first_name[0]}
-                              {contributor.user_id.last_name[0]}
+                              {contributor.user_id?.first_name
+                                ? contributor.user_id.first_name[0]
+                                : ""}
+                              {contributor.user_id?.last_name
+                                ? contributor.user_id.last_name[0]
+                                : ""}
                             </Avatar>
                           )}
                         </>
@@ -737,9 +747,9 @@ const Comments = ({
                       <div className="px-2 flex items-center">
                         {contributors.slice(0, 4).map((contributor) => (
                           <>
-                            {contributor.user_id.profile_image ? (
+                            {contributor.user_id?.profile_image ? (
                               <Image
-                                key={contributor.user_id.id}
+                                key={contributor.user_id?.id}
                                 src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/avatars/profileImg-${contributor.user_id.auth_id}`}
                                 alt="contributor"
                                 className="inline-block h-6 w-6 rounded-full ring-2 ring-white"
@@ -748,8 +758,12 @@ const Comments = ({
                               />
                             ) : (
                               <Avatar sx={{ "--Avatar-size": "24px" }}>
-                                {contributor.user_id.first_name[0]}
-                                {contributor.user_id.last_name[0]}
+                                {contributor.user_id?.first_name
+                                  ? contributor.user_id.first_name[0]
+                                  : ""}
+                                {contributor.user_id?.last_name
+                                  ? contributor.user_id.last_name[0]
+                                  : ""}
                               </Avatar>
                             )}
                           </>

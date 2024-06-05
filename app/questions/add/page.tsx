@@ -3,13 +3,13 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { Select, message } from "antd";
-import ReactMarkdown from "react-markdown";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
-
-import { Navbar, RenderMd } from "@/components";
 import { FaArrowTurnDown, FaMarkdown } from "react-icons/fa6";
 import { IoClose } from "react-icons/io5";
+
+import { Navbar, RenderMd } from "@/components";
+import { formatEmbeddingInput } from "@/utils";
 import { tags } from "@/dummy/questions";
 import { Tag, Coder } from "@/types";
 
@@ -139,16 +139,6 @@ const AddQuestion = () => {
   const handleQuestionSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
 
-    const questionData = {
-      asker: coder?.id,
-      question: newQuestion.title,
-      tags: newQuestion.tags,
-      description: newQuestion.description,
-      answer_preference: newQuestion.preferences,
-      notify_email: newQuestion.notifications.email,
-      notify_desktop: newQuestion.notifications.desktop,
-    };
-
     if (newQuestion.title.trim() === "") {
       messageApi.open({
         type: "error",
@@ -184,26 +174,76 @@ const AddQuestion = () => {
 
     if (titleCheck && descCheck && notifCheck) {
       try {
+        // Compute embedding using Fetch API
+        const response = await fetch("https://api.openai.com/v1/embeddings", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${process.env.NEXT_PUBLIC_OPENAI_API_KEY}`,
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            model: "text-embedding-3-small",
+            input: formatEmbeddingInput(
+              newQuestion.title,
+              newQuestion.description,
+              newQuestion.tags
+            ),
+            dimensions: 512,
+          }),
+        });
+
+        if (!response.ok) {
+          const errorDetails = await response.json();
+          throw new Error(
+            `API request failed with status ${response.status}: ${errorDetails.message}`
+          );
+        }
+
+        const embeddingData = await response.json();
+        const embedding = embeddingData.data[0].embedding;
+
+        const questionData = {
+          asker: coder?.id,
+          question: newQuestion.title,
+          tags: newQuestion.tags,
+          description: newQuestion.description,
+          answer_preference: newQuestion.preferences,
+          notify_email: newQuestion.notifications.email,
+          notify_desktop: newQuestion.notifications.desktop,
+          embedding: embedding,
+        };
+
         // Make database call
-        // console.log("Added question to database:", question.title);
-        // Redirect to dev profile page /questions/{/* id given by database */}
         const { data: questionDataResponse, error: questionDataError } =
           await supabase.from("questions").insert(questionData).select();
 
         if (questionDataError) {
           console.log("Faulty data:", questionData);
-          console.log("Error uploading user data:", questionDataError);
+          console.log("Error adding question data:", questionDataError);
+          messageApi.open({
+            type: "error",
+            content: questionDataError.message,
+            duration: 3,
+          });
           return;
         }
 
         if (questionDataResponse) {
           console.log("Question added:", questionDataResponse);
-
+          messageApi.open({
+            type: "success",
+            content: "Question added:",
+            duration: 3,
+          });
           router.push(`/questions/${questionDataResponse[0].id}`);
-          // openNotification();
         }
       } catch (error) {
         console.log("Error:", error);
+        messageApi.open({
+          type: "error",
+          content: "An error occurred while submitting the question.",
+          duration: 3,
+        });
       }
     }
   };
