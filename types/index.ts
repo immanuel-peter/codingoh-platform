@@ -11,7 +11,7 @@ export interface Question {
   answer_preference?: string;
   notify_email?: boolean;
   notify_desktop?: boolean;
-  answer?: string;
+  answer?: boolean;
   artificial_date?: Date | null;
   embedding?: string;
   similarity?: number;

@@ -48,8 +48,6 @@ const Navbar = () => {
   const [coderPic, setCoderPic] = useState<string>("");
   // console.log(coderPic);
 
-  // https://rrbpjhuhydqnlhyklwbs.supabase.co/storage/v1/object/public/avatars/profileImg-74a66627-6f52-4be1-a4ab-c5b46efcd5b3
-
   useEffect(() => {
     const fetchUser = async () => {
       const {
@@ -99,7 +97,7 @@ const Navbar = () => {
     setQuery(inputValue);
 
     const filteredQueries: Question[] = allQuestions.filter((question) =>
-      question.question.toLowerCase().includes(inputValue.toLowerCase())
+      question.question?.toLowerCase().includes(inputValue.toLowerCase())
     );
     setSuggestedQueries(filteredQueries);
   };
@@ -190,16 +188,19 @@ const Navbar = () => {
                 <li
                   key={index}
                   onClick={() =>
-                    handleSuggestionClick(suggestion.question, suggestion.id)
+                    handleSuggestionClick(
+                      suggestion.question ?? "",
+                      suggestion.id ?? 0
+                    )
                   }
                   className={`px-4 py-2 cursor-pointer hover:bg-blue-50 ${
-                    suggestion.id % 2 === 0
+                    suggestion.answer
                       ? "flex flex-row justify-between items-center"
                       : ""
                   }`}
                 >
                   {suggestion.question}
-                  {suggestion.id % 2 === 0 ? (
+                  {suggestion.answer ? (
                     <FaCheckCircle className="text-green-500 bg-inherit" />
                   ) : null}
                 </li>
@@ -323,11 +324,11 @@ const Navbar = () => {
                         {inboxItems.map((item, index) => (
                           <li key={index}>
                             <InboxItem
-                              userLink={`/users/${item.randUser.id}`}
-                              name={item.randName}
-                              question={item.randQuestion}
-                              link={item.link}
-                              unread={item.unread}
+                              userLink={`/users/${item.randUser?.id}`}
+                              name={item.randName ?? ""}
+                              question={item.randQuestion ?? ""}
+                              link={item.link ?? ""}
+                              unread={item.unread ?? false}
                             />
                           </li>
                         ))}

@@ -18,7 +18,6 @@
     "@mui/material": "^5.14.5",
     "@mui/x-date-pickers": "^6.11.2",
     "@mui/x-date-pickers-pro": "^6.11.2",
-    "@next/font": "^13.4.12",
     "@nextui-org/react": "^2.1.12",
     "@supabase/ssr": "^0.3.0",
     "@supabase/supabase-js": "^2.43.2",

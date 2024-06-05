@@ -67,7 +67,7 @@ const Question = ({
         </div>
       </div>
       <div
-        className={`flex flex-col items-end basis-4/12 ${
+        className={`flex flex-col items-end basis-4/12 ${answered && "bg-green-300"} ${
           extraStyles ? extraStyles[0] : null
         }`}
       >
@@ -131,7 +131,9 @@ const Question = ({
             </div>
           )}
         </div>
-        <p className="mt-1 text-xs leading-5 text-gray-500 pr-3">
+        <p
+          className={`mt-1 text-xs leading-5 text-gray-500 pr-3 ${answered && "bg-green-300"}`}
+        >
           {`${contributors.length} ${
             contributors.length === 1 ? "contributor" : "contributors"
           }`}

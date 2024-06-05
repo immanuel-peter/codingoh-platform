@@ -1,6 +1,6 @@
 import "./globals.css";
 import type { Metadata } from "next";
-import { DM_Sans } from "@next/font/google";
+import { DM_Sans } from "next/font/google";
 import Progress from "./progress";
 
 const dmsans = DM_Sans({ subsets: ["latin"], weight: ["400", "500", "700"] });
