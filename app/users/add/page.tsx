@@ -1111,7 +1111,6 @@ export const NewUser = () => {
                       onChange={(e) => setTimezone(e.target.value)}
                       id="timezone"
                       name="timezone"
-                      placeholder="UTC"
                       className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:max-w-xs sm:text-sm sm:leading-6"
                     >
                       {timezones.map((timezone, index) => (
@@ -1259,7 +1258,6 @@ export const NewUser = () => {
                       id="country"
                       name="country"
                       autoComplete="country-name"
-                      placeholder="United States"
                       className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:max-w-xs sm:text-sm sm:leading-6"
                     >
                       {countryList.map((country) => (

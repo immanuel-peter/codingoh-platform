@@ -21,7 +21,7 @@ const allUsers = () => {
     const fetchCoders = async () => {
       const { data: coders, error } = await supabase
         .from("coders")
-        .select("id, full_name, last_name, about, position, stack, auth_id");
+        .select("id, first_name, last_name, about, position, stack, auth_id");
       if (coders) {
         setCoders(coders);
         setDisplayedUsers(coders);

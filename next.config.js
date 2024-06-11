@@ -8,9 +8,9 @@ const nextConfig = {
       },
     ],
   },
-  experimental: {
-    optimizePackageImports: ["devicons-react"],
-  },
+  // experimental: {
+  //   optimizePackageImports: ["devicons-react"],
+  // },
 };
 
 module.exports = nextConfig;

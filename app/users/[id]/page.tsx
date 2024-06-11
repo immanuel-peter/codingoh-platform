@@ -19,6 +19,7 @@ import {
   Proficiency,
   Social,
   Contributor,
+  Question as QuestionType,
 } from "@/types";
 import { getTopLanguages, getTopQuestions } from "@/utils";
 import { Navbar, Question, Project, FAB, NewProjectForm } from "@/components";
@@ -96,9 +97,9 @@ const UserPage = ({ params }: { params: { id: string } }) => {
   const supabase = createClient();
   const [supabaseUser, setSupabaseUser] = useState<UserResponse>({ id: "" });
   const [coder, setCoder] = useState<Coder>();
-  const [coderQuestions, setCoderQuestions] = useState<CoderQuestion[]>([]);
+  const [coderQuestions, setCoderQuestions] = useState<QuestionType[]>([]);
   const [coderProjects, setCoderProjects] = useState<ProjectType[]>([]);
-  const [coderResponses, setCoderResponses] = useState<CoderQuestion[]>([]);
+  const [coderResponses, setCoderResponses] = useState<QuestionType[]>([]);
   const combined = Array.from(new Set([...coderQuestions, ...coderResponses]));
   const [messageApi, contextHolder] = message.useMessage();
 
@@ -275,12 +276,12 @@ const UserPage = ({ params }: { params: { id: string } }) => {
         throw questionsError;
       }
 
-      const questionMap: { [key: number]: CoderQuestion } = {};
+      const questionMap: { [key: number]: QuestionType } = {};
 
       // Populate questionMap with questions and their askers
       questions.forEach((q) => {
         const user = users.find((u) => u.id === q.asker);
-        const question: CoderQuestion = {
+        const question: QuestionType = {
           ...q,
           asker: user || q.asker,
           contributors: [],
@@ -640,8 +641,8 @@ const UserPage = ({ params }: { params: { id: string } }) => {
                               className="flex justify-between gap-x-6 px-3 py-3"
                             >
                               <Question
-                                question={question.question}
-                                asker={`${question.asker.first_name} ${question.asker.last_name}`}
+                                question={question.question ?? ""}
+                                asker={`${question.asker?.first_name} ${question.asker?.last_name}`}
                                 contributors={question.contributors || []}
                                 date={
                                   question.created_at
@@ -711,8 +712,8 @@ const UserPage = ({ params }: { params: { id: string } }) => {
                               className="flex justify-between gap-x-6 px-3 py-3"
                             >
                               <Question
-                                question={question.question}
-                                asker={`${question.asker.first_name} ${question.asker.last_name}`}
+                                question={question.question ?? ""}
+                                asker={`${question.asker?.first_name} ${question.asker?.last_name}`}
                                 contributors={question.contributors || []}
                                 date={
                                   question.created_at
@@ -784,8 +785,8 @@ const UserPage = ({ params }: { params: { id: string } }) => {
                               className="flex justify-between gap-x-6 px-3 py-3"
                             >
                               <Question
-                                question={question.question}
-                                asker={`${question.asker.first_name} ${question.asker.last_name}`}
+                                question={question.question ?? ""}
+                                asker={`${question.asker?.first_name} ${question.asker?.last_name}`}
                                 contributors={question.contributors || []}
                                 date={
                                   question.created_at
@@ -1379,8 +1380,8 @@ const UserPage = ({ params }: { params: { id: string } }) => {
                                 className="flex justify-between gap-x-6 px-3 py-3"
                               >
                                 <Question
-                                  question={question.question}
-                                  asker={`${question.asker.first_name} ${question.asker.last_name}`}
+                                  question={question.question ?? ""}
+                                  asker={`${question.asker?.first_name} ${question.asker?.last_name}`}
                                   contributors={question.contributors || []}
                                   date={
                                     question.created_at
@@ -1416,8 +1417,8 @@ const UserPage = ({ params }: { params: { id: string } }) => {
                                 className="flex justify-between gap-x-6 px-3 py-3"
                               >
                                 <Question
-                                  question={question.question}
-                                  asker={`${question.asker.first_name} ${question.asker.last_name}`}
+                                  question={question.question ?? ""}
+                                  asker={`${question.asker?.first_name} ${question.asker?.last_name}`}
                                   contributors={question.contributors || []}
                                   date={
                                     question.created_at
@@ -1453,8 +1454,8 @@ const UserPage = ({ params }: { params: { id: string } }) => {
                                 className="flex justify-between gap-x-6 px-3 py-3"
                               >
                                 <Question
-                                  question={question.question}
-                                  asker={`${question.asker.first_name} ${question.asker.last_name}`}
+                                  question={question.question ?? ""}
+                                  asker={`${question.asker?.first_name} ${question.asker?.last_name}`}
                                   contributors={question.contributors || []}
                                   date={
                                     question.created_at

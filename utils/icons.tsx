@@ -289,7 +289,7 @@ import {
   VercelOriginal,
   VitejsOriginal,
   WasmOriginal,
-  Web3Plain,
+  // Web3Plain,
 } from "devicons-react";
 
 const allIcons: { [name: string]: React.ReactNode } = {
@@ -530,7 +530,7 @@ const allIcons: { [name: string]: React.ReactNode } = {
   Vercel: <VercelOriginal size={25} />,
   Vite: <VitejsOriginal size={25} />,
   WebAssembly: <WasmOriginal size={25} />,
-  "Web3.js": <Web3Plain size={25} />,
+  // "Web3.js": <Web3Plain size={25} />,
   "Amazon API Gateway": (
     <SiAmazonapigateway className="text-2xl text-purple-500" />
   ),
@@ -611,60 +611,6 @@ const allIcons: { [name: string]: React.ReactNode } = {
   Stripe: <SiStripe className="text-2xl text-purple-500" />,
   Warp: <SiWarp className="text-2xl text-sky-400" />,
 };
-
-/*
-    SiAmazoncognito, // not defined
-  SiAmazondocumentdb,
-  SiAmazonec2,
-  SiAmazonecs,
-  SiAmazonelasticache, // not defined
-  SiAmazoniam,
-  SiAmazonrds,
-  SiAmazonredshift,
-  SiAmazons3,
-  SiAmazonsimpleemailservice,
-  SiAmazonsqs,
-  SiAnthropic, // not defined
-  SiArxiv,
-  SiAuth0,
-  SiAwsamplify,
-  SiAwselasticloadbalancing, // not defined
-  SiAwsfargate,
-  SiAwslambda,
-  SiAzureartifacts,
-  SiAzuredataexplorer,
-  SiAzurefunctions,
-  SiAzurepipelines,
-  SiClerk, // not defined
-  SiDatabricks,
-  SiDeepnote,
-  SiExpo,
-  SiGoogleanalytics,
-  SiGooglegemini, // not defined
-  SiGooglebigquery,
-  SiGooglecolab,
-  SiGooglecloudstorage, // not defined
-  SiGooglecloudspanner, // not defined
-  SiGooglecloudcomposer,
-  SiGoogleappsscript,
-  SiGoogledatastudio,
-  SiGoogledrive,
-  SiGooglesheets,
-  SiGoogleslides,
-  SiHashicorp,
-  SiHeadlessui,
-  SiIbm,
-  SiIbmcloud,
-  SiIbmwatson,
-  SiMdx,
-  SiMicrosoftonedrive,
-  SiRemix,
-  SiRubyonrails,
-  SiShadcnui, // not defined
-  SiSnowflake,
-  SiStripe,
-  SiWarp,
-*/
 
 // Create an array of sorted keys
 const sortedKeys = Object.keys(allIcons).sort();
