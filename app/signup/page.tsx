@@ -1,11 +1,10 @@
 "use client";
 
 import React, { useState } from "react";
-import { Divider, Input, message, Alert } from "antd";
+import { Divider, Input, message } from "antd";
 import { FaCode, FaGithub } from "react-icons/fa6";
 import { FcGoogle } from "react-icons/fc";
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 
 const SignUp = () => {
@@ -17,51 +16,26 @@ const SignUp = () => {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  var fieldsCheck = false;
-  var emailCheck = false;
-  var passwordCheck = false;
-
   const handleSignUp = async () => {
-    if (
-      name.trim() === "" ||
-      email.trim() === "" ||
-      password === "" ||
-      confirmPassword === ""
-    ) {
-      console.log("Please fill in all fields");
-      messageApi.open({
-        type: "error",
-        content: "Please fill in all fields",
-        duration: 3,
-      });
-    } else {
-      fieldsCheck = true;
+    let valid = true;
+
+    if (!name.trim() || !email.trim() || !password || !confirmPassword) {
+      message.error("Please fill in all fields");
+      valid = false;
     }
 
     const emailRegex = /^\S+@\S+\.\S+$/;
     if (!emailRegex.test(email)) {
-      console.log("Please enter a valid email address");
-      messageApi.open({
-        type: "error",
-        content: "Please enter a valid email address",
-        duration: 3,
-      });
-    } else {
-      emailCheck = true;
+      message.error("Please enter a valid email address", 3);
+      valid = false;
     }
 
     if (password !== confirmPassword) {
-      console.log("Passwords do not match");
-      messageApi.open({
-        type: "error",
-        content: "Passwords do not match",
-        duration: 3,
-      });
-    } else {
-      passwordCheck = true;
+      message.error("Passwords do not match", 3);
+      valid = false;
     }
 
-    if (fieldsCheck && emailCheck && passwordCheck) {
+    if (valid) {
       const { data, error } = await supabase.auth.signUp({
         email,
         password,
@@ -69,22 +43,41 @@ const SignUp = () => {
           emailRedirectTo: `${window.location.origin}/login?verify=true`,
         },
       });
+
       if (data) {
-        console.log(data);
-        messageApi.open({
-          type: "success",
-          content: "Check your email to login to your new account.",
-          duration: 3,
-        });
+        message.success("Check your email to login to your new account.", 3);
       } else {
-        console.log(error);
-        messageApi.open({
-          type: "error",
-          content: error?.message,
-          duration: 3,
-        });
+        message.error(error?.message, 3);
       }
     }
+  };
+
+  const signInWithGithub = async () => {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: "github",
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
+    if (error) {
+      console.log(error);
+    }
+    console.log(data.url);
+    return data.url;
+  };
+
+  const signInWithGoogle = async () => {
+    const { data, error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: `${window.location.origin}/auth/callback`,
+      },
+    });
+    if (error) {
+      console.log(error);
+    }
+    console.log(data.url);
+    return data.url;
   };
 
   return (
@@ -103,10 +96,16 @@ const SignUp = () => {
           </div>
 
           <div className="px-4 pt-2 flex flex-col justify-center items-center gap-4">
-            <div className="px-4 py-2 flex flex-row justify-center items-center gap-2 border border-solid border-black rounded-md hover:cursor-pointer hover:bg-blue-200">
+            <div
+              onClick={signInWithGoogle}
+              className="px-4 py-2 flex flex-row justify-center items-center gap-2 border border-solid border-black rounded-md hover:cursor-pointer hover:bg-blue-200"
+            >
               <FcGoogle size={30} /> Sign Up Using Google &rarr;
             </div>
-            <div className="px-4 py-2 flex flex-row justify-center items-center gap-2 border border-solid border-black rounded-md hover:cursor-pointer hover:bg-gray-400">
+            <div
+              onClick={signInWithGithub}
+              className="px-4 py-2 flex flex-row justify-center items-center gap-2 border border-solid border-black rounded-md hover:cursor-pointer hover:bg-gray-400"
+            >
               <FaGithub size={30} /> Sign Up Using GitHub &rarr;
             </div>
           </div>

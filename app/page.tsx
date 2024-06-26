@@ -6,103 +6,89 @@ import { PiCaretDoubleUpLight } from "react-icons/pi";
 import { createClient } from "@/utils/supabase/client";
 
 import { Navbar, Card, Question, FAB } from "@/components";
-import { Coder, Question as QuestionType } from "@/types";
+import { Coder, Question as QuestionType, Contributor } from "@/types";
 
 export default function Home() {
   const supabase = createClient();
-  const [supabaseUser, setSupabaseUser] = useState<{
-    id: string;
-    [key: string]: any;
-  }>();
-  const [dev, setDev] = useState<Coder | null>();
   const [dbQuestions, setDbQuestions] = useState<QuestionType[]>([]);
   const [coders, setCoders] = useState<Coder[]>([]);
+  const [showScrollTopButton, setShowScrollTopButton] =
+    useState<boolean>(false);
 
   useEffect(() => {
-    const fetchDev = async () => {
-      const {
-        data: { user },
-        error: userError,
-      } = await supabase.auth.getUser();
-      if (user) {
-        setSupabaseUser(user);
-        const { data: dev, error: devError } = await supabase
-          .from("coders")
-          .select("id")
-          .eq("auth_id", user.id)
-          .single();
-        if (dev) {
-          setDev(dev);
-        }
-      } else {
-        console.error(userError);
-      }
-    };
     const fetchDbQuestions = async () => {
       // Fetch all questions
       const { data: questions, error: questionsError } = await supabase
         .from("questions")
-        .select("id, created_at, asker, question, answer");
+        .select(
+          `
+          id, 
+          created_at, 
+          asker ( id, first_name, last_name ), 
+          question,
+          contributors: comments(user_id: commenter(id, first_name, last_name, profile_image, auth_id))
+        `
+        )
+        .eq("answer", false)
+        .order("created_at", { ascending: false });
 
       if (questionsError) {
         throw questionsError;
+      } else {
+        console.log(questions);
       }
 
-      // Fetch all users
-      const { data: users, error: usersError } = await supabase
-        .from("coders")
-        .select("*");
+      const updatedQuestions = questions.map((q) => {
+        const { id, created_at, asker, question, contributors } = q;
 
-      if (usersError) {
-        throw usersError;
-      }
+        let updatedAsker: Coder = {
+          id: asker.id as number,
+          first_name: asker.first_name as string,
+          last_name: asker.last_name as string,
+        };
 
-      // Fetch all comments
-      const { data: comments, error: commentsError } = await supabase
-        .from("comments")
-        .select("question, commenter");
+        // Map the comments to contributors
+        const updatedContributors: Contributor[] = contributors.map((c) => ({
+          ...c,
+          user_id: {
+            id: c.user_id.id as number,
+            first_name: c.user_id.first_name as string,
+            last_name: c.user_id.last_name as string,
+            profile_image: c.user_id.profile_image as boolean,
+            auth_id: c.user_id.auth_id as string,
+          },
+        }));
 
-      if (commentsError) {
-        throw commentsError;
-      }
+        const uniqueContributors = (
+          contributors: Contributor[]
+        ): Contributor[] => {
+          // Create a map to store unique contributors by auth_id
+          const uniqueMap = new Map();
 
-      // Create a map of users for quick lookup
-      const userMap = new Map(users.map((user) => [user.id, user]));
-
-      // Create a unique list of contributors for each question
-      const updatedQuestions = questions.map((question) => {
-        const asker = userMap.get(question.asker) || question.asker;
-
-        // Get unique contributors for this question
-        const contributorSet = new Set();
-        comments
-          .filter((comment) => comment.question === question.id)
-          .forEach((comment) => {
-            const contributorJson = JSON.stringify({
-              user_id: users.find((user) => user.id === comment.commenter),
-              question_id: question,
-            });
-            contributorSet.add(contributorJson);
+          // Iterate through the contributors array
+          contributors.forEach((contributor) => {
+            const authId = contributor.user_id?.auth_id;
+            // If the auth_id is not already in the map, add it
+            if (!uniqueMap.has(authId)) {
+              uniqueMap.set(authId, contributor);
+            }
           });
 
-        // Convert the set back to an array of unique contributors
-        const contributors = Array.from(contributorSet).map((contributorJson) =>
-          JSON.parse(contributorJson as string)
-        );
+          // Convert the map values to an array
+          return Array.from(uniqueMap.values());
+        };
 
+        // Return the transformed object
         return {
-          ...question,
-          asker,
-          contributors,
+          id: id as number,
+          created_at: created_at as string,
+          asker: updatedAsker,
+          question: question as string,
+          contributors: uniqueContributors(updatedContributors),
         };
       });
-
-      // Apply your existing filter logic
-      const finalQuestions = updatedQuestions.filter(
-        (question) => !question.answer
-      );
-
-      setDbQuestions(finalQuestions);
+      console.log(updatedQuestions);
+      setDbQuestions(updatedQuestions);
     };
     const fetchCoders = async () => {
       const { data: coders, error } = await supabase
@@ -115,19 +101,9 @@ export default function Home() {
         console.error(error);
       }
     };
-    fetchDev();
     fetchDbQuestions();
     fetchCoders();
   }, []);
-
-  const [showScrollTopButton, setShowScrollTopButton] =
-    useState<boolean>(false);
-
-  const latestQuestions = dbQuestions.sort((a, b) => {
-    const dateA = a.created_at ? new Date(a.created_at) : new Date(0);
-    const dateB = b.created_at ? new Date(b.created_at) : new Date(0);
-    return dateB.getTime() - dateA.getTime(); // Newest to oldest
-  });
 
   const handleScroll = () => {
     setShowScrollTopButton(window.scrollY > 0);
@@ -149,13 +125,13 @@ export default function Home() {
       <Navbar />
       <div className="flex">
         <div className="basis-3/4 px-3">
-          {latestQuestions.length === 0 ? (
+          {dbQuestions.length === 0 ? (
             <h1 className="flex items-center justify-center font-bold mt-3 text-black">
               No unanswered questions
             </h1>
           ) : (
             <ul role="list" className="divide-y divide-gray-600">
-              {latestQuestions.map((question, index) => (
+              {dbQuestions.map((question, index) => (
                 <li key={index} className="hover:bg-slate-100">
                   <Link
                     href={`/questions/${question.id}`}

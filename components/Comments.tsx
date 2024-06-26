@@ -9,8 +9,7 @@ import {
   AiFillDelete,
   AiFillEdit,
 } from "react-icons/ai";
-import { Badge, message } from "antd";
-import { Avatar, AvatarGroup } from "@mui/joy";
+import { Badge, message, Avatar } from "antd";
 import { Transition, Dialog } from "@headlessui/react";
 import { createClient } from "@/utils/supabase/client";
 import Link from "next/link";
@@ -189,15 +188,15 @@ const Comment = ({
         .insert(newCommentData)
         .select();
 
-      const { data: contribution, error: contributionError } = await supabase
-        .from("contributors")
-        .insert({ question_id: comment.question?.id, user_id: coder?.id })
-        .select();
-      if (contributionError) {
-        console.error(contributionError);
-      } else {
-        console.log("Contribution added:", contribution);
-      }
+      // const { data: contribution, error: contributionError } = await supabase
+      //   .from("contributors")
+      //   .insert({ question_id: comment.question?.id, user_id: coder?.id })
+      //   .select();
+      // if (contributionError) {
+      //   console.error(contributionError);
+      // } else {
+      //   console.log("Contribution added:", contribution);
+      // }
     } catch (error) {
       console.error(error);
     }
@@ -446,7 +445,7 @@ const Comment = ({
                     as="h3"
                     className="text-lg font-medium leading-6 text-blue-600 inline-flex items-center gap-2"
                   >
-                    Edit Your Meeting <AiFillEdit />
+                    Edit Your Comment <AiFillEdit />
                   </Dialog.Title>
                   <textarea
                     value={editCommentText}
@@ -513,7 +512,6 @@ const Comments = ({
   const [comments, setComments] = useState<CommentType[]>([]);
   const [commentId, setCommentId] = useState<number>(0);
   const [inputValue, setInputValue] = useState<string>("");
-  // console.log(comments);
 
   useEffect(() => {
     const fetchComments = async () => {
@@ -587,16 +585,16 @@ const Comments = ({
         console.log("Comment added:", data);
       }
 
-      const { data: contribution, error: contributionError } = await supabase
-        .from("contributors")
-        .insert({ question_id: question.id, user_id: coder?.id })
-        .select();
+      // const { data: contribution, error: contributionError } = await supabase
+      //   .from("contributors")
+      //   .insert({ question_id: question.id, user_id: coder?.id })
+      //   .select();
 
-      if (contributionError) {
-        console.error(contributionError);
-      } else {
-        console.log("Contribution added:", contribution);
-      }
+      // if (contributionError) {
+      //   console.error(contributionError);
+      // } else {
+      //   console.log("Contribution added:", contribution);
+      // }
     } catch (err) {
       console.error(err);
     }
@@ -732,7 +730,7 @@ const Comments = ({
                               width={24}
                             />
                           ) : (
-                            <Avatar sx={{ "--Avatar-size": "24px" }}>
+                            <Avatar size={24}>
                               {contributor.user_id?.first_name
                                 ? contributor.user_id.first_name[0]
                                 : ""}
@@ -757,7 +755,7 @@ const Comments = ({
                                 width={24}
                               />
                             ) : (
-                              <Avatar sx={{ "--Avatar-size": "24px" }}>
+                              <Avatar size={24}>
                                 {contributor.user_id?.first_name
                                   ? contributor.user_id.first_name[0]
                                   : ""}

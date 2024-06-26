@@ -154,6 +154,17 @@ const NewProjectForm = () => {
         console.log("Project data uploaded:", projectDataResponse);
 
         if (newProjectImage) {
+          const { data: d, error: e } = await supabase.storage
+            .from("projectImages")
+            .upload(`projImage-${projectDataResponse[0].id}`, newProjectImage, {
+              upsert: false,
+            });
+
+          if (d) {
+            console.log("Project image uploaded:", d);
+            return;
+          }
+
           let maxProjectId = 0;
           let imageUploaded = false;
           let attempt = 0;

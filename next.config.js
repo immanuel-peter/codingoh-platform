@@ -8,6 +8,7 @@ const nextConfig = {
       },
     ],
   },
+  // ignoreBuildErrors: true,
   // experimental: {
   //   optimizePackageImports: ["devicons-react"],
   // },

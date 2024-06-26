@@ -1,42 +1,10 @@
-import { questions, users } from "@/dummy/questions";
-import {
-  Proficiency,
-  Question,
-  Contributor,
-  Project,
-  RecordType,
-  Coder,
-} from "@/types";
+import { Proficiency, Question, Project, RecordType, Coder } from "@/types";
 import sortedIcons from "./icons";
 import { Metadata } from "next";
 
 export function varStatus() {
   return Math.random() > 0.5;
 }
-
-// export function parseDateString(dateString: string): Date {
-//   const months: { [key: string]: number } = {
-//     January: 0,
-//     February: 1,
-//     March: 2,
-//     April: 3,
-//     May: 4,
-//     June: 5,
-//     July: 6,
-//     August: 7,
-//     September: 8,
-//     October: 9,
-//     November: 10,
-//     December: 11,
-//   };
-
-//   const dateParts = dateString.split(" ");
-//   const month = months[dateParts[0]];
-//   const day = parseInt(dateParts[1].replace(",", ""));
-//   const year = parseInt(dateParts[2]);
-
-//   return new Date(year, month, day);
-// }
 
 export function daysBetweenDateAndToday(dateString: string): string {
   const oneDayInMilliseconds = 24 * 60 * 60 * 1000; // Number of milliseconds in a day
@@ -70,7 +38,11 @@ export function daysBetweenDateAndToday(dateString: string): string {
   }
 
   // Return the number of days if less than 30 days
-  return daysDifference !== 0 ? `${daysDifference} days` : "Today";
+  return daysDifference === 0
+    ? "Today"
+    : daysDifference === 1
+      ? `${daysDifference} day`
+      : `${daysDifference} days`;
 }
 
 // Helper function to parse the date string
@@ -98,82 +70,12 @@ export function stringifyList(array: string[] | number[]): any {
 export const getTopLanguages = (languages: Proficiency[], rank: number) => {
   // Sort the codingLanguages array based on proficiency in descending order
   const sortedLanguages = languages.sort(
-    (a, b) => b.proficiency - a.proficiency
+    (a, b) => (b.proficiency ?? 0) - (a.proficiency ?? 0)
   );
 
   // Take the first 3 elements (highest proficiency) from the sorted array
   return sortedLanguages.slice(0, rank);
 };
-
-// Function to sort questions and contributions based on users
-// export const sortQuestionsAndContributions = (
-//   questions: Question[],
-//   users: User[]
-// ) => {
-//   const userMap: {
-//     [userId: number]: {
-//       name: string;
-//       allQuestions: Question[];
-//       askedQuestions: Question[];
-//       contributedQuestions: Question[];
-//       addedQuestionIds: Set<number>;
-//     };
-//   } = {};
-
-//   // Initialize the user map with empty arrays for each user
-//   users.forEach((user) => {
-//     userMap[user.id] = {
-//       name: user.name,
-//       allQuestions: [],
-//       askedQuestions: [],
-//       contributedQuestions: [],
-//       addedQuestionIds: new Set<number>(),
-//     };
-//   });
-
-//   // Iterate through the questions and populate the user map
-//   questions.forEach((question) => {
-//     const askerId = question.asker.id;
-//     if (!userMap[askerId].addedQuestionIds.has(question.id)) {
-//       userMap[askerId].allQuestions.push(question);
-//       userMap[askerId].askedQuestions.push(question);
-//       userMap[askerId].addedQuestionIds.add(question.id);
-//     }
-
-//     question.contributors?.forEach((contributor) => {
-//       const contributorId = contributor.user.id;
-//       if (!userMap[contributorId].addedQuestionIds.has(question.id)) {
-//         userMap[contributorId].allQuestions.push(question);
-//         userMap[contributorId].contributedQuestions.push(question);
-//         userMap[contributorId].addedQuestionIds.add(question.id);
-//       } else {
-//         userMap[contributorId].contributedQuestions.push(question);
-//       }
-//     });
-//   });
-
-//   for (const userId in userMap) {
-//     userMap[userId].allQuestions.sort((a, b) => {
-//       const aDateTime = new Date(a.date + " " + a.time).getTime();
-//       const bDateTime = new Date(b.date + " " + b.time).getTime();
-//       return bDateTime - aDateTime;
-//     });
-
-//     userMap[userId].askedQuestions.sort((a, b) => {
-//       const aDateTime = new Date(a.date + " " + a.time).getTime();
-//       const bDateTime = new Date(b.date + " " + b.time).getTime();
-//       return bDateTime - aDateTime;
-//     });
-
-//     userMap[userId].contributedQuestions.sort((a, b) => {
-//       const aDateTime = new Date(a.date + " " + a.time).getTime();
-//       const bDateTime = new Date(b.date + " " + b.time).getTime();
-//       return bDateTime - aDateTime;
-//     });
-//   }
-
-//   return userMap;
-// };
 
 export const getTopQuestions = (questions: Question[], rank: number) => {
   return questions.slice(0, rank);
@@ -237,7 +139,7 @@ export const projectsMap = (projects: Project[], user: Coder) => {
     }
   }
 
-  return userProjectsMap.get(user.id);
+  return userProjectsMap.get(user.id ?? 0);
 };
 
 export const randEl = <T>(items: T[]): T => {
@@ -263,8 +165,10 @@ export const labelValues = (
 export const finalProfsByLangs = (data: Proficiency[]) => {
   const returnArray: { [key: string]: number } = {};
   for (const item of data) {
-    if (item.proficiency > 0) {
-      returnArray[item.language] = item.proficiency;
+    if (item.proficiency && item.proficiency > 0) {
+      if (item.language) {
+        returnArray[item.language] = item.proficiency;
+      }
     }
   }
   return returnArray;

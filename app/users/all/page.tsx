@@ -2,8 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { UserOutlined } from "@ant-design/icons";
-import { Input } from "antd";
-import { Autocomplete } from "@mui/joy";
+import { Input, Select } from "antd";
 import Link from "next/link";
 import { createClient } from "@/utils/supabase/client";
 
@@ -11,11 +10,17 @@ import { Navbar, Card, FAB } from "@/components";
 import { Coder } from "@/types";
 import sortedIcons from "@/utils/icons";
 
-// const langOptions = Object.keys(sortedIcons).map((key) => ({ value: key }));
+const langOptions = Object.keys(sortedIcons).map((key) => ({
+  label: key,
+  value: key,
+}));
 
 const allUsers = () => {
   const supabase = createClient();
   const [coders, setCoders] = useState<Coder[]>();
+  const [displayedUsers, setDisplayedUsers] = useState(coders);
+  const [userQuery, setUserQuery] = useState<string>("");
+  const [langQuery, setLangQuery] = useState<string>("");
 
   useEffect(() => {
     const fetchCoders = async () => {
@@ -31,10 +36,6 @@ const allUsers = () => {
     };
     fetchCoders();
   }, []);
-
-  const [displayedUsers, setDisplayedUsers] = useState(coders);
-  const [userQuery, setUserQuery] = useState<string>("");
-  const [langQuery, setLangQuery] = useState<string>("");
 
   const handleUserQueryChange = (
     event: React.ChangeEvent<HTMLInputElement>
@@ -59,37 +60,15 @@ const allUsers = () => {
       );
     });
 
-    // const filteredUsers = users.filter((user) =>
-    //   user.name.toLowerCase().includes(value.toLowerCase())
-    // );
     setDisplayedUsers(filteredCoders);
   };
 
-  const handleLangQueryChange = (
-    event: React.SyntheticEvent<Element, Event>,
-    value: string
-  ) => {
-    const matchingLanguages = Object.keys(sortedIcons).filter((language) =>
-      language.toLowerCase().includes(value.toLowerCase())
-    );
-
-    if (value === "") {
+  const handleLangQueryChange = (data: string) => {
+    if (data === "") {
       setDisplayedUsers(coders);
     }
 
-    // const langQueryValue =
-    //   matchingLanguages.length > 0 ? matchingLanguages[0] : value;
-    setLangQuery(value);
-
-    // if (
-    //   users.some((user) =>
-    //     user.codingLanguages.some(
-    //       (lang) => lang.language.toLowerCase() === value.toLowerCase()
-    //     )
-    //   )
-    // ) {
-    //   setLangQuery(value);
-    // }
+    setLangQuery(data);
 
     const filteredCoders = coders?.filter((coder) =>
       coder.stack?.some((lang) =>
@@ -97,12 +76,6 @@ const allUsers = () => {
       )
     );
 
-    // const filteredUsers = users.filter(
-    //   (user) =>
-    //     user.codingLanguages?.some((lang) =>
-    //       lang.language.toLowerCase().includes(langQuery.toLowerCase())
-    //     )
-    // );
     setDisplayedUsers(filteredCoders);
   };
 
@@ -118,13 +91,17 @@ const allUsers = () => {
           prefix={<UserOutlined />}
           className="max-w-4xl basis-3/5"
         />
-        <Autocomplete
+        <Select
+          showSearch
           value={langQuery}
-          onInputChange={handleLangQueryChange}
-          freeSolo
+          style={{ width: 300 }}
+          options={langOptions}
+          optionFilterProp="label"
+          filterOption={(input, option) =>
+            (option?.label ?? "").toLowerCase().includes(input.toLowerCase())
+          }
           placeholder="Ex: Python"
-          options={Object.keys(sortedIcons)}
-          sx={{ width: 300 }}
+          onSearch={handleLangQueryChange}
         />
       </div>
       <div
@@ -160,9 +137,3 @@ const allUsers = () => {
 };
 
 export default allUsers;
-
-// users.some((user) =>
-//   user.codingLanguages.some(
-//     (lang) => lang.language.toLowerCase() === value.toLowerCase()
-//   )
-// )

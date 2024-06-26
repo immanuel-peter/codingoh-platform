@@ -153,7 +153,7 @@ const Page = ({ params }: { params: { id: string } }) => {
         const { data: projectData, error: projectError } = await supabase
           .from("projects")
           .update(updatedProjectData)
-          .eq("id", project?.id)
+          .eq("id", params.id)
           .select();
 
         if (projectError) {
