@@ -8,6 +8,10 @@ import NewFAB from "./NewFAB";
 import RenderMd from "./RenderMd";
 import Codebot from "./Codebot";
 import NewProjectForm from "./NewProjectForm";
+import Inbox from "./Inbox";
+import TiptapEditor from "./TiptapEditor";
+import TiptapRender from "./TiptapRender";
+import AddComment from "./AddComment";
 
 export {
   Navbar,
@@ -20,4 +24,8 @@ export {
   RenderMd,
   Codebot,
   NewProjectForm,
+  Inbox,
+  TiptapEditor,
+  TiptapRender,
+  AddComment,
 };

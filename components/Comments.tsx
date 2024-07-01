@@ -17,7 +17,8 @@ import { useRouter } from "next/navigation";
 
 import { Contributor, Comment as CommentType, Coder, Question } from "@/types";
 import avatar from "@/public/avatar.png";
-import { RenderMd } from ".";
+import { RenderMd, TiptapRender, AddComment } from ".";
+import { JSONContent } from "@tiptap/react";
 
 interface NestedComment extends Comment {
   replies?: NestedComment[];
@@ -52,7 +53,7 @@ const Comment = ({
   onDeleteComment,
 }: {
   comment: CommentType;
-  onAddNestedComment: (text: string, parentId: number) => void;
+  onAddNestedComment: (json: JSONContent, parentId: number) => void;
   onDeleteComment: (commentId: number) => void;
 }) => {
   const router = useRouter();
@@ -72,6 +73,10 @@ const Comment = ({
   const [editCommentOpen, setEditCommentOpen] = useState<boolean>(false);
   const [editCommentText, setEditCommentText] = useState<string>(
     comment.text ?? ""
+  );
+  const [json, setJson] = useState<JSONContent>({});
+  const [editCommentJson, setEditCommentJson] = useState<JSONContent>(
+    comment.comment_json ?? {}
   );
   const [messageApi, contextHolder] = message.useMessage();
 
@@ -171,7 +176,7 @@ const Comment = ({
   const handleAddComment = async () => {
     const dbCommentText = newCommentText;
 
-    onAddNestedComment(newCommentText, comment.id ?? 0);
+    onAddNestedComment(json, comment.id ?? 0);
     setNewCommentText("");
     setOpenNewComment(false);
 
@@ -180,6 +185,7 @@ const Comment = ({
       question: comment.question?.id,
       text: dbCommentText,
       parent_comment: comment.id,
+      comment_json: json,
     };
 
     try {
@@ -187,16 +193,6 @@ const Comment = ({
         .from("comments")
         .insert(newCommentData)
         .select();
-
-      // const { data: contribution, error: contributionError } = await supabase
-      //   .from("contributors")
-      //   .insert({ question_id: comment.question?.id, user_id: coder?.id })
-      //   .select();
-      // if (contributionError) {
-      //   console.error(contributionError);
-      // } else {
-      //   console.log("Contribution added:", contribution);
-      // }
     } catch (error) {
       console.error(error);
     }
@@ -237,12 +233,12 @@ const Comment = ({
   };
 
   const handleEditComment = async () => {
-    comment.text = editCommentText;
+    comment.comment_json = editCommentJson;
 
     try {
       const { data: commentData, error: commentError } = await supabase
         .from("comments")
-        .update({ text: editCommentText })
+        .update({ comment_json: editCommentJson })
         .eq("id", comment.id)
         .select();
 
@@ -277,9 +273,13 @@ const Comment = ({
           isChecked ? "bg-green-100" : "bg-white"
         }`}
       >
-        <RenderMd
+        {/* <RenderMd
           className="text-gray-800 items-center p-4"
           markdown={comment.text ?? ""}
+        /> */}
+        <TiptapRender
+          renderContent={comment.comment_json}
+          style="text-gray-800 items-center p-4"
         />
         <div className="flex flex-row items-end justify-between gap-8 p-4">
           <div className="flex flex-row justify-center items-center gap-3 text-3xl">
@@ -332,26 +332,11 @@ const Comment = ({
         </div>
       </div>
       {openNewComment && (
-        <div className="flex justify-end m-3">
-          <div className="w-5/6 flex justify-between items-end">
-            <textarea
-              className="w-11/12 min-h-[100px] rounded-lg border-gray-200 border-solid border-[1px] align-top shadow-sm"
-              placeholder="Add a reply..."
-              value={newCommentText}
-              onChange={(e) => setNewCommentText(e.target.value)}
-            />
-            <button
-              onClick={handleAddComment}
-              className={`p-2 px-4 rounded-md bg-blue-400 text-white ${
-                newCommentText != ""
-                  ? "hover:bg-blue-600 cursor-pointer"
-                  : "bg-opacity-75 cursor-text"
-              }`}
-            >
-              Reply
-            </button>
-          </div>
-        </div>
+        <AddComment
+          type="nested"
+          handleCommentClick={handleAddComment}
+          onJsonChange={(Json) => setJson(Json)}
+        />
       )}
 
       <Transition appear show={deleteCommentOpen} as={Fragment}>
@@ -440,14 +425,14 @@ const Comment = ({
                 leaveFrom="opacity-100 scale-100"
                 leaveTo="opacity-0 scale-95"
               >
-                <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                <Dialog.Panel className="w-full transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
                   <Dialog.Title
                     as="h3"
                     className="text-lg font-medium leading-6 text-blue-600 inline-flex items-center gap-2"
                   >
                     Edit Your Comment <AiFillEdit />
                   </Dialog.Title>
-                  <textarea
+                  {/* <textarea
                     value={editCommentText}
                     onChange={(e) => setEditCommentText(e.target.value)}
                     className="mt-3 rounded-lg w-full"
@@ -457,7 +442,13 @@ const Comment = ({
                     className="cursor-pointer w-fit rounded-lg border border-solid bg-blue-500 px-4 py-2 text-base font-medium text-white hover:bg-blue-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
                   >
                     Edit Comment
-                  </div>
+                  </div> */}
+                  <AddComment
+                    type="edit"
+                    handleCommentClick={handleEditComment}
+                    onJsonChange={(Json) => setEditCommentJson(Json)}
+                    renderCommentJson={editCommentJson}
+                  />
                 </Dialog.Panel>
               </Transition.Child>
             </div>
@@ -474,7 +465,7 @@ const NestedComments = ({
   onDeleteComment,
 }: {
   comments: CommentType[];
-  onAddNestedComment: (text: string, parentId: number) => void;
+  onAddNestedComment: (json: JSONContent, parentId: number) => void;
   onDeleteComment: (commentId: number) => void;
 }) => {
   return (
@@ -512,6 +503,7 @@ const Comments = ({
   const [comments, setComments] = useState<CommentType[]>([]);
   const [commentId, setCommentId] = useState<number>(0);
   const [inputValue, setInputValue] = useState<string>("");
+  const [json, setJson] = useState<JSONContent>({});
 
   useEffect(() => {
     const fetchComments = async () => {
@@ -519,7 +511,8 @@ const Comments = ({
         const { data: comments, error } = await supabase
           .from("comments")
           .select("*")
-          .eq("question", question.id);
+          .eq("question", question.id)
+          .order("created_at", { ascending: true });
 
         if (comments) {
           let commenterIds = comments.map((comment) => comment.commenter);
@@ -562,15 +555,18 @@ const Comments = ({
         is_answer: false,
         likes: 0,
         replies: [],
+        comment_json: json,
       },
     ]);
     setCommentId(commentId + 1);
     setInputValue("");
+    setJson({});
 
     const newCommentData = {
       commenter: coder.id,
       question: question.id,
       text: dbValue,
+      comment_json: json,
     };
 
     try {
@@ -584,23 +580,58 @@ const Comments = ({
       } else {
         console.log("Comment added:", data);
       }
-
-      // const { data: contribution, error: contributionError } = await supabase
-      //   .from("contributors")
-      //   .insert({ question_id: question.id, user_id: coder?.id })
-      //   .select();
-
-      // if (contributionError) {
-      //   console.error(contributionError);
-      // } else {
-      //   console.log("Contribution added:", contribution);
-      // }
     } catch (err) {
       console.error(err);
     }
   };
 
-  const handleAddNestedComment = (text: string, parentId: number) => {
+  const handleAddAnswer = async () => {
+    const dbValue = inputValue;
+
+    setComments([
+      ...comments,
+      {
+        id: commentId,
+        created_at: new Date().toISOString(),
+        commenter: coder,
+        question: question,
+        parent_comment: null,
+        text: inputValue,
+        is_answer: true,
+        likes: 0,
+        replies: [],
+        comment_json: json,
+      },
+    ]);
+    setCommentId(commentId + 1);
+    setInputValue("");
+    setJson({});
+
+    const newCommentData = {
+      commenter: coder.id,
+      question: question.id,
+      text: dbValue,
+      comment_json: json,
+      is_answer: true,
+    };
+
+    try {
+      const { data, error } = await supabase
+        .from("comments")
+        .insert(newCommentData)
+        .select();
+
+      if (error) {
+        console.error("Error adding comment", error);
+      } else {
+        console.log("Comment added:", data);
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleAddNestedComment = (json: JSONContent, parentId: number) => {
     // Find the parent comment or nested comment based on parentId
     const findComment = (comments: CommentType[]): CommentType | undefined => {
       for (const comment of comments) {
@@ -628,7 +659,7 @@ const Comments = ({
         id: parentId,
         commenter: coder,
         question: question,
-        text: text,
+        comment_json: json,
         parent_comment: comments.filter(
           (comment) => comment.id === parentId
         )[0],
@@ -781,25 +812,13 @@ const Comments = ({
           </div>
 
           <hr className="border-solid border-black border-[1px]" />
-          <textarea
-            id="comments"
-            className="mt-2 mb-2 min-w-full min-h-[100px] rounded-lg border-gray-200 border-solid border-[1px] align-top shadow-sm"
-            placeholder="Type your comment in Markdown..."
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
+          <AddComment
+            type="parent"
+            handleCommentClick={handleAddComment}
+            onJsonChange={(Json) => setJson(Json)}
+            handleAnswerClick={handleAddAnswer}
+            canAnswer={coder.id === question.asker?.id}
           />
-          <div className="flex items-end justify-end">
-            <button
-              className={`p-2 rounded-md bg-blue-400 text-white ${
-                inputValue != ""
-                  ? "hover:bg-blue-600 cursor-pointer"
-                  : "bg-opacity-75 cursor-text"
-              }`}
-              onClick={handleAddComment}
-            >
-              Add Comment
-            </button>
-          </div>
         </div>
       </main>
     </>

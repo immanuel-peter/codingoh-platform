@@ -17,6 +17,7 @@ import { createClient } from "@/utils/supabase/client";
 
 import { inboxItems } from "@/dummy/questions";
 import { Question } from "@/types";
+import { Inbox } from "@/components";
 
 type UserResponse = {
   id: string;
@@ -73,7 +74,6 @@ const Navbar = () => {
   const [query, setQuery] = useState<string>("");
   const [suggestedQueries, setSuggestedQueries] = useState<Question[]>([]);
   const [openInbox, setOpenInbox] = useState<boolean>(false);
-  const [inboxType, setInboxType] = useState<string>("notifications");
 
   useEffect(() => {
     const fetchQuestions = async () => {
@@ -269,47 +269,7 @@ const Navbar = () => {
       </header>
       <hr className="border-solid border-black border-[1px]" />
 
-      <Drawer
-        title="Inbox"
-        placement="bottom"
-        onClose={() => setOpenInbox(false)}
-        open={openInbox}
-      >
-        <div className="flex flex-row">
-          <div className="basis-1/4">
-            <div className="flex flex-row items-center justify-start gap-2">
-              <div
-                onClick={() => setInboxType("notifications")}
-                className={`underline underline-offset-8 cursor-pointer ${inboxType == "notifications" ? "text-blue-500" : "hover:text-blue-400"}`}
-              >
-                Notifications
-              </div>
-              <div
-                onClick={() => setInboxType("messages")}
-                className={`underline underline-offset-8 cursor-pointer ${inboxType == "messages" ? "text-blue-500" : "hover:text-blue-400"}`}
-              >
-                Messages
-              </div>
-              <div
-                onClick={() => setInboxType("calendar")}
-                className={`underline underline-offset-8 cursor-pointer ${inboxType == "calendar" ? "text-blue-500" : "hover:text-blue-400"}`}
-              >
-                Calendar
-              </div>
-            </div>
-            <div className="mt-4">
-              {inboxType == "notifications" && (
-                <div>Here are your notifications.</div>
-              )}
-              {inboxType == "messages" && <div>Here are your messages.</div>}
-              {inboxType == "calendar" && <div>Here is your calendar.</div>}
-            </div>
-          </div>
-          <div className="basis-3/4">
-            <div>Hopefully this is the 3/4</div>
-          </div>
-        </div>
-      </Drawer>
+      <Inbox open={openInbox} onClose={() => setOpenInbox(false)} />
     </>
   );
 };

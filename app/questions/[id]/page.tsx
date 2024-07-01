@@ -37,9 +37,10 @@ import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 
 import { Question, Coder, Contributor, Comment, Scheduling } from "@/types";
-import { Navbar, FAB, RenderMd } from "@/components";
+import { Navbar, FAB, RenderMd, TiptapRender } from "@/components";
 import { formatDateTime } from "@/utils";
 import { Comments } from "@/components";
+import { JSONContent } from "@tiptap/react";
 
 dayjs.extend(advancedFormat);
 dayjs.extend(utc);
@@ -103,7 +104,7 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
       const { data: question, error } = await supabase
         .from("questions")
         .select(
-          `id, created_at, question, description, tags, asker (id, first_name, last_name, timezone, auth_id), contributors: comments(user_id: commenter(id, first_name, last_name, profile_image, auth_id))`
+          `id, created_at, question, description, tags, description_json, asker (id, first_name, last_name, timezone, auth_id), contributors: comments(user_id: commenter(id, first_name, last_name, profile_image, auth_id))`
         )
         .eq("id", params.id)
         .single();
@@ -155,117 +156,17 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
           created_at: question.created_at as string,
           question: question.question as string,
           description: question.description as string,
+          description_json: question.description_json as JSONContent,
           tags: question.tags as string[],
           asker: updatedAsker,
         };
 
         setToSendContributors(uniqueContributors(updatedContributors));
         setQuestion(updatedQuestion);
-
-        // const { data: coders, error: codersError } = await supabase
-        //   .from("coders")
-        //   .select("*");
-        // if (coders) {
-        //   question.asker = coders.find((coder) => coder.id === question.asker);
-        // } else {
-        //   console.error(
-        //     "Error fetching question's referenced coder:",
-        //     codersError
-        //   );
-        // }
-        // const { data: contributors, error: contributorsError } = await supabase
-        //   .from("contributors")
-        //   .select("*")
-        //   .eq("question_id", question.id);
-        // if (contributors) {
-        //   let contributions = [];
-        //   for (const contributor of contributors) {
-        //     contributions.push({
-        //       ...contributor,
-        //       question_id: question,
-        //       user_id: coders?.find(
-        //         (coder) => coder.id === contributor.user_id
-        //       ),
-        //     });
-        //   }
-        //   question.contributors = contributions;
-        // } else {
-        //   console.error(
-        //     "Error fetching question's referenced contributors:",
-        //     contributorsError
-        //   );
-        // }
       } else {
         console.error("Error fetching question:", error);
       }
     };
-    // const fetchComments = async () => {
-    //   const { data: questionRef, error: questionError } = await supabase
-    //     .from("questions")
-    //     .select("*")
-    //     .eq("id", params.id)
-    //     .single();
-    //   if (questionRef) {
-    //     const { data: dev, error: devError } = await supabase
-    //       .from("coders")
-    //       .select("*")
-    //       .eq("id", questionRef.asker);
-    //     if (dev) {
-    //       questionRef.asker = dev;
-    //     } else {
-    //       console.error("Error fetching referenced dev:", devError);
-    //     }
-    //   } else {
-    //     console.error("Error fetching referenced question:", questionError);
-    //   }
-    //   const { data: comments, error: commentsError } = await supabase
-    //     .from("comments")
-    //     .select("*")
-    //     .eq("question", params.id);
-    //   if (comments) {
-    //     let newComments = [];
-    //     const commentCommenterIds = comments.map(
-    //       (comment) => comment.commenter
-    //     );
-    //     const { data: coders, error } = await supabase
-    //       .from("coders")
-    //       .select("*")
-    //       .in("id", commentCommenterIds);
-    //     for (const comment of comments) {
-    //       newComments.push({
-    //         ...comment,
-    //         question: questionRef,
-    //         commenter: coders?.find((coder) => coder.id === comment.commenter),
-    //         parent_comment: comment.parent_comment
-    //           ? comments.find((c) => c.id === comment.parent_comment)
-    //           : null,
-    //       });
-    //     }
-    //     setComments(newComments);
-    //     setToSendContributors((prevToSendContributors) => {
-    //       // Create a set from the existing toSendContributors
-    //       const combinedSet = new Set(
-    //         prevToSendContributors?.map((contributor) =>
-    //           JSON.stringify(contributor)
-    //         )
-    //       );
-
-    //       // Add the new unique comments
-    //       newComments.forEach((comment) => {
-    //         const newEntry = JSON.stringify({
-    //           question_id: questionRef,
-    //           user_id: comment.commenter,
-    //         });
-    //         combinedSet.add(newEntry);
-    //       });
-
-    //       // Convert the set back to an array of objects
-    //       return Array.from(combinedSet).map((json) => JSON.parse(json));
-    //     });
-    //   } else {
-    //     console.error("Error fetching comments:", commentsError);
-    //   }
-    // };
     const fetchSchedulings = async () => {
       const { data: schedulings, error: schedulingsError } = await supabase
         .from("schedulings")
@@ -297,38 +198,6 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
         });
 
         setSchedulings(updatedSchedulings);
-
-        // console.log("Schedulings:", schedulings);
-        // let newSchedulings = [];
-        // const { data: question, error: questionError } = await supabase
-        //   .from("questions")
-        //   .select("*")
-        //   .eq("id", params.id)
-        //   .single();
-        // let schedulingIds = schedulings.map(
-        //   (scheduling: any) => scheduling.scheduler_id
-        // );
-        // console.log("Scheduling IDs:", schedulingIds);
-        // schedulingIds.push(schedulings[0].receiver_id);
-        // console.log("Scheduling IDs:", schedulingIds);
-        // const { data: coders, error: codersError } = await supabase
-        //   .from("coders")
-        //   .select("*")
-        //   .in("id", schedulingIds);
-        // for (const scheduling of schedulings) {
-        //   newSchedulings.push({
-        //     ...scheduling,
-        //     scheduler_id: coders?.find(
-        //       (coder) => coder.id === scheduling.scheduler_id
-        //     ),
-        //     receiver_id: coders?.find(
-        //       (coder) => coder.id === scheduling.receiver_id
-        //     ),
-        //     question_id: question,
-        //   });
-        // }
-        // console.log("New Schedulings:", newSchedulings);
-        // setSchedulings(newSchedulings);
       } else {
         console.error("Error fetching schedulings:", schedulingsError);
       }
@@ -736,9 +605,13 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
             </div>
           </div>
         </div>
-        <RenderMd
+        {/* <RenderMd
           markdown={question.description ?? ""}
           className="mx-auto max-w-7xl py-3 px-3 mt-3 text-justify border border-solid border-black rounded-lg"
+        /> */}
+        <TiptapRender
+          renderContent={question.description_json as JSONContent}
+          style="mx-auto max-w-7xl py-3 px-3 mt-3 text-justify border border-solid border-black rounded-lg"
         />
       </div>
       {user && coder && (

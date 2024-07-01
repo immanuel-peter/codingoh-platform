@@ -55,7 +55,7 @@ const Card = ({
   return (
     <>
       <div
-        className={`flex flex-col justify-center items-center mt-2 px-4 ${extraStyles}`}
+        className={`${extraStyles} flex flex-col justify-center items-center mt-2 px-4`}
       >
         <div className="relative flex flex-col items-center rounded-[20px] w-[300px] mx-auto p-4 border-2 border-slate-300 border-solid bg-white bg-clip-border shadow-3xl shadow-shadow-500 dark:!bg-navy-800 dark:text-white dark:!shadow-none">
           <div className="relative flex h-32 w-full justify-center rounded-xl bg-cover">
