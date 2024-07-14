@@ -35,6 +35,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
+import { v4 as uuidv4 } from "uuid";
 
 import { Question, Coder, Contributor, Comment, Scheduling } from "@/types";
 import { Navbar, FAB, RenderMd, TiptapRender } from "@/components";
@@ -71,8 +72,23 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
   const [isViewMeetingRequestsOpen, setIsViewMeetingRequestsOpen] =
     useState<boolean>(false);
   const [isViewMeetingsOpen, setIsViewMeetingsOpen] = useState<boolean>(false);
-  const [dateString, setDateString] = useState<string>("");
-  const [timeString, setTimeString] = useState<string>("");
+  const [dateString, setDateString] = useState<string>(
+    new Date(new Date().toLocaleString("en-US")).toLocaleDateString("en-US", {
+      month: "2-digit",
+      day: "2-digit",
+      year: "numeric",
+    })
+  );
+  const [timeString, setTimeString] = useState<string>(
+    new Date(new Date().toLocaleString("en-US"))
+      .toLocaleTimeString("en-US", {
+        hour: "numeric",
+        minute: "numeric",
+        hour12: true,
+      })
+      .replace("AM", "am")
+      .replace("PM", "pm")
+  );
   const [dateTime, setDateTime] = useState<Dayjs | null>(null);
   const [scheduleMessage, setScheduleMessage] = useState<string>("");
   const [receiverNote, setReceiverNote] = useState<string>("");
@@ -104,7 +120,7 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
       const { data: question, error } = await supabase
         .from("questions")
         .select(
-          `id, created_at, question, description, tags, description_json, asker (id, first_name, last_name, timezone, auth_id), contributors: comments(user_id: commenter(id, first_name, last_name, profile_image, auth_id))`
+          `id, created_at, question, tags, description_json, asker (id, first_name, last_name, timezone, auth_id), contributors: comments(user_id: commenter(id, first_name, last_name, profile_image, auth_id))`
         )
         .eq("id", params.id)
         .single();
@@ -155,7 +171,6 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
           id: question.id as number,
           created_at: question.created_at as string,
           question: question.question as string,
-          description: question.description as string,
           description_json: question.description_json as JSONContent,
           tags: question.tags as string[],
           asker: updatedAsker,
@@ -171,12 +186,13 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
       const { data: schedulings, error: schedulingsError } = await supabase
         .from("schedulings")
         .select(
-          `receiver_id (first_name, last_name, timezone), scheduler_id (id, first_name, last_name, timezone, profile_image, auth_id), scheduled_time, sender_note, status, receiver_note`
+          `id, receiver_id (first_name, last_name, timezone), scheduler_id (id, first_name, last_name, timezone, profile_image, auth_id), scheduled_time, sender_note, status, receiver_note`
         )
         .eq("question_id", params.id);
       if (schedulings) {
         const updatedSchedulings: Scheduling[] = schedulings.map((s) => {
           return {
+            id: s.id as number,
             receiver_id: {
               first_name: s.receiver_id.first_name as string,
               last_name: s.receiver_id.last_name as string,
@@ -268,7 +284,7 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
   let dateCheck = false;
 
   const handleSchedule = async () => {
-    if (!dateTime) {
+    if (!dateString || !timeString) {
       messageApi.open({
         type: "error",
         content: "Please provide a date and time for your meeting",
@@ -278,12 +294,15 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
       dateCheck = true;
     }
 
+    let meetingId = uuidv4();
+
     const scheduleData = {
       scheduler_id: coder?.id,
       receiver_id: question.asker?.id,
       question_id: question.id,
       scheduled_time: formattedDate ? new Date(formattedDate) : null,
       sender_note: scheduleMessage || null,
+      meeting_id: meetingId,
     };
 
     if (dateCheck) {
@@ -299,7 +318,24 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
 
         if (scheduleDataResponse) {
           console.log("Scheduling added:", scheduleDataResponse);
-          // setDidSchedule(true);
+          const { data, error } = await supabase
+            .from("meetings")
+            .insert({ id: meetingId })
+            .select();
+          const { data: d, error: e } = await supabase
+            .from("notifications")
+            .insert({
+              event: "schedule_meet",
+              coder_ref: question.asker?.id,
+              question_ref: question.id,
+              scheduling_ref: scheduleDataResponse[0].id,
+            })
+            .select();
+          if (d) {
+            console.log(d);
+          } else {
+            console.error(e);
+          }
           setIsScheduleMeetOpen(false);
           router.refresh();
         }
@@ -339,12 +375,35 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
         if (scheduleError) {
           console.log("Faulty data:", scheduleData);
           console.log("Error uploading scheduling data:", scheduleError);
+          messageApi.open({
+            type: "error",
+            content: "Error uploading scheduling data",
+            duration: 3,
+          });
           return;
         }
 
         if (scheduleDataResponse) {
           console.log("Scheduling updated:", scheduleDataResponse);
-          // setDidSchedule(false);
+          messageApi.open({
+            type: "success",
+            content: "Scheduling updated",
+            duration: 3,
+          });
+          const { data: d, error: e } = await supabase
+            .from("notifications")
+            .insert({
+              event: "reschedule_meet",
+              coder_ref: question.asker?.id,
+              question_ref: question.id,
+              scheduling_ref: devScheduling?.id,
+            })
+            .select();
+          if (d) {
+            console.log(d);
+          } else {
+            console.error(e);
+          }
           setIsEditScheduleMeetOpen(false);
         }
       } catch (error) {
@@ -363,10 +422,32 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
 
       if (scheduleError) {
         console.log("Error deleting scheduling data:", scheduleError);
-        return;
+        messageApi.open({
+          type: "error",
+          content: scheduleError.message,
+          duration: 3,
+        });
       } else {
         console.log("Scheduling deleted:", scheduleData);
-        // setDidSchedule(true);
+        messageApi.open({
+          type: "success",
+          content: "Scheduling deleted",
+          duration: 3,
+        });
+        const { data: d, error: e } = await supabase
+          .from("notifications")
+          .insert({
+            event: "cancel_meet",
+            coder_ref: question.asker?.id,
+            question_ref: question.id,
+            scheduling_ref: devScheduling?.id,
+          })
+          .select();
+        if (d) {
+          console.log(d);
+        } else {
+          console.error(e);
+        }
         setIsEditScheduleMeetOpen(false);
         router.refresh();
       }
@@ -376,113 +457,216 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
   };
 
   const handleSchedulingAccept = async (scheduling: Scheduling) => {
-    try {
-      const { data: schedulingDataResponse, error: schedulingError } =
-        await supabase
-          .from("schedulings")
-          .update({ status: "accept", receiver_note: null, is_confirmed: true })
-          .eq("id", scheduling.id)
-          .select();
+    // try {
+    //   const { data: schedulingDataResponse, error: schedulingError } =
+    //     await supabase
+    //       .from("schedulings")
+    //       .update({ status: "accept", receiver_note: null, is_confirmed: true })
+    //       .eq("id", scheduling.id)
+    //       .select();
 
-      if (schedulingError) {
-        console.log("Faulty data:", {
-          status: "accept",
-          receiver_note: null,
-          is_confirmed: true,
+    //   if (schedulingError) {
+    //     console.log("Faulty data:", {
+    //       status: "accept",
+    //       receiver_note: null,
+    //       is_confirmed: true,
+    //     });
+    //     console.log("Error uploading scheduling data:", schedulingError);
+    //     return;
+    //   }
+
+    //   if (schedulingDataResponse) {
+    //     console.log("Scheduling updated:", schedulingDataResponse);
+    //     // setDidSchedule(false);
+    //     setIsEditScheduleMeetOpen(false);
+    //     router.refresh();
+    //   }
+    // } catch (error) {
+    //   console.error("Error accepting meeting request:", error);
+    // }
+    try {
+      // Call the Supabase function to update the scheduling and insert into notifications
+      const { error } = await supabase.rpc("handle_scheduling_accept", {
+        id: scheduling.id,
+      });
+
+      if (error) {
+        console.error("Error updating scheduling:", error);
+        messageApi.open({
+          type: "error",
+          content: "Error updating scheduling",
+          duration: 3,
         });
-        console.log("Error uploading scheduling data:", schedulingError);
         return;
       }
 
-      if (schedulingDataResponse) {
-        console.log("Scheduling updated:", schedulingDataResponse);
-        // setDidSchedule(false);
-        setIsEditScheduleMeetOpen(false);
-        router.refresh();
-      }
+      console.log("Scheduling updated successfully");
+      messageApi.open({
+        type: "success",
+        content: "Scheduling updated successfully",
+        duration: 3,
+      });
+      router.refresh();
     } catch (error) {
       console.error("Error accepting meeting request:", error);
     }
   };
 
   const handleSchedulingReject = async (scheduling: Scheduling) => {
-    try {
-      const { data: schedulingDataResponse, error: schedulingError } =
-        await supabase
-          .from("schedulings")
-          .update({ status: "reject" })
-          .eq("id", scheduling.id)
-          .select();
+    // try {
+    //   const { data: schedulingDataResponse, error: schedulingError } =
+    //     await supabase
+    //       .from("schedulings")
+    //       .update({ status: "reject" })
+    //       .eq("id", scheduling.id)
+    //       .select();
 
-      if (schedulingError) {
-        console.log("Faulty data:", { status: "reject" });
-        console.log("Error uploading scheduling data:", schedulingError);
+    //   if (schedulingError) {
+    //     console.log("Faulty data:", { status: "reject" });
+    //     console.log("Error uploading scheduling data:", schedulingError);
+    //     return;
+    //   }
+
+    //   if (schedulingDataResponse) {
+    //     console.log("Scheduling updated:", schedulingDataResponse);
+    //     // setDidSchedule(false);
+    //     setIsEditScheduleMeetOpen(false);
+    //     router.refresh();
+    //   }
+    // } catch (error) {
+    //   console.error("Error rejecting meeting request:", error);
+    // }
+    try {
+      // Call the Supabase function to update the scheduling and insert into notifications
+      const { error } = await supabase.rpc("handle_scheduling_reject", {
+        id: scheduling.id,
+      });
+
+      if (error) {
+        console.error("Error updating scheduling:", error);
+        messageApi.open({
+          type: "error",
+          content: "Error updating scheduling",
+          duration: 3,
+        });
         return;
       }
 
-      if (schedulingDataResponse) {
-        console.log("Scheduling updated:", schedulingDataResponse);
-        // setDidSchedule(false);
-        setIsEditScheduleMeetOpen(false);
-        router.refresh();
-      }
+      console.log("Scheduling rejected successfully");
+      messageApi.open({
+        type: "success",
+        content: "Scheduling rejected successfully",
+        duration: 3,
+      });
+      router.refresh();
     } catch (error) {
       console.error("Error rejecting meeting request:", error);
     }
   };
 
   const handleReschedule = async (scheduling: Scheduling) => {
+    // try {
+    //   const rescheduleData = {
+    //     status: "reschedule",
+    //     receiver_note: receiverNote || null,
+    //     is_confirmed: false,
+    //   };
+
+    //   const { data: schedulingDataResponse, error: schedulingError } =
+    //     await supabase
+    //       .from("schedulings")
+    //       .update(rescheduleData)
+    //       .eq("id", scheduling.id)
+    //       .select();
+
+    //   if (schedulingError) {
+    //     console.log("Faulty data:", rescheduleData);
+    //     console.log("Error uploading scheduling data:", schedulingError);
+    //     return;
+    //   }
+
+    //   if (schedulingDataResponse) {
+    //     console.log("Scheduling updated:", schedulingDataResponse);
+    //     // setDidSchedule(false);
+    //     setIsEditScheduleMeetOpen(false);
+    //     router.refresh();
+    //   }
+    // } catch (error) {
+    //   console.error("Error rescheduling meeting request:", error);
+    // }
     try {
-      const rescheduleData = {
-        status: "reschedule",
-        receiver_note: receiverNote || null,
-        is_confirmed: false,
-      };
+      // Call the Supabase function to update the scheduling and insert into notifications
+      const { error } = await supabase.rpc("handle_reschedule", {
+        id: scheduling.id,
+        note: receiverNote,
+      });
 
-      const { data: schedulingDataResponse, error: schedulingError } =
-        await supabase
-          .from("schedulings")
-          .update(rescheduleData)
-          .eq("id", scheduling.id)
-          .select();
-
-      if (schedulingError) {
-        console.log("Faulty data:", rescheduleData);
-        console.log("Error uploading scheduling data:", schedulingError);
+      if (error) {
+        console.error("Error rescheduling meeting:", error);
+        messageApi.open({
+          type: "error",
+          content: "Error rescheduling meeting",
+          duration: 3,
+        });
         return;
       }
 
-      if (schedulingDataResponse) {
-        console.log("Scheduling updated:", schedulingDataResponse);
-        // setDidSchedule(false);
-        setIsEditScheduleMeetOpen(false);
-        router.refresh();
-      }
+      console.log("Scheduling rescheduled successfully");
+      messageApi.open({
+        type: "success",
+        content: "Scheduling rescheduled successfully",
+        duration: 3,
+      });
+      router.refresh();
     } catch (error) {
       console.error("Error rescheduling meeting request:", error);
     }
   };
 
   const handleQuestionDelete = async () => {
-    try {
-      const { data: questionData, error: questionError } = await supabase
-        .from("questions")
-        .delete()
-        .eq("id", question.id)
-        .select();
+    // try {
+    //   const { data: questionData, error: questionError } = await supabase
+    //     .from("questions")
+    //     .delete()
+    //     .eq("id", question.id)
+    //     .select();
 
-      if (questionError) {
-        console.log("Error deleting question:", questionError);
+    //   if (questionError) {
+    //     console.log("Error deleting question:", questionError);
+    //     messageApi.open({
+    //       type: "error",
+    //       content: "Error deleting question",
+    //       duration: 3,
+    //     });
+    //     return;
+    //   } else {
+    //     console.log("Question deleted:", questionData);
+    //     messageApi.open({
+    //       type: "success",
+    //       content: "Successfully deleted question",
+    //       duration: 3,
+    //     });
+    //     setIsDeleteOpen(false);
+    //     router.push(`/users/${coder?.auth_id}`);
+    //   }
+    // } catch (error) {
+    //   console.error(error);
+    // }
+    try {
+      const { error } = await supabase.rpc("delete_question_and_notify", {
+        question_id: question.id,
+      });
+      if (error) {
+        console.error("Error deleting question:", error);
         messageApi.open({
           type: "error",
           content: "Error deleting question",
           duration: 3,
         });
-        return;
       } else {
-        console.log("Question deleted:", questionData);
+        console.log("Question deleted successfully");
         messageApi.open({
-          type: "success",
+          type: "error",
           content: "Successfully deleted question",
           duration: 3,
         });
@@ -490,7 +674,7 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
         router.push(`/users/${coder?.auth_id}`);
       }
     } catch (error) {
-      console.error(error);
+      console.error("Unexpected error:", error);
     }
   };
 
@@ -538,6 +722,7 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
                 {"Answered"}
               </div>
             ) : (
+              user &&
               user?.id !== question.asker?.auth_id && (
                 <div
                   onClick={
@@ -614,13 +799,11 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
           style="mx-auto max-w-7xl py-3 px-3 mt-3 text-justify border border-solid border-black rounded-lg"
         />
       </div>
-      {user && coder && (
-        <Comments
-          question={question}
-          coder={coder}
-          contributors={toSendContributors || []}
-        />
-      )}
+      <Comments
+        question={question}
+        coder={coder ?? {}}
+        contributors={toSendContributors || []}
+      />
 
       <FAB />
 
@@ -669,7 +852,7 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
 
                     <div className="mt-[2px] flex flex-row items-center justify-between">
                       <DatePicker
-                        value={dayjs(dateString, "MM/DD/YYYY")}
+                        // defaultValue={dayjs(dateString, "MM/DD/YYYY")}
                         onChange={(date, dateString) => {
                           console.log(dateString);
                           setDateString(dateString as string);
@@ -680,7 +863,7 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
                       <TimePicker
                         use12Hours
                         format="h:mm a"
-                        value={dayjs(timeString, "h:mm a")}
+                        // defaultValue={dayjs(new Date(), "h:mm a")}
                         onChange={(time, timeString) => {
                           console.log(timeString);
                           setTimeString(timeString as string);

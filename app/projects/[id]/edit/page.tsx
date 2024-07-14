@@ -185,35 +185,75 @@ const Page = ({ params }: { params: { id: string } }) => {
   };
 
   const handleDelete = async () => {
+    // try {
+    //   const isProjectImage = project?.project_image;
+    //   const ownerId = project?.owner?.auth_id;
+
+    //   const { error } = await supabase
+    //     .from("projects")
+    //     .delete()
+    //     .eq("id", params.id);
+
+    //   if (isProjectImage) {
+    //     const { data, error } = await supabase.storage
+    //       .from("projectImages")
+    //       .remove([`projImage-${params.id}`]);
+
+    //     if (error) {
+    //       console.error("Error:", error);
+    //     } else {
+    //       console.log("Successfully deleted project image:", data);
+    //     }
+    //   }
+
+    //   if (error) {
+    //     console.error("Error:", error);
+    //   } else {
+    //     console.log("Successfully deleted project");
+    //     router.push(`/users/${ownerId}`);
+    //   }
+    // } catch (error) {
+    //   console.log("Error:", error);
+    // }
     try {
-      const isProjectImage = project?.project_image;
       const ownerId = project?.owner?.auth_id;
 
-      const { error } = await supabase
-        .from("projects")
-        .delete()
-        .eq("id", params.id);
+      // Call the Supabase function to delete the project and get the project image boolean
+      const { data, error } = await supabase.rpc(
+        "delete_project_and_get_image",
+        { id: params.id }
+      );
 
-      if (isProjectImage) {
-        const { data, error } = await supabase.storage
-          .from("projectImages")
-          .remove([`projImage-${params.id}`]);
+      if (error) {
+        console.error("Error deleting project:", error);
+        return;
+      }
 
-        if (error) {
-          console.error("Error:", error);
+      const projectImageExists = data;
+
+      if (projectImageExists) {
+        // Delete the project image from Supabase storage
+        const { data: storageData, error: storageError } =
+          await supabase.storage
+            .from("projectImages")
+            .remove([`projImage-${params.id}`]);
+
+        if (storageError) {
+          console.error("Error deleting project image:", storageError);
         } else {
-          console.log("Successfully deleted project image:", data);
+          console.log("Successfully deleted project image:", storageData);
         }
       }
 
-      if (error) {
-        console.error("Error:", error);
-      } else {
-        console.log("Successfully deleted project");
-        router.push(`/users/${ownerId}`);
-      }
+      console.log("Project deleted successfully");
+      messageApi.open({
+        type: "success",
+        content: "Successfully deleted project",
+        duration: 3,
+      });
+      router.push(`/users/${ownerId}`);
     } catch (error) {
-      console.log("Error:", error);
+      console.error("Error deleting project:", error);
     }
   };
 

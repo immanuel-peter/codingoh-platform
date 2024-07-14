@@ -120,11 +120,6 @@ export interface Scheduling {
   sender_note?: string;
   status?: string | null;
   receiver_note?: string | null;
-  meeting_id?: number | null;
-  meeting_uuid?: string | null;
-  meeting_start_url?: string | null;
-  meeting_join_url?: string | null;
-  meeting_password?: string | null;
   question_id?: Question;
   [key: string]: any;
 }

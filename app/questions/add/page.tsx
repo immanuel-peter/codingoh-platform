@@ -192,6 +192,18 @@ const AddQuestion = () => {
 
         if (questionDataResponse) {
           console.log("Question added:", questionDataResponse);
+          const { data: d, error: e } = await supabase
+            .from("notifications")
+            .insert({
+              event: "add_question",
+              coder_ref: coder?.id,
+              question_ref: questionDataResponse[0].id,
+            });
+          if (d) {
+            console.log(d);
+          } else {
+            console.error(e);
+          }
           messageApi.open({
             type: "success",
             content: "Question added:",

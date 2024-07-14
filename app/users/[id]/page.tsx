@@ -28,6 +28,7 @@ import {
 } from "@/types";
 import { getTopLanguages, getTopQuestions } from "@/utils";
 import { Navbar, Question, Project, FAB, NewProjectForm } from "@/components";
+import backgrounds from "@/public/backgrounds";
 import Banner from "@/public/banner.png";
 import Avatar from "@/public/avatar.png";
 
@@ -266,7 +267,9 @@ const UserPage = ({ params }: { params: { id: string } }) => {
       });
 
       const finalQuestions: QuestionType[] = updatedQuestions.filter((q) =>
-        q.contributors?.some((c) => c.user_id?.id === coder?.id)
+        q.contributors?.some(
+          (c) => c.user_id?.id === coder?.id && c.user_id?.id !== q.asker?.id
+        )
       );
       setCoderResponses(finalQuestions);
     };
@@ -326,6 +329,11 @@ const UserPage = ({ params }: { params: { id: string } }) => {
     });
   };
 
+  const addProject = (project: ProjectType) => {
+    setCoderProjects([...coderProjects, project]);
+    setNewProjectModalOpen(false);
+  };
+
   return (
     <>
       {contextHolder}
@@ -333,7 +341,7 @@ const UserPage = ({ params }: { params: { id: string } }) => {
       <div className="p-3 m-0">
         <div className="relative flex h-32 w-full items-center justify-between rounded-xl bg-cover px-10 mb-4">
           <div className="flex flex-row items-center justify-between gap-x-4">
-            <div className="flex h-20 w-20 items-center justify-center rounded-full mr-20">
+            <div className="flex items-center justify-center rounded-full mr-8">
               <Badge
                 color={isOnline ? "green" : "red"}
                 status={isOnline ? "success" : "error"}
@@ -343,9 +351,9 @@ const UserPage = ({ params }: { params: { id: string } }) => {
                   <Image
                     src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/avatars/profileImg-${params.id}`}
                     alt="profile picture"
-                    className="h-full w-full rounded-full"
-                    height={108}
-                    width={108}
+                    className="rounded-full"
+                    height={100}
+                    width={100}
                   />
                 ) : (
                   <DAvatar size={108}>
@@ -369,9 +377,9 @@ const UserPage = ({ params }: { params: { id: string } }) => {
                 />
                 {coder?.socials
                   ? coder?.socials.map((social, index) =>
-                      social.social !== "x" &&
-                      social.social !== "threads" &&
-                      social.social !== "personal" ? (
+                      social.social?.toLowerCase() !== "x" &&
+                      social.social?.toLowerCase() !== "threads" &&
+                      social.social?.toLowerCase() !== "personal" ? (
                         <SocialIcon
                           key={index}
                           network={social.social
@@ -384,7 +392,7 @@ const UserPage = ({ params }: { params: { id: string } }) => {
                           }
                           style={{ height: 35, width: 35, marginTop: "10px" }}
                         />
-                      ) : social.social === "x" ? (
+                      ) : social.social?.toLowerCase() === "x" ? (
                         <Link
                           href={
                             social.link?.startsWith("https://")
@@ -395,7 +403,7 @@ const UserPage = ({ params }: { params: { id: string } }) => {
                         >
                           <FaXTwitter className="text-base" />
                         </Link>
-                      ) : social.social === "threads" ? (
+                      ) : social.social?.toLowerCase() === "threads" ? (
                         <Link
                           href={
                             social.link?.startsWith("https://")
@@ -450,7 +458,7 @@ const UserPage = ({ params }: { params: { id: string } }) => {
           )}
         </div>
         <Image
-          src={Banner}
+          src={backgrounds[coder?.background_image ?? 0]}
           alt="background cover"
           className="h-2 w-full rounded-xl"
         />
@@ -1528,7 +1536,7 @@ const UserPage = ({ params }: { params: { id: string } }) => {
                     New Project
                   </Dialog.Title>
 
-                  <NewProjectForm />
+                  <NewProjectForm onOk={addProject} />
                 </Dialog.Panel>
               </Transition.Child>
             </div>
