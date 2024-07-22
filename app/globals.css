@@ -1,13 +1,164 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import url("https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap");
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 * {
-  @apply m-0 p-0 box-border dark:bg-slate-700;
+  @apply font-sans m-0 p-0 box-border dark:bg-slate-700;
+}
+
+.tiptap {
+  @apply first:mt-0;
+
+  h1 {
+    @apply text-2xl font-bold;
+  }
+
+  h2 {
+    @apply text-xl font-semibold;
+  }
+
+  h3 {
+    @apply text-lg font-medium;
+  }
+
+  h4 {
+    @apply text-base font-normal;
+  }
+
+  h5 {
+    @apply text-sm font-light;
+  }
+
+  h6 {
+    @apply text-xs font-extralight;
+  }
+
+  a {
+    @apply text-blue-500 cursor-pointer hover:underline;
+  }
+
+  blockquote {
+    @apply first:mt-0 my-6 pl-4 border-l-[3px] border-gray-300;
+  }
+
+  ul {
+    @apply first:mt-0 pl-4 pr-4 py-1 list-disc;
+  }
+
+  ol {
+    @apply first:mt-0 pl-4 pr-4 py-1 list-decimal;
+  }
+
+  li p {
+    @apply first:mt-0 mt-1 mb-1;
+  }
+
+  img {
+    @apply first:mt-0 border border-solid border-slate-500;
+  }
+
+  code {
+    @apply bg-slate-300 rounded-md text-black text-sm p-1;
+  }
+
+  pre {
+    @apply bg-black rounded-lg text-white font-mono my-2 py-3 px-3;
+  }
+
+  pre code {
+    @apply bg-transparent text-inherit text-xs p-0;
+  }
+
+  /* Syntax highlighting */
+  .hljs-comment,
+  .hljs-quote {
+    @apply text-[#616161];
+  }
+
+  .hljs-variable,
+  .hljs-template-variable,
+  .hljs-attribute,
+  .hljs-tag,
+  .hljs-name,
+  .hljs-regexp,
+  .hljs-link,
+  .hljs-selector-id,
+  .hljs-selector-class {
+    @apply text-[#f98181];
+  }
+
+  .hljs-number,
+  .hljs-meta,
+  .hljs-built_in,
+  .hljs-builtin-name,
+  .hljs-literal,
+  .hljs-type,
+  .hljs-params {
+    @apply text-[#fbbc88];
+  }
+
+  .hljs-string,
+  .hljs-symbol,
+  .hljs-bullet {
+    @apply text-[#b9f18d];
+  }
+
+  .hljs-title,
+  .hljs-section {
+    @apply text-[#faf594];
+  }
+
+  .hljs-keyword,
+  .hljs-selector-tag {
+    @apply text-[#70cff8];
+  }
+
+  .hljs-emphasis {
+    @apply italic;
+  }
+
+  .hljs-strong {
+    @apply font-bold;
+  }
+
+  /* Placeholder styling */
+  p.is-editor-empty:first-child::before {
+    @apply text-gray-400 content-[attr(data-placeholder)] float-left h-0 pointer-events-none;
+  }
+}
+
+.floating-menu {
+  @apply flex bg-gray-300 p-1 rounded-md;
+}
+
+.floating-menu button {
+  @apply bg-transparent p-1 rounded;
+}
+
+.floating-menu button:hover {
+  @apply bg-gray-300 text-purple-500 border border-solid border-gray-400;
+}
+
+.floating-menu button.is-active {
+  @apply bg-white text-purple-500;
+}
+
+.floating-menu button.is-active:hover {
+  @apply text-purple-700;
+}
+
+.str-video__participant-details__name {
+  @apply text-white;
+}
+
+.str-video__generic-menu {
+  @apply text-white;
+}
+
+.str-video__notification__message {
+  @apply text-white;
 }
 
 /* width */

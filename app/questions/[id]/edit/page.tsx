@@ -8,10 +8,11 @@ import { IoClose } from "react-icons/io5";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 
-import { Navbar, RenderMd } from "@/components";
+import { Navbar, RenderMd, TiptapEditor } from "@/components";
 import { tags } from "@/dummy/questions";
 import { Tag, Coder, Question } from "@/types";
 import { formatEmbeddingInput } from "@/utils";
+import { JSONContent } from "@tiptap/react";
 
 const placeholderMdText: string = `# Fibonacci sequence not working
 
@@ -91,6 +92,7 @@ const EditQuestion = ({ params }: { params: { id: string } }) => {
         setUpdatedQuestion({
           ...updatedQuestion,
           title: question.question,
+          description: question.description_json as JSONContent,
           tags: question.tags,
           preferences: question.answer_preference,
           notifications: {
@@ -98,7 +100,7 @@ const EditQuestion = ({ params }: { params: { id: string } }) => {
             desktop: question.notify_desktop,
           },
         });
-        setMarkdown(question.description);
+        setJson(question.description_json as JSONContent);
       } else {
         console.error(error);
       }
@@ -113,11 +115,11 @@ const EditQuestion = ({ params }: { params: { id: string } }) => {
     notifCheck: boolean = false;
 
   const [tagsList, setTagsList] = useState<Tag[]>(tags);
-  const [markdown, setMarkdown] = useState<string>(placeholderMdText);
-  const [isPreviewOpen, setIsPreviewOpen] = useState<boolean>(false);
+  const [json, setJson] = useState<JSONContent>();
+  const [editorText, setEditorText] = useState<string>("");
   const [updatedQuestion, setUpdatedQuestion] = useState({
     title: "",
-    description: "",
+    description: {} as JSONContent,
     tags: [] as string[],
     preferences: "text",
     notifications: {
@@ -131,9 +133,9 @@ const EditQuestion = ({ params }: { params: { id: string } }) => {
   useEffect(() => {
     setUpdatedQuestion((prevQuestion) => ({
       ...prevQuestion,
-      description: markdown === placeholderMdText ? "" : markdown,
+      description: json || ({} as JSONContent),
     }));
-  }, [markdown, placeholderMdText]);
+  }, [json]);
 
   const handleTagSelect = (value: string) => {
     const exists = tagsList.some((tag) => tag.value === value);
@@ -164,7 +166,7 @@ const EditQuestion = ({ params }: { params: { id: string } }) => {
     asker: coder?.id,
     question: updatedQuestion.title,
     tags: updatedQuestion.tags,
-    description: updatedQuestion.description,
+    description_json: updatedQuestion.description,
     answer_preference: updatedQuestion.preferences,
     notify_email: updatedQuestion.notifications.email,
     notify_desktop: updatedQuestion.notifications.desktop,
@@ -184,7 +186,7 @@ const EditQuestion = ({ params }: { params: { id: string } }) => {
       titleCheck = true;
     }
 
-    if (updatedQuestion.description.trim() === "") {
+    if (!updatedQuestion.description) {
       messageApi.open({
         type: "error",
         content: "Please provide a description for your question",
@@ -209,43 +211,59 @@ const EditQuestion = ({ params }: { params: { id: string } }) => {
 
     if (titleCheck && descCheck && notifCheck) {
       try {
-        // Compute embedding using Fetch API
-        const response = await fetch("https://api.openai.com/v1/embeddings", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${process.env.NEXT_PUBLIC_OPENAI_API_KEY}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            model: "text-embedding-3-small",
-            input: formatEmbeddingInput(
-              updatedQuestion.title,
-              updatedQuestion.description,
-              updatedQuestion.tags
-            ),
-            dimensions: 512,
-          }),
-        });
+        let questionData = {};
+        if (
+          question?.title == updatedQuestion.title &&
+          question.description_json == updatedQuestion.description &&
+          question.tags == updatedQuestion.tags
+        ) {
+          questionData = {
+            question: updatedQuestion.title,
+            tags: updatedQuestion.tags,
+            description_json: updatedQuestion.description,
+            answer_preference: updatedQuestion.preferences,
+            notify_email: updatedQuestion.notifications.email,
+            notify_desktop: updatedQuestion.notifications.desktop,
+          };
+        } else {
+          // Compute embedding using Fetch API
+          const response = await fetch("https://api.openai.com/v1/embeddings", {
+            method: "POST",
+            headers: {
+              Authorization: `Bearer ${process.env.NEXT_PUBLIC_OPENAI_API_KEY}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              model: "text-embedding-3-small",
+              input: formatEmbeddingInput(
+                updatedQuestion.title,
+                editorText,
+                updatedQuestion.tags
+              ),
+              dimensions: 512,
+            }),
+          });
 
-        if (!response.ok) {
-          const errorDetails = await response.json();
-          throw new Error(
-            `API request failed with status ${response.status}: ${errorDetails.message}`
-          );
+          if (!response.ok) {
+            const errorDetails = await response.json();
+            throw new Error(
+              `API request failed with status ${response.status}: ${errorDetails.message}`
+            );
+          }
+
+          const embeddingData = await response.json();
+          const embedding = embeddingData.data[0].embedding;
+
+          questionData = {
+            question: updatedQuestion.title,
+            tags: updatedQuestion.tags,
+            description_json: updatedQuestion.description,
+            answer_preference: updatedQuestion.preferences,
+            notify_email: updatedQuestion.notifications.email,
+            notify_desktop: updatedQuestion.notifications.desktop,
+            embedding: embedding,
+          };
         }
-
-        const embeddingData = await response.json();
-        const embedding = embeddingData.data[0].embedding;
-
-        const questionData = {
-          question: updatedQuestion.title,
-          tags: updatedQuestion.tags,
-          description: updatedQuestion.description,
-          answer_preference: updatedQuestion.preferences,
-          notify_email: updatedQuestion.notifications.email,
-          notify_desktop: updatedQuestion.notifications.desktop,
-          embedding: embedding,
-        };
 
         // Make database call
         const { data: questionDataResponse, error: questionDataError } =
@@ -287,10 +305,10 @@ const EditQuestion = ({ params }: { params: { id: string } }) => {
   };
 
   const handleFormCancel = () => {
-    setMarkdown(placeholderMdText);
     setUpdatedQuestion({
       ...updatedQuestion,
       title: "",
+      description: {} as JSONContent,
       tags: [],
       preferences: "text",
       notifications: {
@@ -306,7 +324,7 @@ const EditQuestion = ({ params }: { params: { id: string } }) => {
       <Navbar />
 
       <form
-        className="mt-5 mb-5 flex items-center justify-center max-w-7xl"
+        className="mt-5 mb-5 flex items-center justify-center w-6xl"
         onSubmit={handleQuestionSubmit}
       >
         <div className="space-y-12 py-4">
@@ -343,7 +361,7 @@ const EditQuestion = ({ params }: { params: { id: string } }) => {
                 />
               </div>
 
-              <div className="col-span-full">
+              {/* <div className="col-span-full">
                 <label
                   htmlFor="about"
                   className="flex items-center justify-between gap-2 text-sm font-medium leading-6 text-gray-900"
@@ -405,6 +423,14 @@ const EditQuestion = ({ params }: { params: { id: string } }) => {
                     />
                   </div>
                 )}
+              </div> */}
+
+              <div className="col-span-full ">
+                <TiptapEditor
+                  onJsonChange={(Json) => setJson(Json)}
+                  onTextChange={(text) => setEditorText(text)}
+                  renderContent={json}
+                />
               </div>
 
               <div className="col-span-full">

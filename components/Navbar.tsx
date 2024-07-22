@@ -12,11 +12,12 @@ import { HiDocumentText } from "react-icons/hi2";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { Dialog, Transition } from "@headlessui/react";
-import { Avatar } from "@mui/joy";
+import { Avatar, Drawer } from "antd";
 import { createClient } from "@/utils/supabase/client";
 
 import { inboxItems } from "@/dummy/questions";
 import { Question } from "@/types";
+import { Inbox } from "@/components";
 
 type UserResponse = {
   id: string;
@@ -26,9 +27,6 @@ type UserResponse = {
 type Coder = {
   first_name: string;
   last_name: string;
-  timezone: string;
-  email_address: string;
-  background_image: number;
   profile_image: boolean;
   [key: string]: any;
 };
@@ -40,9 +38,6 @@ const Navbar = () => {
   const [coder, setCoder] = useState<Coder>({
     first_name: "",
     last_name: "",
-    timezone: "",
-    email_address: "",
-    background_image: 0,
     profile_image: false,
   });
   const [coderPic, setCoderPic] = useState<string>("");
@@ -58,7 +53,7 @@ const Navbar = () => {
         setUser(user);
         const { data, error } = await supabase
           .from("coders")
-          .select("*")
+          .select("first_name, last_name, profile_image")
           .eq("auth_id", user?.id)
           .single();
         if (data) {
@@ -82,7 +77,9 @@ const Navbar = () => {
 
   useEffect(() => {
     const fetchQuestions = async () => {
-      const { data, error } = await supabase.from("questions").select("*");
+      const { data, error } = await supabase
+        .from("questions")
+        .select("id, question, answer");
       if (data) {
         setAllQuestions(data);
       } else {
@@ -235,7 +232,7 @@ const Navbar = () => {
               </Link>
 
               <Link href="/questions/add">
-                <FaCirclePlus className="text-3xl mx-1 text-green-500 hover:text-green-700" />
+                <FaCirclePlus className="text-3xl mx-1 text-blue-500 hover:text-blue-700" />
               </Link>
               <div
                 className="mx-1 cursor-pointer"
@@ -250,7 +247,6 @@ const Navbar = () => {
                 <Link href={`/users/${user.id}`}>
                   {coder.profile_image ? (
                     <Avatar
-                      size="md"
                       alt={
                         coder.first_name && coder.last_name
                           ? `${coder.first_name[0]}${coder.last_name[0]}`
@@ -259,15 +255,10 @@ const Navbar = () => {
                       src={coderPic}
                     />
                   ) : (
-                    <Avatar
-                      size="md"
-                      className="hover:text-blue-500 hover:bg-blue-300/50"
-                    >
-                      {/* {coder.first_name && coder.last_name
+                    <Avatar className="hover:text-blue-500 hover:bg-blue-300/50">
+                      {coder.first_name && coder.last_name
                         ? `${coder.first_name[0]}${coder.last_name[0]}`
-                        : "</>"} */}
-                      {coder.first_name[0]}
-                      {coder.last_name[0]}
+                        : "</>"}
                     </Avatar>
                   )}
                 </Link>
@@ -278,7 +269,15 @@ const Navbar = () => {
       </header>
       <hr className="border-solid border-black border-[1px]" />
 
-      <Transition appear show={openInbox} as={Fragment}>
+      <Inbox open={openInbox} onClose={() => setOpenInbox(false)} />
+    </>
+  );
+};
+
+export default Navbar;
+
+/*
+<Transition appear show={openInbox} as={Fragment}>
         <Dialog
           as="div"
           className="relative z-10 overflow-auto"
@@ -352,10 +351,9 @@ const Navbar = () => {
           </div>
         </Dialog>
       </Transition>
-    </>
-  );
-};
+*/
 
+/*
 const InboxItem = ({
   userLink,
   name,
@@ -410,5 +408,4 @@ const InboxItem = ({
     </div>
   );
 };
-
-export default Navbar;
+*/

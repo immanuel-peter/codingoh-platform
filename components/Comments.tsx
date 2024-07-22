@@ -9,8 +9,7 @@ import {
   AiFillDelete,
   AiFillEdit,
 } from "react-icons/ai";
-import { Badge, message } from "antd";
-import { Avatar, AvatarGroup } from "@mui/joy";
+import { Badge, message, Avatar } from "antd";
 import { Transition, Dialog } from "@headlessui/react";
 import { createClient } from "@/utils/supabase/client";
 import Link from "next/link";
@@ -18,7 +17,8 @@ import { useRouter } from "next/navigation";
 
 import { Contributor, Comment as CommentType, Coder, Question } from "@/types";
 import avatar from "@/public/avatar.png";
-import { RenderMd } from ".";
+import { RenderMd, TiptapRender, AddComment } from ".";
+import { JSONContent } from "@tiptap/react";
 
 interface NestedComment extends Comment {
   replies?: NestedComment[];
@@ -53,7 +53,7 @@ const Comment = ({
   onDeleteComment,
 }: {
   comment: CommentType;
-  onAddNestedComment: (text: string, parentId: number) => void;
+  onAddNestedComment: (json: JSONContent, parentId: number) => void;
   onDeleteComment: (commentId: number) => void;
 }) => {
   const router = useRouter();
@@ -73,6 +73,10 @@ const Comment = ({
   const [editCommentOpen, setEditCommentOpen] = useState<boolean>(false);
   const [editCommentText, setEditCommentText] = useState<string>(
     comment.text ?? ""
+  );
+  const [json, setJson] = useState<JSONContent>({});
+  const [editCommentJson, setEditCommentJson] = useState<JSONContent>(
+    comment.comment_json ?? {}
   );
   const [messageApi, contextHolder] = message.useMessage();
 
@@ -172,15 +176,15 @@ const Comment = ({
   const handleAddComment = async () => {
     const dbCommentText = newCommentText;
 
-    onAddNestedComment(newCommentText, comment.id ?? 0);
+    onAddNestedComment(json, comment.id ?? 0);
     setNewCommentText("");
     setOpenNewComment(false);
 
     const newCommentData = {
       commenter: coder?.id,
       question: comment.question?.id,
-      text: dbCommentText,
       parent_comment: comment.id,
+      comment_json: json,
     };
 
     try {
@@ -188,15 +192,26 @@ const Comment = ({
         .from("comments")
         .insert(newCommentData)
         .select();
-
-      const { data: contribution, error: contributionError } = await supabase
-        .from("contributors")
-        .insert({ question_id: comment.question?.id, user_id: coder?.id })
-        .select();
-      if (contributionError) {
-        console.error(contributionError);
-      } else {
-        console.log("Contribution added:", contribution);
+      if (data) {
+        messageApi.open({
+          type: "success",
+          content: "Successfully added comment",
+          duration: 3,
+        });
+        const { data: d, error: e } = await supabase
+          .from("notifications")
+          .insert({
+            event: "new_comment",
+            coder_ref: coder?.id,
+            question_ref: comment.question?.id,
+            comment_ref: data[0].id,
+          })
+          .select();
+        if (d) {
+          console.log(d);
+        } else {
+          console.error(e);
+        }
       }
     } catch (error) {
       console.error(error);
@@ -210,8 +225,6 @@ const Comment = ({
         .delete()
         .eq("id", comment.id)
         .select();
-
-      // const { data: contributionData, error: contributionError } = await supabase.from("contributors").delete().eq("question_id", comment.question.id).eq("user_id", coder?.id).select();
 
       if (commentError) {
         console.log("Error deleting comment:", commentError);
@@ -238,12 +251,12 @@ const Comment = ({
   };
 
   const handleEditComment = async () => {
-    comment.text = editCommentText;
+    comment.comment_json = editCommentJson;
 
     try {
       const { data: commentData, error: commentError } = await supabase
         .from("comments")
-        .update({ text: editCommentText })
+        .update({ comment_json: editCommentJson })
         .eq("id", comment.id)
         .select();
 
@@ -278,9 +291,13 @@ const Comment = ({
           isChecked ? "bg-green-100" : "bg-white"
         }`}
       >
-        <RenderMd
+        {/* <RenderMd
           className="text-gray-800 items-center p-4"
           markdown={comment.text ?? ""}
+        /> */}
+        <TiptapRender
+          renderContent={comment.comment_json}
+          style="text-gray-800 items-center p-4"
         />
         <div className="flex flex-row items-end justify-between gap-8 p-4">
           <div className="flex flex-row justify-center items-center gap-3 text-3xl">
@@ -333,26 +350,11 @@ const Comment = ({
         </div>
       </div>
       {openNewComment && (
-        <div className="flex justify-end m-3">
-          <div className="w-5/6 flex justify-between items-end">
-            <textarea
-              className="w-11/12 min-h-[100px] rounded-lg border-gray-200 border-solid border-[1px] align-top shadow-sm"
-              placeholder="Add a reply..."
-              value={newCommentText}
-              onChange={(e) => setNewCommentText(e.target.value)}
-            />
-            <button
-              onClick={handleAddComment}
-              className={`p-2 px-4 rounded-md bg-blue-400 text-white ${
-                newCommentText != ""
-                  ? "hover:bg-blue-600 cursor-pointer"
-                  : "bg-opacity-75 cursor-text"
-              }`}
-            >
-              Reply
-            </button>
-          </div>
-        </div>
+        <AddComment
+          type="nested"
+          handleCommentClick={handleAddComment}
+          onJsonChange={(Json) => setJson(Json)}
+        />
       )}
 
       <Transition appear show={deleteCommentOpen} as={Fragment}>
@@ -441,14 +443,14 @@ const Comment = ({
                 leaveFrom="opacity-100 scale-100"
                 leaveTo="opacity-0 scale-95"
               >
-                <Dialog.Panel className="w-full max-w-md transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
+                <Dialog.Panel className="w-full transform overflow-hidden rounded-2xl bg-white p-6 text-left align-middle shadow-xl transition-all">
                   <Dialog.Title
                     as="h3"
                     className="text-lg font-medium leading-6 text-blue-600 inline-flex items-center gap-2"
                   >
-                    Edit Your Meeting <AiFillEdit />
+                    Edit Your Comment <AiFillEdit />
                   </Dialog.Title>
-                  <textarea
+                  {/* <textarea
                     value={editCommentText}
                     onChange={(e) => setEditCommentText(e.target.value)}
                     className="mt-3 rounded-lg w-full"
@@ -458,7 +460,13 @@ const Comment = ({
                     className="cursor-pointer w-fit rounded-lg border border-solid bg-blue-500 px-4 py-2 text-base font-medium text-white hover:bg-blue-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-600 focus-visible:ring-offset-2"
                   >
                     Edit Comment
-                  </div>
+                  </div> */}
+                  <AddComment
+                    type="edit"
+                    handleCommentClick={handleEditComment}
+                    onJsonChange={(Json) => setEditCommentJson(Json)}
+                    renderCommentJson={editCommentJson}
+                  />
                 </Dialog.Panel>
               </Transition.Child>
             </div>
@@ -475,7 +483,7 @@ const NestedComments = ({
   onDeleteComment,
 }: {
   comments: CommentType[];
-  onAddNestedComment: (text: string, parentId: number) => void;
+  onAddNestedComment: (json: JSONContent, parentId: number) => void;
   onDeleteComment: (commentId: number) => void;
 }) => {
   return (
@@ -513,7 +521,7 @@ const Comments = ({
   const [comments, setComments] = useState<CommentType[]>([]);
   const [commentId, setCommentId] = useState<number>(0);
   const [inputValue, setInputValue] = useState<string>("");
-  // console.log(comments);
+  const [json, setJson] = useState<JSONContent>({});
 
   useEffect(() => {
     const fetchComments = async () => {
@@ -521,7 +529,8 @@ const Comments = ({
         const { data: comments, error } = await supabase
           .from("comments")
           .select("*")
-          .eq("question", question.id);
+          .eq("question", question.id)
+          .order("created_at", { ascending: true });
 
         if (comments) {
           let commenterIds = comments.map((comment) => comment.commenter);
@@ -550,8 +559,6 @@ const Comments = ({
   }, []);
 
   const handleAddComment = async () => {
-    const dbValue = inputValue;
-
     setComments([
       ...comments,
       {
@@ -560,49 +567,100 @@ const Comments = ({
         commenter: coder,
         question: question,
         parent_comment: null,
-        text: inputValue,
         is_answer: false,
         likes: 0,
         replies: [],
+        comment_json: json,
       },
     ]);
     setCommentId(commentId + 1);
     setInputValue("");
+    setJson({});
 
     const newCommentData = {
-      commenter: coder.id,
-      question: question.id,
-      text: dbValue,
+      _commenter: coder.id,
+      _question: question.id,
+      _comment_json: json,
     };
 
     try {
-      const { data, error } = await supabase
-        .from("comments")
-        .insert(newCommentData)
-        .select();
+      const { error } = await supabase.rpc(
+        "add_comment_and_notify",
+        newCommentData
+      );
 
       if (error) {
-        console.error("Error adding comment", error);
+        console.error("Error adding comment and sending notifications", error);
+        message.open({
+          type: "error",
+          content: "Error adding comment",
+          duration: 3,
+        });
       } else {
-        console.log("Comment added:", data);
-      }
-
-      const { data: contribution, error: contributionError } = await supabase
-        .from("contributors")
-        .insert({ question_id: question.id, user_id: coder?.id })
-        .select();
-
-      if (contributionError) {
-        console.error(contributionError);
-      } else {
-        console.log("Contribution added:", contribution);
+        console.log("Comment added and notifications sent successfully.");
+        message.open({
+          type: "success",
+          content: "Comment added successfully",
+          duration: 3,
+        });
       }
     } catch (err) {
-      console.error(err);
+      console.error("Unexpected error:", err);
     }
   };
 
-  const handleAddNestedComment = (text: string, parentId: number) => {
+  const handleAddAnswer = async () => {
+    setComments([
+      ...comments,
+      {
+        id: commentId,
+        created_at: new Date().toISOString(),
+        commenter: coder,
+        question: question,
+        parent_comment: null,
+        is_answer: true,
+        likes: 0,
+        replies: [],
+        comment_json: json,
+      },
+    ]);
+    setCommentId(commentId + 1);
+    setInputValue("");
+    setJson({});
+
+    const newCommentData = {
+      _commenter: coder.id,
+      _question: question.id,
+      _comment_json: json,
+    };
+
+    try {
+      const { error } = await supabase.rpc(
+        "add_answer_and_notify",
+        newCommentData
+      );
+
+      if (error) {
+        console.error("Error adding answer and sending notifications", error);
+        message.open({
+          type: "error",
+          content: "Error adding answer",
+          duration: 3,
+        });
+      } else {
+        console.log("Answer added and notifications sent successfully.");
+        message.open({
+          type: "success",
+          content: "Answer added successfully",
+          duration: 3,
+        });
+      }
+    } catch (err) {
+      console.error("Unexpected error:", err);
+    }
+  };
+
+  const handleAddNestedComment = (json: JSONContent, parentId: number) => {
     // Find the parent comment or nested comment based on parentId
     const findComment = (comments: CommentType[]): CommentType | undefined => {
       for (const comment of comments) {
@@ -630,7 +688,7 @@ const Comments = ({
         id: parentId,
         commenter: coder,
         question: question,
-        text: text,
+        comment_json: json,
         parent_comment: comments.filter(
           (comment) => comment.id === parentId
         )[0],
@@ -711,98 +769,90 @@ const Comments = ({
             ))}
         </div>
 
-        <div className="mx-auto max-w-7xl">
-          <div className="mt-4 flex flex-row justify-between items-center">
-            <h1 className="text-2xl font-bold">Comments</h1>
-            <div className="flex flex-row justify-between items-center">
-              {contributors.length > 0 ? (
-                <>
-                  <span className="mr-2">Contributors</span>
-                  <div className="flex -space-x-1 overflow-hidden">
-                    {contributors.length < 5 ? (
-                      contributors.map((contributor) => (
-                        <>
-                          {contributor.user_id?.profile_image ? (
-                            <Image
-                              key={contributor.user_id?.id}
-                              src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/avatars/profileImg-${contributor.user_id.auth_id}`}
-                              alt="contributor"
-                              className="inline-block h-6 w-6 rounded-full ring-2 ring-white"
-                              height={24}
-                              width={24}
-                            />
-                          ) : (
-                            <Avatar sx={{ "--Avatar-size": "24px" }}>
-                              {contributor.user_id?.first_name
-                                ? contributor.user_id.first_name[0]
-                                : ""}
-                              {contributor.user_id?.last_name
-                                ? contributor.user_id.last_name[0]
-                                : ""}
-                            </Avatar>
-                          )}
-                        </>
-                      ))
-                    ) : (
-                      <div className="px-2 flex items-center">
-                        {contributors.slice(0, 4).map((contributor) => (
-                          <>
-                            {contributor.user_id?.profile_image ? (
-                              <Image
-                                key={contributor.user_id?.id}
-                                src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/avatars/profileImg-${contributor.user_id.auth_id}`}
-                                alt="contributor"
-                                className="inline-block h-6 w-6 rounded-full ring-2 ring-white"
-                                height={24}
-                                width={24}
-                              />
-                            ) : (
-                              <Avatar sx={{ "--Avatar-size": "24px" }}>
-                                {contributor.user_id?.first_name
-                                  ? contributor.user_id.first_name[0]
-                                  : ""}
-                                {contributor.user_id?.last_name
-                                  ? contributor.user_id.last_name[0]
-                                  : ""}
-                              </Avatar>
-                            )}
-                          </>
-                        ))}
-                        <div
-                          key={5}
-                          className="flex h-7 w-7 rounded-full bg-slate-200 ring-2 ring-white items-center justify-center text-center text-xs"
-                        >
-                          +{contributors.length - 4}
-                        </div>
+        {coder && (
+          <>
+            <div className="mx-auto max-w-7xl">
+              <div className="mt-4 flex flex-row justify-between items-center">
+                <h1 className="text-2xl font-bold">Comments</h1>
+                <div className="flex flex-row justify-between items-center">
+                  {contributors.length > 0 ? (
+                    <>
+                      <span className="mr-2">Contributors</span>
+                      <div className="flex -space-x-1 overflow-hidden">
+                        {contributors.length < 5 ? (
+                          contributors.map((contributor) => (
+                            <>
+                              {contributor.user_id?.profile_image ? (
+                                <Image
+                                  key={contributor.user_id?.id}
+                                  src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/avatars/profileImg-${contributor.user_id.auth_id}`}
+                                  alt="contributor"
+                                  className="inline-block h-6 w-6 rounded-full ring-2 ring-white"
+                                  height={24}
+                                  width={24}
+                                />
+                              ) : (
+                                <Avatar size={24}>
+                                  {contributor.user_id?.first_name
+                                    ? contributor.user_id.first_name[0]
+                                    : ""}
+                                  {contributor.user_id?.last_name
+                                    ? contributor.user_id.last_name[0]
+                                    : ""}
+                                </Avatar>
+                              )}
+                            </>
+                          ))
+                        ) : (
+                          <div className="px-2 flex items-center">
+                            {contributors.slice(0, 4).map((contributor) => (
+                              <>
+                                {contributor.user_id?.profile_image ? (
+                                  <Image
+                                    key={contributor.user_id?.id}
+                                    src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/avatars/profileImg-${contributor.user_id.auth_id}`}
+                                    alt="contributor"
+                                    className="inline-block h-6 w-6 rounded-full ring-2 ring-white"
+                                    height={24}
+                                    width={24}
+                                  />
+                                ) : (
+                                  <Avatar size={24}>
+                                    {contributor.user_id?.first_name
+                                      ? contributor.user_id.first_name[0]
+                                      : ""}
+                                    {contributor.user_id?.last_name
+                                      ? contributor.user_id.last_name[0]
+                                      : ""}
+                                  </Avatar>
+                                )}
+                              </>
+                            ))}
+                            <div
+                              key={5}
+                              className="flex h-7 w-7 rounded-full bg-slate-200 ring-2 ring-white items-center justify-center text-center text-xs"
+                            >
+                              +{contributors.length - 4}
+                            </div>
+                          </div>
+                        )}
                       </div>
-                    )}
-                  </div>
-                </>
-              ) : null}
-            </div>
-          </div>
+                    </>
+                  ) : null}
+                </div>
+              </div>
 
-          <hr className="border-solid border-black border-[1px]" />
-          <textarea
-            id="comments"
-            className="mt-2 mb-2 min-w-full min-h-[100px] rounded-lg border-gray-200 border-solid border-[1px] align-top shadow-sm"
-            placeholder="Type your comment in Markdown..."
-            value={inputValue}
-            onChange={(e) => setInputValue(e.target.value)}
-          />
-          <div className="flex items-end justify-end">
-            <button
-              className={`p-2 rounded-md bg-blue-400 text-white ${
-                inputValue != ""
-                  ? "hover:bg-blue-600 cursor-pointer"
-                  : "bg-opacity-75 cursor-text"
-              }`}
-              onClick={handleAddComment}
-            >
-              Add Comment
-            </button>
-          </div>
-        </div>
+              <hr className="border-solid border-black border-[1px]" />
+              <AddComment
+                type="parent"
+                handleCommentClick={handleAddComment}
+                onJsonChange={(Json) => setJson(Json)}
+                handleAnswerClick={handleAddAnswer}
+                canAnswer={coder.id === question.asker?.id}
+              />
+            </div>
+          </>
+        )}
       </main>
     </>
   );

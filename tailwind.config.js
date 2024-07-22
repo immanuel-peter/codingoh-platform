@@ -1,4 +1,5 @@
 /** @type {import('tailwindcss').Config} */
+
 module.exports = {
   content: [
     "./pages/**/*.{js,ts,jsx,tsx,mdx}",
@@ -16,6 +17,9 @@ module.exports = {
       },
       gridTemplateColumns: {
         16: "repeat(16, minmax(0, 1fr))",
+      },
+      fontFamily: {
+        sans: ["DM Sans", "sans-serif"],
       },
     },
   },

@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { CircularProgress } from "@mui/joy";
+import { Spin } from "antd";
 import { PiCaretDoubleUpLight } from "react-icons/pi";
 
 import { Navbar, Question, FAB } from "@/components";
@@ -59,7 +59,7 @@ const SearchPage = () => {
         <>
           <Navbar />
           <div className="flex justify-center items-center h-screen">
-            <CircularProgress />
+            <Spin size="large" />
           </div>
         </>
       ) : (
@@ -72,11 +72,13 @@ const SearchPage = () => {
                   <li key={index}>
                     <Link
                       href={`/questions/${question.id}`}
-                      className="flex justify-between gap-x-6 py-5"
+                      className={`flex justify-between gap-x-6 py-5 ${question.answer ? "bg-green-300" : null}`}
                     >
                       <Question
+                        key={question.id}
                         question={question.question ?? ""}
                         asker={`${question.asker?.first_name} ${question.asker?.last_name}`}
+                        answered={question.answer ?? false}
                         contributors={question.contributors || []}
                         date={
                           question.created_at

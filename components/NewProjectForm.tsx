@@ -15,7 +15,7 @@ import { labelValues, uniqueArray } from "@/utils";
 
 const { Option } = Select;
 
-const NewProjectForm = () => {
+const NewProjectForm = ({ onOk }: { onOk: (project: ProjectType) => void }) => {
   const router = useRouter();
   const supabase = createClient();
   const [user, setUser] = useState<{ id: string; [key: string]: any }>();
@@ -148,12 +148,28 @@ const NewProjectForm = () => {
         if (projectDataError) {
           console.log("Faulty data:", newProjectData);
           console.log("Error uploading new project data:", projectDataError);
+          messageApi.open({
+            type: "error",
+            content: "Error uploading new project.",
+            duration: 3,
+          });
           return;
         }
 
         console.log("Project data uploaded:", projectDataResponse);
 
         if (newProjectImage) {
+          const { data: d, error: e } = await supabase.storage
+            .from("projectImages")
+            .upload(`projImage-${projectDataResponse[0].id}`, newProjectImage, {
+              upsert: false,
+            });
+
+          if (d) {
+            console.log("Project image uploaded:", d);
+            return;
+          }
+
           let maxProjectId = 0;
           let imageUploaded = false;
           let attempt = 0;
@@ -198,8 +214,20 @@ const NewProjectForm = () => {
 
           router.refresh();
         }
+
+        messageApi.open({
+          type: "success",
+          content: "Project successfully uploaded!",
+          duration: 3,
+        });
+        onOk(newProject);
       } catch (error) {
         console.log("Error:", error);
+        messageApi.open({
+          type: "error",
+          content: "Error uploading new project.",
+          duration: 3,
+        });
       }
     }
   };

@@ -2,8 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
-import { CircularProgress } from "@mui/joy";
-import { Avatar as MAvatar } from "@mui/joy";
+import { Progress, Avatar as DAvatar } from "antd";
 import { createClient } from "@/utils/supabase/client";
 
 import Avatar from "../public/avatar.png";
@@ -56,7 +55,7 @@ const Card = ({
   return (
     <>
       <div
-        className={`flex flex-col justify-center items-center mt-2 px-4 ${extraStyles}`}
+        className={`${extraStyles} flex flex-col justify-center items-center mt-2 px-4`}
       >
         <div className="relative flex flex-col items-center rounded-[20px] w-[300px] mx-auto p-4 border-2 border-slate-300 border-solid bg-white bg-clip-border shadow-3xl shadow-shadow-500 dark:!bg-navy-800 dark:text-white dark:!shadow-none">
           <div className="relative flex h-32 w-full justify-center rounded-xl bg-cover">
@@ -79,10 +78,10 @@ const Card = ({
                   width={87}
                 />
               ) : (
-                <MAvatar className="h-full w-full text-4xl text-blue-500 bg-blue-300">
+                <DAvatar className="h-full w-full text-4xl text-blue-500 bg-blue-300">
                   {coder?.first_name ? coder.first_name[0] : ""}
                   {coder?.last_name ? coder.last_name[0] : ""}
-                </MAvatar>
+                </DAvatar>
               )}
             </div>
           </div>
@@ -119,55 +118,40 @@ const Card = ({
             <div className="mt-6 mb-3 flex gap-6 bg-white md:gap-10">
               <div className="flex flex-col items-center justify-center bg-white">
                 <p className="text-2xl font-bold text-navy-700 bg-inherit">
-                  <CircularProgress
-                    determinate
-                    variant={"plain"}
-                    value={filteredLanguages[0].proficiency}
-                    color={
-                      filteredLanguages[0].proficiency == 100
-                        ? "success"
-                        : "primary"
-                    }
-                    size="sm"
+                  <Progress
+                    type="circle"
+                    percent={filteredLanguages[0].proficiency}
+                    size={30}
+                    showInfo={false}
                   />
                 </p>
-                <p className="text-sm font-normal bg-inherit text-gray-600">
+                <p className="mt-1 text-sm font-normal bg-inherit text-gray-600">
                   {filteredLanguages[0].language}
                 </p>
               </div>
               <div className="flex flex-col items-center justify-center bg-inherit">
                 <p className="text-2xl font-bold text-navy-700 bg-inherit">
-                  <CircularProgress
-                    determinate
-                    variant="plain"
-                    value={filteredLanguages[1].proficiency}
-                    color={
-                      filteredLanguages[1].proficiency == 100
-                        ? "success"
-                        : "primary"
-                    }
-                    size="sm"
+                  <Progress
+                    type="circle"
+                    percent={filteredLanguages[1].proficiency}
+                    size={30}
+                    showInfo={false}
                   />
                 </p>
-                <p className="text-sm font-normal text-gray-600 bg-inherit">
+                <p className="mt-1 text-sm font-normal text-gray-600 bg-inherit">
                   {filteredLanguages[1].language}
                 </p>
               </div>
               <div className="flex flex-col items-center justify-center bg-inherit">
                 <p className="text-2xl font-bold text-navy-700 bg-inherit dark:text-white">
-                  <CircularProgress
-                    determinate
-                    variant="plain"
-                    value={filteredLanguages[2].proficiency}
-                    color={
-                      filteredLanguages[2].proficiency == 100
-                        ? "success"
-                        : "primary"
-                    }
-                    size="sm"
+                  <Progress
+                    type="circle"
+                    percent={filteredLanguages[2].proficiency}
+                    size={30}
+                    showInfo={false}
                   />
                 </p>
-                <p className="text-sm font-normal text-gray-600 bg-inherit">
+                <p className="mt-1 text-sm font-normal text-gray-600 bg-inherit">
                   {filteredLanguages[2].language}
                 </p>
               </div>

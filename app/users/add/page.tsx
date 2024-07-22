@@ -18,16 +18,22 @@ import {
   FaXTwitter,
   FaThreads,
   FaUserCheck,
+  FaCheck,
+  FaBell,
 } from "react-icons/fa6";
 import { IoCloseCircleOutline } from "react-icons/io5";
 import { BsPlusCircleFill } from "react-icons/bs";
-import CheckIcon from "@mui/icons-material/Check";
-import { Badge, Slider, Avatar } from "@mui/joy";
-import { Select, Tooltip, Progress, message, notification } from "antd";
+import {
+  Select,
+  Tooltip,
+  Progress,
+  message,
+  notification,
+  Badge,
+  Slider,
+  Avatar,
+} from "antd";
 import Image, { StaticImageData } from "next/image";
-import { SocialIcon } from "react-social-icons";
-import moment from "moment-timezone";
-import { useTimezoneSelect, allTimezones } from "react-timezone-select";
 
 import Navbar from "@/components/Navbar";
 import backgrounds from "@/public/backgrounds";
@@ -532,11 +538,7 @@ export const NewUser = () => {
     setSelectedOption("");
   };
 
-  const handleAddProf = (
-    event: React.SyntheticEvent<Element, Event> | Event,
-    value: number | number[],
-    language: string
-  ) => {
+  const handleAddProf = (value: number | number[], language: string) => {
     if (typeof value === "number") {
       setUserProfs([
         ...userProfs,
@@ -893,7 +895,7 @@ export const NewUser = () => {
       auth_id: user.id,
       first_name: firstName,
       last_name: lastName,
-      gender: gender ?? "Male",
+      gender: gender == "" ? "Male" : gender,
       birthday: dob,
       timezone: timezone,
       email_address: email,
@@ -956,8 +958,15 @@ export const NewUser = () => {
 
       // Redirect to user's profile page if everything is successful
       if (userDataResponse) {
-        // router.push(`/users/${user.id}`);
         openNotification();
+        const { data, error } = await supabase
+          .from("notifications")
+          .insert({ event: "signup", coder_ref: userDataResponse[0].id })
+          .select();
+        if (error) {
+          console.log("Error sending notification:", error);
+        }
+        router.push(`/users/${user.id}`);
       }
     } catch (error) {
       console.log("Error during submission:", error);
@@ -1276,11 +1285,14 @@ export const NewUser = () => {
                   </label>
                   <div className="mt-2 flex flex-row justify-start gap-3 items-center">
                     {profileImg ? (
-                      <Avatar size="lg" src={URL.createObjectURL(profileImg)} />
+                      <Avatar
+                        size="large"
+                        src={URL.createObjectURL(profileImg)}
+                      />
                     ) : firstName !== "" && lastName !== "" ? (
-                      <Avatar size="lg">{`${firstName[0]}${lastName[0]}`}</Avatar>
+                      <Avatar size="large">{`${firstName[0]}${lastName[0]}`}</Avatar>
                     ) : (
-                      <Avatar size="lg" />
+                      <Avatar size="large" />
                     )}
                     <label className="p-1 border border-solid rounded-lg cursor-pointer bg-white hover:bg-gray-50 shadow-sm font-medium">
                       Change
@@ -1326,9 +1338,14 @@ export const NewUser = () => {
                     <div className="grid grid-cols-4 gap-5">
                       {backgrounds.map((img, index) => (
                         <Badge
-                          color="success"
-                          badgeContent={<CheckIcon className="h-2 w-2" />}
-                          invisible={selectedBackgroundImage !== index}
+                          color="green"
+                          count={
+                            selectedBackgroundImage == index ? (
+                              <FaCheck className="h-4 w-4 text-black p-1 rounded-full border border-solid border-slate-400 bg-green-400" />
+                            ) : (
+                              0
+                            )
+                          }
                         >
                           <Image
                             src={img}
@@ -1414,15 +1431,13 @@ export const NewUser = () => {
                           </Tooltip>
                         </div>
                         <Slider
-                          size="md"
-                          color="neutral"
-                          valueLabelDisplay="on"
                           min={-1}
                           max={100}
                           step={1}
                           className="col-span-5"
                           defaultValue={0}
-                          onChange={(e, v) => handleAddProf(e, v, userlang)}
+                          onChange={(v) => console.log(`${userlang} - ${v}`)}
+                          onChangeComplete={(v) => handleAddProf(v, userlang)}
                         />
                       </div>
                     ))}
@@ -1452,6 +1467,12 @@ export const NewUser = () => {
                 <h2 className="text-base font-semibold leading-7 text-gray-900">
                   Links
                 </h2>
+                {socials && (
+                  <span className="flex flex-row gap-1 items-center text-xs">
+                    <FaBell className="text-green-500" size={10} /> Recommended
+                    to add '/' at the end of each link
+                  </span>
+                )}
                 <div className="flex flex-row items-center justify-between gap-4">
                   <FaDiscord
                     onClick={() => setSocials([...socials, "discord"])}

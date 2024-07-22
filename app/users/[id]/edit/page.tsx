@@ -19,12 +19,19 @@ import {
   FaThreads,
   FaUserCheck,
   FaBell,
+  FaCheck,
 } from "react-icons/fa6";
 import { IoCloseCircleOutline } from "react-icons/io5";
 import { BsPlusCircleFill } from "react-icons/bs";
-import CheckIcon from "@mui/icons-material/Check";
-import { Badge, Slider, Avatar } from "@mui/joy";
-import { Select, Tooltip, message, notification } from "antd";
+import {
+  Select,
+  Tooltip,
+  message,
+  notification,
+  Badge,
+  Avatar,
+  Slider,
+} from "antd";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
@@ -459,16 +466,6 @@ export const EditUser = ({ params }: { params: { id: string } }) => {
         setCountry(data.country);
         setAbout(data.about);
         setSelectedBackgroundImage(data.background_image);
-        // setLangOptions(
-        //   data.stack
-        //     .map(
-        //       (item: { language: string; proficiency: number }) => item.language
-        //     )
-        //     .filter(
-        //       (language: string) =>
-        //         !Object.keys(sortedIcons).includes(language.toLowerCase())
-        //     )
-        // );
         setLangOptions(
           Object.keys(sortedIcons).filter(
             (lang) =>
@@ -579,7 +576,6 @@ export const EditUser = ({ params }: { params: { id: string } }) => {
   const [langOptions, setLangOptions] = useState<string[]>(
     Object.keys(sortedIcons)
   );
-  console.log(langOptions);
   const [filteredOptions, setFilteredOptions] = useState<string[]>([]);
   const [showOptions, setShowOptions] = useState<boolean>(false);
   const [userLangs, setUserLangs] = useState<string[]>(
@@ -647,11 +643,7 @@ export const EditUser = ({ params }: { params: { id: string } }) => {
     setSelectedOption("");
   };
 
-  const handleAddProf = (
-    event: React.SyntheticEvent<Element, Event> | Event,
-    value: number | number[],
-    language: string
-  ) => {
+  const handleAddProf = (value: number | number[], language: string) => {
     if (typeof value === "number") {
       setUserProfs([
         ...userProfs,
@@ -672,11 +664,7 @@ export const EditUser = ({ params }: { params: { id: string } }) => {
     setFinalProfs(finalProfsByLangs(userProfs));
   };
 
-  const handleAddNewProf = (
-    event: React.SyntheticEvent<Element, Event> | Event,
-    value: number | number[],
-    language: string
-  ) => {
+  const handleAddNewProf = (value: number | number[], language: string) => {
     if (typeof value === "number") {
       setNewProfs([
         ...newProfs,
@@ -1069,7 +1057,7 @@ export const EditUser = ({ params }: { params: { id: string } }) => {
     const userData = {
       first_name: firstName,
       last_name: lastName,
-      gender: gender ?? "Male",
+      gender: !gender ? "Male" : gender,
       birthday: dob,
       timezone: timezone,
       email_address: email,
@@ -1079,7 +1067,7 @@ export const EditUser = ({ params }: { params: { id: string } }) => {
       city: city,
       us_state: usState,
       country: !country ? "United States of America" : country,
-      profile_image: newProfileImg ? true : false,
+      profile_image: coderPic || newProfileImg ? true : false,
       about: about,
       background_image: selectedBackgroundImage,
       stack: ultimateProfs,
@@ -1300,7 +1288,6 @@ export const EditUser = ({ params }: { params: { id: string } }) => {
                       onChange={(e) => setTimezone(e.target.value)}
                       id="timezone"
                       name="timezone"
-                      placeholder="UTC"
                       className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:max-w-xs sm:text-sm sm:leading-6"
                     >
                       {timezones.map((timezone, index) => (
@@ -1448,7 +1435,6 @@ export const EditUser = ({ params }: { params: { id: string } }) => {
                       id="country"
                       name="country"
                       autoComplete="country-name"
-                      placeholder="United States"
                       className="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:max-w-xs sm:text-sm sm:leading-6"
                     >
                       {countryList.map((country) => (
@@ -1467,7 +1453,7 @@ export const EditUser = ({ params }: { params: { id: string } }) => {
                   </label>
                   <div className="mt-2 flex flex-row justify-start gap-3 items-center">
                     <Avatar
-                      size="lg"
+                      size="large"
                       src={
                         newProfileImg
                           ? URL.createObjectURL(newProfileImg)
@@ -1527,9 +1513,14 @@ export const EditUser = ({ params }: { params: { id: string } }) => {
                     <div className="grid grid-cols-4 gap-5">
                       {backgrounds.map((img, index) => (
                         <Badge
-                          color="success"
-                          badgeContent={<CheckIcon className="h-2 w-2" />}
-                          invisible={selectedBackgroundImage !== index}
+                          color="green"
+                          count={
+                            selectedBackgroundImage == index ? (
+                              <FaCheck className="h-4 w-4 text-black p-1 rounded-full border border-solid border-slate-400 bg-green-400" />
+                            ) : (
+                              0
+                            )
+                          }
                         >
                           <Image
                             src={img}
@@ -1615,16 +1606,13 @@ export const EditUser = ({ params }: { params: { id: string } }) => {
                           </Tooltip>
                         </div>
                         <Slider
-                          size="md"
-                          color="neutral"
-                          valueLabelDisplay="on"
                           min={-1}
                           max={100}
                           step={1}
                           className="col-span-5"
                           defaultValue={0}
                           value={finalProfs[userlang]}
-                          onChange={(e, v) => handleAddProf(e, v, userlang)}
+                          onChange={(v) => handleAddProf(v, userlang)}
                         />
                       </div>
                     ))}
@@ -1642,15 +1630,12 @@ export const EditUser = ({ params }: { params: { id: string } }) => {
                           </Tooltip>
                         </div>
                         <Slider
-                          size="md"
-                          color="neutral"
-                          valueLabelDisplay="on"
                           min={-1}
                           max={100}
                           step={1}
                           className="col-span-5"
                           defaultValue={0}
-                          onChange={(e, v) => handleAddNewProf(e, v, userlang)}
+                          onChange={(v) => handleAddNewProf(v, userlang)}
                         />
                       </div>
                     ))}

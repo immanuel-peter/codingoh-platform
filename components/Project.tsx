@@ -46,8 +46,6 @@ const Project = ({ project }: { project: ProjectType }) => {
   const [isProjectModalOpen, setIsProjectModalOpen] = useState<boolean>(false);
   const [projectImage, setProjectImage] = useState<string>("");
 
-  // setProjectImage(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/avatars/projImage-${user.id}`);
-
   useEffect(() => {
     const fetchProjectImage = async () => {
       setProjectImage(
@@ -240,36 +238,12 @@ const Project = ({ project }: { project: ProjectType }) => {
                     )}
                     {project.application && (
                       <div>
-                        <Link href="/" target="_blank">
+                        <Link href={project.application ?? "/"} target="_blank">
                           <FaCirclePlus className="hover:text-blue-700 hover:cursor-pointer text-4xl" />
                         </Link>
                       </div>
                     )}
                   </div>
-                  {/* <h1 className="px-2 mt-4 font-bold text-left text-2xl flex flex-row justify-between items-center">
-                    Contributors
-                    <Link href="/" target="_blank">
-                      <FaCirclePlus className="hover:text-blue-700 hover:cursor-pointer text-4xl" />
-                    </Link>
-                  </h1>
-                  {[0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((num) => (
-                    <div
-                      key={num}
-                      className="p-2 mt-2 flex justify-between items-center"
-                    >
-                      <div className="flex justify-start items-center gap-5 basis-1/2">
-                        <Image
-                          src={Avatar}
-                          alt="profile picture"
-                          className="h-[10%] w-[10%] rounded-full"
-                        />
-                        <div className="text-lg">Immanuel Peter</div>
-                      </div>
-                      <div className="basis-1/2 justify-end items-center flex flex-row gap-3">
-                        {project.stack?.map((item) => sortedIcons[item])}
-                      </div>
-                    </div>
-                  ))} */}
                 </Dialog.Panel>
               </Transition.Child>
             </div>

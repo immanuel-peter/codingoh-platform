@@ -16,6 +16,7 @@ export interface Question {
   embedding?: string;
   similarity?: number;
   contributors?: Contributor[];
+  [key: string]: any;
 }
 
 export interface Coder {
@@ -107,6 +108,7 @@ export interface Comment {
   text?: string;
   replies?: Comment[];
   level?: number;
+  [key: string]: any;
 }
 
 export interface Scheduling {
@@ -118,37 +120,10 @@ export interface Scheduling {
   sender_note?: string;
   status?: string | null;
   receiver_note?: string | null;
-  meeting_id?: number | null;
-  meeting_uuid?: string | null;
-  meeting_start_url?: string | null;
-  meeting_join_url?: string | null;
-  meeting_password?: string | null;
   question_id?: Question;
+  meeting_id?: string;
   [key: string]: any;
 }
-
-/*
-[
-  {
-    "id"?: 1,
-    "created_at"?: "2024-05-27 04?:47?:16.585211+00",
-    "scheduler_id"?: 59,
-    "receiver_id"?: 93,
-    "scheduled_time"?: "2024-05-31 20?:15?:00+00",
-    "sender_note"?: "I am learning C++ right now.",
-    "status"?: null,
-    "receiver_note"?: null,
-    "meeting_id"?: null,
-    "meeting_uuid"?: null,
-    "meeting_start_url"?: null,
-    "meeting_join_url"?: null,
-    "meeting_password"?: null,
-    "question_id"?: 22,
-    "is_done"?: false,
-    "is_confirmed"?: false
-  }
-]
-*/
 
 // app/users/[id]/page.tsx
 export interface RecordType {
@@ -163,10 +138,48 @@ export interface Tag {
   label?: string;
 }
 
-export interface InboxIem {
-  randUser?: Coder;
-  randName?: string;
-  randQuestion?: string;
-  link?: string;
-  unread?: boolean;
+export interface Conversation {
+  id?: number;
+  created_at?: Date | string;
+  name?: string;
+}
+
+export interface Message {
+  id?: number;
+  created_at?: Date | string;
+  sender_id?: Coder;
+  conversation_id?: Conversation;
+  message?: string;
+  attachments?: string[];
+  reactions?: string[];
+  reply_to?: string;
+}
+
+export interface Participant {
+  id?: number;
+  created_at?: Date | string;
+  user_id?: Coder;
+  conversation_id?: Conversation;
+}
+
+export interface Notification {
+  id?: number;
+  created_at?: string;
+  read?: boolean;
+  event?: string;
+  coder_ref?: Coder;
+  question_ref?: Question;
+  comment_ref?: Comment;
+  conversation_ref?: number;
+  project_ref?: Project;
+  scheduling_ref?: Scheduling;
+  message_ref?: number;
+}
+
+export interface Meeting {
+  user?: Coder;
+  participant?: Coder;
+  is_done?: boolean;
+  chat?: { [key: string]: string };
+  [key: string]: any;
 }

@@ -18,25 +18,35 @@ import {
   MdCancelScheduleSend,
 } from "react-icons/md";
 import { Transition, Dialog } from "@headlessui/react";
-import { LocalizationProvider } from "@mui/x-date-pickers-pro";
-import { DateTimePicker, renderTimeViewClock } from "@mui/x-date-pickers";
-import { AdapterDayjs } from "@mui/x-date-pickers/AdapterDayjs";
 import dayjs, { Dayjs } from "dayjs";
 import advancedFormat from "dayjs/plugin/advancedFormat";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
-import { Avatar as MAvatar } from "@mui/joy";
-import { Tag, Tooltip, message } from "antd";
+import customParseFormat from "dayjs/plugin/customParseFormat";
+import {
+  Tag,
+  Tooltip,
+  message,
+  DatePicker,
+  TimePicker,
+  Avatar as DAvatar,
+} from "antd";
 import Image from "next/image";
 import Link from "next/link";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
+import { v4 as uuidv4 } from "uuid";
 
-import Avatar from "@/public/avatar.png";
 import { Question, Coder, Contributor, Comment, Scheduling } from "@/types";
-import { Navbar, FAB, RenderMd } from "@/components";
+import { Navbar, FAB, RenderMd, TiptapRender } from "@/components";
 import { formatDateTime } from "@/utils";
 import { Comments } from "@/components";
+import { JSONContent } from "@tiptap/react";
+
+dayjs.extend(advancedFormat);
+dayjs.extend(utc);
+dayjs.extend(timezone);
+dayjs.extend(customParseFormat);
 
 const QuestionPage = ({ params }: { params: { id: string } }) => {
   const router = useRouter();
@@ -62,14 +72,27 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
   const [isViewMeetingRequestsOpen, setIsViewMeetingRequestsOpen] =
     useState<boolean>(false);
   const [isViewMeetingsOpen, setIsViewMeetingsOpen] = useState<boolean>(false);
+  const [dateString, setDateString] = useState<string>(
+    new Date(new Date().toLocaleString("en-US")).toLocaleDateString("en-US", {
+      month: "2-digit",
+      day: "2-digit",
+      year: "numeric",
+    })
+  );
+  const [timeString, setTimeString] = useState<string>(
+    new Date(new Date().toLocaleString("en-US"))
+      .toLocaleTimeString("en-US", {
+        hour: "numeric",
+        minute: "numeric",
+        hour12: true,
+      })
+      .replace("AM", "am")
+      .replace("PM", "pm")
+  );
   const [dateTime, setDateTime] = useState<Dayjs | null>(null);
   const [scheduleMessage, setScheduleMessage] = useState<string>("");
   const [receiverNote, setReceiverNote] = useState<string>("");
   const [messageApi, contextHolder] = message.useMessage();
-
-  dayjs.extend(advancedFormat);
-  dayjs.extend(utc);
-  dayjs.extend(timezone);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -96,163 +119,132 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
     const fetchQuestion = async () => {
       const { data: question, error } = await supabase
         .from("questions")
-        .select("*")
+        .select(
+          `id, created_at, question, tags, description_json, asker (id, first_name, last_name, timezone, auth_id), contributors: comments(user_id: commenter(id, first_name, last_name, profile_image, auth_id))`
+        )
         .eq("id", params.id)
         .single();
+      console.log(question);
       if (question) {
-        const { data: coders, error: codersError } = await supabase
-          .from("coders")
-          .select("*");
-        if (coders) {
-          question.asker = coders.find((coder) => coder.id === question.asker);
-        } else {
-          console.error(
-            "Error fetching question's referenced coder:",
-            codersError
-          );
-        }
-        const { data: contributors, error: contributorsError } = await supabase
-          .from("contributors")
-          .select("*")
-          .eq("question_id", question.id);
-        if (contributors) {
-          let contributions = [];
-          for (const contributor of contributors) {
-            contributions.push({
-              ...contributor,
-              question_id: question,
-              user_id: coders?.find(
-                (coder) => coder.id === contributor.user_id
-              ),
-            });
-          }
-          question.contributors = contributions;
-        } else {
-          console.error(
-            "Error fetching question's referenced contributors:",
-            contributorsError
-          );
-        }
-        setQuestion(question);
+        const updatedAsker: Coder = {
+          id: question.asker.id as number,
+          first_name: question.asker.first_name as string,
+          last_name: question.asker.last_name as string,
+          timezone: question.asker.timezone as string,
+          auth_id: question.asker.auth_id as string,
+        };
+
+        // Map the comments to contributors
+        const updatedContributors: Contributor[] = question.contributors.map(
+          (c) => ({
+            ...c,
+            user_id: {
+              id: c.user_id.id as number,
+              first_name: c.user_id.first_name as string,
+              last_name: c.user_id.last_name as string,
+              profile_image: c.user_id.profile_image as boolean,
+              auth_id: c.user_id.auth_id as string,
+            },
+          })
+        );
+
+        const uniqueContributors = (
+          contributors: Contributor[]
+        ): Contributor[] => {
+          // Create a map to store unique contributors by auth_id
+          const uniqueMap = new Map();
+
+          // Iterate through the contributors array
+          contributors.forEach((contributor) => {
+            const authId = contributor.user_id?.auth_id;
+            // If the auth_id is not already in the map, add it
+            if (!uniqueMap.has(authId)) {
+              uniqueMap.set(authId, contributor);
+            }
+          });
+
+          // Convert the map values to an array
+          return Array.from(uniqueMap.values());
+        };
+
+        const updatedQuestion: Question = {
+          id: question.id as number,
+          created_at: question.created_at as string,
+          question: question.question as string,
+          description_json: question.description_json as JSONContent,
+          tags: question.tags as string[],
+          asker: updatedAsker,
+        };
+
+        setToSendContributors(uniqueContributors(updatedContributors));
+        setQuestion(updatedQuestion);
       } else {
         console.error("Error fetching question:", error);
-      }
-    };
-    const fetchComments = async () => {
-      const { data: questionRef, error: questionError } = await supabase
-        .from("questions")
-        .select("*")
-        .eq("id", params.id)
-        .single();
-      if (questionRef) {
-        const { data: dev, error: devError } = await supabase
-          .from("coders")
-          .select("*")
-          .eq("id", questionRef.asker);
-        if (dev) {
-          questionRef.asker = dev;
-        } else {
-          console.error("Error fetching referenced dev:", devError);
-        }
-      } else {
-        console.error("Error fetching referenced question:", questionError);
-      }
-      const { data: comments, error: commentsError } = await supabase
-        .from("comments")
-        .select("*")
-        .eq("question", params.id);
-      if (comments) {
-        let newComments = [];
-        const commentCommenterIds = comments.map(
-          (comment) => comment.commenter
-        );
-        const { data: coders, error } = await supabase
-          .from("coders")
-          .select("*")
-          .in("id", commentCommenterIds);
-        for (const comment of comments) {
-          newComments.push({
-            ...comment,
-            question: questionRef,
-            commenter: coders?.find((coder) => coder.id === comment.commenter),
-            parent_comment: comment.parent_comment
-              ? comments.find((c) => c.id === comment.parent_comment)
-              : null,
-          });
-        }
-        setComments(newComments);
-        setToSendContributors((prevToSendContributors) => {
-          // Create a set from the existing toSendContributors
-          const combinedSet = new Set(
-            prevToSendContributors?.map((contributor) =>
-              JSON.stringify(contributor)
-            )
-          );
-
-          // Add the new unique comments
-          newComments.forEach((comment) => {
-            const newEntry = JSON.stringify({
-              question_id: questionRef,
-              user_id: comment.commenter,
-            });
-            combinedSet.add(newEntry);
-          });
-
-          // Convert the set back to an array of objects
-          return Array.from(combinedSet).map((json) => JSON.parse(json));
-        });
-      } else {
-        console.error("Error fetching comments:", commentsError);
       }
     };
     const fetchSchedulings = async () => {
       const { data: schedulings, error: schedulingsError } = await supabase
         .from("schedulings")
-        .select("*")
+        .select(
+          `id, receiver_id (first_name, last_name, timezone), scheduler_id (id, first_name, last_name, timezone, profile_image, auth_id), scheduled_time, sender_note, status, receiver_note`
+        )
         .eq("question_id", params.id);
       if (schedulings) {
-        console.log("Schedulings:", schedulings);
-        let newSchedulings = [];
-        const { data: question, error: questionError } = await supabase
-          .from("questions")
-          .select("*")
-          .eq("id", params.id)
-          .single();
-        let schedulingIds = schedulings.map(
-          (scheduling: any) => scheduling.scheduler_id
-        );
-        console.log("Scheduling IDs:", schedulingIds);
-        schedulingIds.push(schedulings[0].receiver_id);
-        console.log("Scheduling IDs:", schedulingIds);
-        const { data: coders, error: codersError } = await supabase
-          .from("coders")
-          .select("*")
-          .in("id", schedulingIds);
-        for (const scheduling of schedulings) {
-          newSchedulings.push({
-            ...scheduling,
-            scheduler_id: coders?.find(
-              (coder) => coder.id === scheduling.scheduler_id
-            ),
-            receiver_id: coders?.find(
-              (coder) => coder.id === scheduling.receiver_id
-            ),
-            question_id: question,
-          });
-        }
-        console.log("New Schedulings:", newSchedulings);
-        setSchedulings(newSchedulings);
+        const updatedSchedulings: Scheduling[] = schedulings.map((s) => {
+          return {
+            id: s.id as number,
+            receiver_id: {
+              first_name: s.receiver_id.first_name as string,
+              last_name: s.receiver_id.last_name as string,
+              timezone: s.receiver_id.timezone as string,
+            },
+            scheduler_id: {
+              id: s.scheduler_id.id as number,
+              first_name: s.scheduler_id.first_name as string,
+              last_name: s.scheduler_id.last_name as string,
+              timezone: s.scheduler_id.timezone as string,
+              profile_image: s.scheduler_id.profile_image as boolean,
+              auth_id: s.scheduler_id.auth_id as string,
+            },
+            scheduled_time: s.scheduled_time as string,
+            sender_note: s.sender_note as string,
+            status: s.status as string,
+            receiver_note: s.receiver_note as string,
+          };
+        });
+
+        setSchedulings(updatedSchedulings);
       } else {
         console.error("Error fetching schedulings:", schedulingsError);
       }
     };
     fetchUser();
     fetchQuestion();
-    fetchComments();
+    // fetchComments();
     fetchSchedulings();
   }, []);
 
   useEffect(() => {
+    const newDateTime = dayjs(
+      `${dateString} ${timeString}`,
+      "MM/DD/YYYY h:mm a"
+    );
+    if (newDateTime.isValid()) {
+      setDateTime(newDateTime);
+    }
+  }, [dateString, timeString]);
+
+  useEffect(() => {
+    setDateString(
+      devScheduling?.scheduled_time
+        ? dayjs(new Date(devScheduling.scheduled_time)).format("MM/DD/YYYY")
+        : ""
+    );
+    setTimeString(
+      devScheduling?.scheduled_time
+        ? dayjs(new Date(devScheduling.scheduled_time)).format("h:mm a")
+        : ""
+    );
     setDateTime(
       devScheduling?.scheduled_time
         ? dayjs(new Date(devScheduling.scheduled_time))
@@ -292,7 +284,7 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
   let dateCheck = false;
 
   const handleSchedule = async () => {
-    if (!dateTime) {
+    if (!dateString || !timeString) {
       messageApi.open({
         type: "error",
         content: "Please provide a date and time for your meeting",
@@ -302,12 +294,15 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
       dateCheck = true;
     }
 
+    let meetingId = uuidv4();
+
     const scheduleData = {
       scheduler_id: coder?.id,
       receiver_id: question.asker?.id,
       question_id: question.id,
       scheduled_time: formattedDate ? new Date(formattedDate) : null,
       sender_note: scheduleMessage || null,
+      meeting_id: meetingId,
     };
 
     if (dateCheck) {
@@ -323,7 +318,20 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
 
         if (scheduleDataResponse) {
           console.log("Scheduling added:", scheduleDataResponse);
-          // setDidSchedule(true);
+          const { data: d, error: e } = await supabase
+            .from("notifications")
+            .insert({
+              event: "schedule_meet",
+              coder_ref: question.asker?.id,
+              question_ref: question.id,
+              scheduling_ref: scheduleDataResponse[0].id,
+            })
+            .select();
+          if (d) {
+            console.log(d);
+          } else {
+            console.error(e);
+          }
           setIsScheduleMeetOpen(false);
           router.refresh();
         }
@@ -363,12 +371,35 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
         if (scheduleError) {
           console.log("Faulty data:", scheduleData);
           console.log("Error uploading scheduling data:", scheduleError);
+          messageApi.open({
+            type: "error",
+            content: "Error uploading scheduling data",
+            duration: 3,
+          });
           return;
         }
 
         if (scheduleDataResponse) {
           console.log("Scheduling updated:", scheduleDataResponse);
-          // setDidSchedule(false);
+          messageApi.open({
+            type: "success",
+            content: "Scheduling updated",
+            duration: 3,
+          });
+          const { data: d, error: e } = await supabase
+            .from("notifications")
+            .insert({
+              event: "reschedule_meet",
+              coder_ref: question.asker?.id,
+              question_ref: question.id,
+              scheduling_ref: devScheduling?.id,
+            })
+            .select();
+          if (d) {
+            console.log(d);
+          } else {
+            console.error(e);
+          }
           setIsEditScheduleMeetOpen(false);
         }
       } catch (error) {
@@ -387,10 +418,32 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
 
       if (scheduleError) {
         console.log("Error deleting scheduling data:", scheduleError);
-        return;
+        messageApi.open({
+          type: "error",
+          content: scheduleError.message,
+          duration: 3,
+        });
       } else {
         console.log("Scheduling deleted:", scheduleData);
-        // setDidSchedule(true);
+        messageApi.open({
+          type: "success",
+          content: "Scheduling deleted",
+          duration: 3,
+        });
+        const { data: d, error: e } = await supabase
+          .from("notifications")
+          .insert({
+            event: "cancel_meet",
+            coder_ref: question.asker?.id,
+            question_ref: question.id,
+            scheduling_ref: devScheduling?.id,
+          })
+          .select();
+        if (d) {
+          console.log(d);
+        } else {
+          console.error(e);
+        }
         setIsEditScheduleMeetOpen(false);
         router.refresh();
       }
@@ -400,113 +453,217 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
   };
 
   const handleSchedulingAccept = async (scheduling: Scheduling) => {
-    try {
-      const { data: schedulingDataResponse, error: schedulingError } =
-        await supabase
-          .from("schedulings")
-          .update({ status: "accept", receiver_note: null, is_confirmed: true })
-          .eq("id", scheduling.id)
-          .select();
+    // try {
+    //   const { data: schedulingDataResponse, error: schedulingError } =
+    //     await supabase
+    //       .from("schedulings")
+    //       .update({ status: "accept", receiver_note: null, is_confirmed: true })
+    //       .eq("id", scheduling.id)
+    //       .select();
 
-      if (schedulingError) {
-        console.log("Faulty data:", {
-          status: "accept",
-          receiver_note: null,
-          is_confirmed: true,
+    //   if (schedulingError) {
+    //     console.log("Faulty data:", {
+    //       status: "accept",
+    //       receiver_note: null,
+    //       is_confirmed: true,
+    //     });
+    //     console.log("Error uploading scheduling data:", schedulingError);
+    //     return;
+    //   }
+
+    //   if (schedulingDataResponse) {
+    //     console.log("Scheduling updated:", schedulingDataResponse);
+    //     // setDidSchedule(false);
+    //     setIsEditScheduleMeetOpen(false);
+    //     router.refresh();
+    //   }
+    // } catch (error) {
+    //   console.error("Error accepting meeting request:", error);
+    // }
+
+    try {
+      // Call the Supabase function to update the scheduling and insert into notifications
+      const { error } = await supabase.rpc("handle_scheduling_accept", {
+        p_id: scheduling.id,
+      });
+
+      if (error) {
+        console.error("Error updating scheduling:", error);
+        messageApi.open({
+          type: "error",
+          content: "Error updating scheduling",
+          duration: 3,
         });
-        console.log("Error uploading scheduling data:", schedulingError);
         return;
       }
 
-      if (schedulingDataResponse) {
-        console.log("Scheduling updated:", schedulingDataResponse);
-        // setDidSchedule(false);
-        setIsEditScheduleMeetOpen(false);
-        router.refresh();
-      }
+      console.log("Scheduling updated successfully");
+      messageApi.open({
+        type: "success",
+        content: "Scheduling updated successfully",
+        duration: 3,
+      });
+      router.refresh();
     } catch (error) {
       console.error("Error accepting meeting request:", error);
     }
   };
 
   const handleSchedulingReject = async (scheduling: Scheduling) => {
-    try {
-      const { data: schedulingDataResponse, error: schedulingError } =
-        await supabase
-          .from("schedulings")
-          .update({ status: "reject" })
-          .eq("id", scheduling.id)
-          .select();
+    // try {
+    //   const { data: schedulingDataResponse, error: schedulingError } =
+    //     await supabase
+    //       .from("schedulings")
+    //       .update({ status: "reject" })
+    //       .eq("id", scheduling.id)
+    //       .select();
 
-      if (schedulingError) {
-        console.log("Faulty data:", { status: "reject" });
-        console.log("Error uploading scheduling data:", schedulingError);
+    //   if (schedulingError) {
+    //     console.log("Faulty data:", { status: "reject" });
+    //     console.log("Error uploading scheduling data:", schedulingError);
+    //     return;
+    //   }
+
+    //   if (schedulingDataResponse) {
+    //     console.log("Scheduling updated:", schedulingDataResponse);
+    //     // setDidSchedule(false);
+    //     setIsEditScheduleMeetOpen(false);
+    //     router.refresh();
+    //   }
+    // } catch (error) {
+    //   console.error("Error rejecting meeting request:", error);
+    // }
+    try {
+      // Call the Supabase function to update the scheduling and insert into notifications
+      const { error } = await supabase.rpc("handle_scheduling_reject", {
+        id: scheduling.id,
+      });
+
+      if (error) {
+        console.error("Error updating scheduling:", error);
+        messageApi.open({
+          type: "error",
+          content: "Error updating scheduling",
+          duration: 3,
+        });
         return;
       }
 
-      if (schedulingDataResponse) {
-        console.log("Scheduling updated:", schedulingDataResponse);
-        // setDidSchedule(false);
-        setIsEditScheduleMeetOpen(false);
-        router.refresh();
-      }
+      console.log("Scheduling rejected successfully");
+      messageApi.open({
+        type: "success",
+        content: "Scheduling rejected successfully",
+        duration: 3,
+      });
+      router.refresh();
     } catch (error) {
       console.error("Error rejecting meeting request:", error);
     }
   };
 
   const handleReschedule = async (scheduling: Scheduling) => {
+    // try {
+    //   const rescheduleData = {
+    //     status: "reschedule",
+    //     receiver_note: receiverNote || null,
+    //     is_confirmed: false,
+    //   };
+
+    //   const { data: schedulingDataResponse, error: schedulingError } =
+    //     await supabase
+    //       .from("schedulings")
+    //       .update(rescheduleData)
+    //       .eq("id", scheduling.id)
+    //       .select();
+
+    //   if (schedulingError) {
+    //     console.log("Faulty data:", rescheduleData);
+    //     console.log("Error uploading scheduling data:", schedulingError);
+    //     return;
+    //   }
+
+    //   if (schedulingDataResponse) {
+    //     console.log("Scheduling updated:", schedulingDataResponse);
+    //     // setDidSchedule(false);
+    //     setIsEditScheduleMeetOpen(false);
+    //     router.refresh();
+    //   }
+    // } catch (error) {
+    //   console.error("Error rescheduling meeting request:", error);
+    // }
     try {
-      const rescheduleData = {
-        status: "reschedule",
-        receiver_note: receiverNote || null,
-        is_confirmed: false,
-      };
+      // Call the Supabase function to update the scheduling and insert into notifications
+      const { error } = await supabase.rpc("handle_reschedule", {
+        id: scheduling.id,
+        note: receiverNote,
+      });
 
-      const { data: schedulingDataResponse, error: schedulingError } =
-        await supabase
-          .from("schedulings")
-          .update(rescheduleData)
-          .eq("id", scheduling.id)
-          .select();
-
-      if (schedulingError) {
-        console.log("Faulty data:", rescheduleData);
-        console.log("Error uploading scheduling data:", schedulingError);
+      if (error) {
+        console.error("Error rescheduling meeting:", error);
+        messageApi.open({
+          type: "error",
+          content: "Error rescheduling meeting",
+          duration: 3,
+        });
         return;
       }
 
-      if (schedulingDataResponse) {
-        console.log("Scheduling updated:", schedulingDataResponse);
-        // setDidSchedule(false);
-        setIsEditScheduleMeetOpen(false);
-        router.refresh();
-      }
+      console.log("Scheduling rescheduled successfully");
+      messageApi.open({
+        type: "success",
+        content: "Scheduling rescheduled successfully",
+        duration: 3,
+      });
+      router.refresh();
     } catch (error) {
       console.error("Error rescheduling meeting request:", error);
     }
   };
 
   const handleQuestionDelete = async () => {
-    try {
-      const { data: questionData, error: questionError } = await supabase
-        .from("questions")
-        .delete()
-        .eq("id", question.id)
-        .select();
+    // try {
+    //   const { data: questionData, error: questionError } = await supabase
+    //     .from("questions")
+    //     .delete()
+    //     .eq("id", question.id)
+    //     .select();
 
-      if (questionError) {
-        console.log("Error deleting question:", questionError);
+    //   if (questionError) {
+    //     console.log("Error deleting question:", questionError);
+    //     messageApi.open({
+    //       type: "error",
+    //       content: "Error deleting question",
+    //       duration: 3,
+    //     });
+    //     return;
+    //   } else {
+    //     console.log("Question deleted:", questionData);
+    //     messageApi.open({
+    //       type: "success",
+    //       content: "Successfully deleted question",
+    //       duration: 3,
+    //     });
+    //     setIsDeleteOpen(false);
+    //     router.push(`/users/${coder?.auth_id}`);
+    //   }
+    // } catch (error) {
+    //   console.error(error);
+    // }
+    try {
+      const { error } = await supabase.rpc("delete_question_and_notify", {
+        question_id: question.id,
+      });
+      if (error) {
+        console.error("Error deleting question:", error);
         messageApi.open({
           type: "error",
           content: "Error deleting question",
           duration: 3,
         });
-        return;
       } else {
-        console.log("Question deleted:", questionData);
+        console.log("Question deleted successfully");
         messageApi.open({
-          type: "success",
+          type: "error",
           content: "Successfully deleted question",
           duration: 3,
         });
@@ -514,7 +671,7 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
         router.push(`/users/${coder?.auth_id}`);
       }
     } catch (error) {
-      console.error(error);
+      console.error("Unexpected error:", error);
     }
   };
 
@@ -537,28 +694,6 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
             <h1 className="bg-inherit text-4xl text-left">
               {question.question}
             </h1>
-            {/* {!question.answer ? (
-              <button
-                onClick={
-                  !didSchedule ? () => setIsScheduleMeetOpen(true) : undefined
-                }
-                className={`basis-1/12 text-base font-medium p-3 h-14 self-center items-center justify-between flex flex-row border-solid border-[1px] ${
-                  !didSchedule
-                    ? "border-blue-600 hover:border-blue-800 bg-blue-500 hover:bg-blue-700"
-                    : "border-yellow-600 bg-yellow-500 cursor-text"
-                } rounded-xl`}
-              >
-                <FaVideo className="bg-inherit text-slate-200 mr-3" />
-                <p className="bg-inherit text-slate-200">
-                  {!didSchedule ? "Schedule" : "Scheduled"}
-                </p>
-              </button>
-            ) : (
-              <button className="basis-1/12 text-base font-medium p-3 h-14 self-center items-center justify-between flex flex-row border-solid border-green-600 border-[1px] bg-green-500 rounded-md">
-                <FaCheck className="bg-green-500 text-slate-200 mr-3" />
-                <p className="bg-green-500 text-slate-200">Answered</p>
-              </button>
-            )} */}
           </div>
           <div className="flex justify-center items-center gap-3 p-3 py-5">
             {question.tags?.map((tag) => <Tag>{tag}</Tag>)}
@@ -584,6 +719,7 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
                 {"Answered"}
               </div>
             ) : (
+              user &&
               user?.id !== question.asker?.auth_id && (
                 <div
                   onClick={
@@ -651,24 +787,20 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
             </div>
           </div>
         </div>
-        <RenderMd
+        {/* <RenderMd
           markdown={question.description ?? ""}
           className="mx-auto max-w-7xl py-3 px-3 mt-3 text-justify border border-solid border-black rounded-lg"
+        /> */}
+        <TiptapRender
+          renderContent={question.description_json as JSONContent}
+          style="mx-auto max-w-7xl py-3 px-3 mt-3 text-justify border border-solid border-black rounded-lg"
         />
-        {/* {question.answer && (
-          <RenderMd
-            markdown={question.answer}
-            className="mx-auto max-w-7xl py-3 px-3 mt-3 text-justify border border-solid border-black rounded-2xl"
-          />
-        )} */}
       </div>
-      {user && coder && (
-        <Comments
-          question={question}
-          coder={coder}
-          contributors={toSendContributors || []}
-        />
-      )}
+      <Comments
+        question={question}
+        coder={coder ?? {}}
+        contributors={toSendContributors || []}
+      />
 
       <FAB />
 
@@ -715,20 +847,27 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
                       {question.asker?.timezone} timezone.
                     </span>
 
-                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                      <DateTimePicker
-                        label="Choose Date and Time"
-                        viewRenderers={{
-                          hours: renderTimeViewClock,
-                          minutes: renderTimeViewClock,
-                          seconds: renderTimeViewClock,
+                    <div className="mt-[2px] flex flex-row items-center justify-between">
+                      <DatePicker
+                        // defaultValue={dayjs(dateString, "MM/DD/YYYY")}
+                        onChange={(date, dateString) => {
+                          console.log(dateString);
+                          setDateString(dateString as string);
                         }}
-                        sx={{ marginTop: 2, width: "100%", height: "100%" }}
-                        value={dateTime}
-                        onChange={(newValue) => setDateTime(newValue)}
-                        format="lll"
+                        format="MM/DD/YYYY"
+                        className="w-[48%] h-100"
                       />
-                    </LocalizationProvider>
+                      <TimePicker
+                        use12Hours
+                        format="h:mm a"
+                        // defaultValue={dayjs(new Date(), "h:mm a")}
+                        onChange={(time, timeString) => {
+                          console.log(timeString);
+                          setTimeString(timeString as string);
+                        }}
+                        className="w-[48%] h-100"
+                      />
+                    </div>
                   </div>
 
                   <div>
@@ -822,24 +961,27 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
                       </span>
                     )}
 
-                    <LocalizationProvider dateAdapter={AdapterDayjs}>
-                      <DateTimePicker
-                        label="Choose Date and Time"
-                        viewRenderers={{
-                          hours: renderTimeViewClock,
-                          minutes: renderTimeViewClock,
-                          seconds: renderTimeViewClock,
+                    <div className="mt-[2px] flex flex-row items-center justify-between">
+                      <DatePicker
+                        value={dayjs(dateString, "MM/DD/YYYY")}
+                        onChange={(date, dateString) => {
+                          console.log(dateString);
+                          setDateString(dateString as string);
                         }}
-                        sx={{
-                          marginTop: 2,
-                          width: "100%",
-                          height: "100%",
-                        }}
-                        value={dateTime}
-                        onChange={(newValue) => setDateTime(newValue)}
-                        format="lll"
+                        format="MM/DD/YYYY"
+                        className="w-[48%] h-100"
                       />
-                    </LocalizationProvider>
+                      <TimePicker
+                        use12Hours
+                        format="h:mm a"
+                        value={dayjs(timeString, "h:mm a")}
+                        onChange={(time, timeString) => {
+                          console.log(timeString);
+                          setTimeString(timeString as string);
+                        }}
+                        className="w-[48%] h-100"
+                      />
+                    </div>
                   </div>
 
                   <div>
@@ -930,14 +1072,14 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
                                   width={30}
                                 />
                               ) : (
-                                <MAvatar sx={{ "--Avatar-size": "30px" }}>
+                                <DAvatar size={30}>
                                   {scheduling.scheduler_id?.first_name
                                     ? scheduling.scheduler_id.first_name[0]
                                     : ""}
                                   {scheduling.scheduler_id?.last_name
                                     ? scheduling.scheduler_id.last_name[0]
                                     : ""}
-                                </MAvatar>
+                                </DAvatar>
                               )}
                               <Link
                                 href={`/users/${scheduling.scheduler_id?.auth_id}`}
@@ -1010,14 +1152,6 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
                             </span>
                             {scheduling.sender_note && (
                               <div className="p-2 bg-gray-200 rounded-md text-sm">
-                                {/* {Lorem ipsum dolor sit amet, consectetur adipiscing
-                            elit. Vestibulum scelerisque ultrices efficitur.
-                            Phasellus porta ligula nisi, ut sagittis neque
-                            molestie nec. Donec sagittis vitae mi eu dignissim.
-                            Suspendisse scelerisque ante vitae ullamcorper
-                            volutpat. Vivamus lectus nibh, dapibus non felis in,
-                            dapibus imperdiet nisi. Cras consectetur semper
-                            arcu, quis viverra nunc maximus id.} */}
                                 {scheduling.sender_note}
                               </div>
                             )}
@@ -1094,14 +1228,14 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
                                   width={30}
                                 />
                               ) : (
-                                <MAvatar sx={{ "--Avatar-size": "30px" }}>
+                                <DAvatar size={30}>
                                   {scheduling.scheduler_id?.first_name
                                     ? scheduling.scheduler_id.first_name[0]
                                     : ""}
                                   {scheduling.scheduler_id?.last_name
                                     ? scheduling.scheduler_id.last_name[0]
                                     : ""}
-                                </MAvatar>
+                                </DAvatar>
                               )}
                               <Link
                                 href={`/users/${scheduling.scheduler_id?.auth_id}`}
@@ -1113,20 +1247,6 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
                               </Link>
                             </div>
                             <div className="flex flex-row gap-2 items-center">
-                              {/* <Tooltip
-                                title="Accept"
-                                color="#4ade80"
-                                placement="left"
-                              >
-                                <div
-                                  onClick={() =>
-                                    handleSchedulingAccept(scheduling)
-                                  }
-                                  className="p-2 rounded-full border border-solid border-black hover:bg-green-100 cursor-pointer"
-                                >
-                                  <FaCheck className="text-green-500" />
-                                </div>
-                              </Tooltip> */}
                               <Tooltip
                                 title="Reject"
                                 color="#f87171"
@@ -1174,14 +1294,6 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
                             </span>
                             {scheduling.sender_note && (
                               <div className="p-2 bg-gray-200 rounded-md text-sm">
-                                {/* {Lorem ipsum dolor sit amet, consectetur adipiscing
-                            elit. Vestibulum scelerisque ultrices efficitur.
-                            Phasellus porta ligula nisi, ut sagittis neque
-                            molestie nec. Donec sagittis vitae mi eu dignissim.
-                            Suspendisse scelerisque ante vitae ullamcorper
-                            volutpat. Vivamus lectus nibh, dapibus non felis in,
-                            dapibus imperdiet nisi. Cras consectetur semper
-                            arcu, quis viverra nunc maximus id.} */}
                                 {scheduling.sender_note}
                               </div>
                             )}

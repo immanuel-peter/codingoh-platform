@@ -1,52 +1,19 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Link from "next/link";
 import { Select, message } from "antd";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
-import { FaArrowTurnDown, FaMarkdown } from "react-icons/fa6";
-import { IoClose } from "react-icons/io5";
+import { JSONContent } from "@tiptap/react";
 
-import { Navbar, RenderMd } from "@/components";
+import { Navbar, TiptapEditor } from "@/components";
 import { formatEmbeddingInput } from "@/utils";
 import { tags } from "@/dummy/questions";
 import { Tag, Coder } from "@/types";
 
-const placeholderMdText: string = `# Fibonacci sequence not working
-
-I'm trying to write a program that will print the Fibonacci sequence to the console. I have the following code, but it's not working:
-
-\`\`\`python
-def fibonacci(n):
-    if n == 0:
-        return 0
-    elif n == 1:
-        return 1
-    else:
-        return fibonacci(n - 1) + fibonacci(n - 2)
-
-def main():
-    for i in range(10):
-        print(fibonacci(i))
-
-if __name__ == "__main__":
-    main()
-\`\`\`
-
-I've tried the following steps to try to resolve the issue:
-
-* I've checked my syntax and it looks correct.
-* I've tried running the code in a different IDE and it's still not working.
-* I've searched for similar issues online and I haven't found any solutions that work for me.
-
-I'm not sure what else to try. Can anyone help me figure out what's wrong with my code?
-`;
-
 const AddQuestion = () => {
   const router = useRouter();
   const supabase = createClient();
-  const [user, setUser] = useState<{ id: string; [key: string]: any }>();
   const [coder, setCoder] = useState<Coder>();
 
   useEffect(() => {
@@ -56,7 +23,6 @@ const AddQuestion = () => {
         error,
       } = await supabase.auth.getUser();
       if (user) {
-        setUser(user);
         const { data: coder, error } = await supabase
           .from("coders")
           .select("*")
@@ -80,11 +46,11 @@ const AddQuestion = () => {
     notifCheck: boolean = false;
 
   const [tagsList, setTagsList] = useState<Tag[]>(tags);
-  const [markdown, setMarkdown] = useState<string>(placeholderMdText);
-  const [isPreviewOpen, setIsPreviewOpen] = useState<boolean>(false);
+  const [json, setJson] = useState<JSONContent>();
+  const [editorText, setEditorText] = useState<string>("");
   const [newQuestion, setNewQuestion] = useState({
     title: "",
-    description: "",
+    description: {} as JSONContent,
     tags: [] as string[],
     preferences: "text",
     notifications: {
@@ -92,15 +58,15 @@ const AddQuestion = () => {
       desktop: false,
     },
   });
-
+  console.log(json);
   console.log(newQuestion);
 
   useEffect(() => {
     setNewQuestion((prevQuestion) => ({
       ...prevQuestion,
-      description: markdown === placeholderMdText ? "" : markdown,
+      description: json || ({} as JSONContent),
     }));
-  }, [markdown, placeholderMdText]);
+  }, [json]);
 
   const handleTagSelect = (value: string) => {
     const exists = tagsList.some((tag) => tag.value === value);
@@ -132,10 +98,6 @@ const AddQuestion = () => {
   };
   console.log(possibleData);
 
-  // I am writing a function that generates a random set of numbers. I can print the numbers as separate ints, but I am trying to put the numbers into an array and return the array so I can assign it to another empty array in another function so I can manipulate the array. I looked everywhere, but I couldn't find something that can satisfy my criteria.
-
-  // This function only prints the numbers, but I want it to return it so I can manipulate it. I tried using pointers, but it didn't or I didn't do it right.
-
   const handleQuestionSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
 
@@ -149,7 +111,7 @@ const AddQuestion = () => {
       titleCheck = true;
     }
 
-    if (newQuestion.description.trim() === "") {
+    if (!newQuestion.description) {
       messageApi.open({
         type: "error",
         content: "Please provide a description for your question",
@@ -185,7 +147,7 @@ const AddQuestion = () => {
             model: "text-embedding-3-small",
             input: formatEmbeddingInput(
               newQuestion.title,
-              newQuestion.description,
+              editorText,
               newQuestion.tags
             ),
             dimensions: 512,
@@ -206,11 +168,11 @@ const AddQuestion = () => {
           asker: coder?.id,
           question: newQuestion.title,
           tags: newQuestion.tags,
-          description: newQuestion.description,
           answer_preference: newQuestion.preferences,
           notify_email: newQuestion.notifications.email,
           notify_desktop: newQuestion.notifications.desktop,
           embedding: embedding,
+          description_json: newQuestion.description,
         };
 
         // Make database call
@@ -230,6 +192,18 @@ const AddQuestion = () => {
 
         if (questionDataResponse) {
           console.log("Question added:", questionDataResponse);
+          const { data: d, error: e } = await supabase
+            .from("notifications")
+            .insert({
+              event: "add_question",
+              coder_ref: coder?.id,
+              question_ref: questionDataResponse[0].id,
+            });
+          if (d) {
+            console.log(d);
+          } else {
+            console.error(e);
+          }
           messageApi.open({
             type: "success",
             content: "Question added:",
@@ -249,7 +223,6 @@ const AddQuestion = () => {
   };
 
   const handleFormCancel = () => {
-    setMarkdown(placeholderMdText);
     setNewQuestion({
       ...newQuestion,
       title: "",
@@ -259,6 +232,7 @@ const AddQuestion = () => {
         email: false,
         desktop: false,
       },
+      description: {} as JSONContent,
     });
   };
 
@@ -268,7 +242,7 @@ const AddQuestion = () => {
       <Navbar />
 
       <form
-        className="mt-5 mb-5 flex items-center justify-center max-w-7xl"
+        className="my-5 mx-5 flex items-center justify-center w-6xl"
         onSubmit={handleQuestionSubmit}
       >
         <div className="space-y-12 py-4">
@@ -298,72 +272,15 @@ const AddQuestion = () => {
                   onChange={(e) =>
                     setNewQuestion({ ...newQuestion, title: e.target.value })
                   }
-                  className="block w-full rounded-md border-0 p-1 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
+                  className="block w-full rounded-md border-0 p-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
                 />
               </div>
 
-              <div className="col-span-full">
-                <label
-                  htmlFor="about"
-                  className="flex items-center justify-between gap-2 text-sm font-medium leading-6 text-gray-900"
-                >
-                  <span className="flex items-center gap-2">
-                    Describe Your Question Here <FaArrowTurnDown />
-                  </span>
-                  <button
-                    type="button"
-                    className={
-                      !isPreviewOpen
-                        ? "bg-blue-300 py-1 px-2 text-slate-600 border border-solid border-blue-700 hover:bg-blue-600 hover:text-white rounded-full mr-1"
-                        : "bg-slate-50 py-1 px-2 text-black border border-solid border-red-700 hover:bg-red-400 rounded-full mr-1"
-                    }
-                    onClick={() => setIsPreviewOpen(!isPreviewOpen)}
-                  >
-                    {isPreviewOpen ? (
-                      <IoClose className="inline-block justify-items-center bg-inherit mr-1" />
-                    ) : null}
-                    {!isPreviewOpen ? "Preview" : "Close Preview"}
-                  </button>
-                </label>
-
-                {!isPreviewOpen ? (
-                  <>
-                    <div className="mt-2">
-                      <textarea
-                        id="about"
-                        name="about"
-                        value={markdown === placeholderMdText ? "" : markdown}
-                        onChange={(e) => setMarkdown(e.target.value)}
-                        rows={10}
-                        className="block w-full rounded-md border-0 p-1 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
-                        placeholder={placeholderMdText}
-                        defaultValue={""}
-                      />
-                    </div>
-                    <p className="flex items-center gap-2 mt-3 text-sm leading-6 text-gray-600">
-                      Write your question in Markdown{" "}
-                      <FaMarkdown className="text-base" />
-                    </p>
-                    <p className="mt-1 text-sm leading-6 text-gray-600">
-                      Don't know how to write in Markdown? Check out this{" "}
-                      <Link
-                        href="https://www.markdownguide.org/"
-                        target="_blank"
-                        className="text-blue-500 hover:underline hover:underline-offset-2"
-                      >
-                        guide
-                      </Link>
-                      .
-                    </p>
-                  </>
-                ) : (
-                  <div className="mt-2 w-full p-2 rounded-md border border-solid border-black">
-                    <RenderMd
-                      markdown={markdown}
-                      className="bg-inherit leading-7"
-                    />
-                  </div>
-                )}
+              <div className="col-span-full w-full">
+                <TiptapEditor
+                  onJsonChange={(Json) => setJson(Json)}
+                  onTextChange={(text) => setEditorText(text)}
+                />
               </div>
 
               <div className="col-span-full">

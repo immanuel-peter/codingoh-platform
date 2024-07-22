@@ -2,10 +2,15 @@
 
 import React, { Fragment, useState, useEffect } from "react";
 import Image from "next/image";
-import { Badge, Avatar as MAvatar } from "@mui/joy";
 import { FaEdit, FaThumbsUp, FaHome } from "react-icons/fa";
-import { FaPlus, FaXTwitter, FaThreads, FaShare } from "react-icons/fa6";
-import { Progress, Tooltip, message } from "antd";
+import {
+  FaPlus,
+  FaXTwitter,
+  FaThreads,
+  FaShare,
+  FaLink,
+} from "react-icons/fa6";
+import { Progress, Tooltip, message, Badge, Avatar as DAvatar } from "antd";
 import { MdOutlineKeyboardDoubleArrowRight, MdLogout } from "react-icons/md";
 import { BsFilePlusFill } from "react-icons/bs";
 import Link from "next/link";
@@ -17,12 +22,13 @@ import sortedIcons from "@/utils/icons";
 import {
   Project as ProjectType,
   Proficiency,
-  Social,
   Contributor,
+  Coder,
   Question as QuestionType,
 } from "@/types";
 import { getTopLanguages, getTopQuestions } from "@/utils";
 import { Navbar, Question, Project, FAB, NewProjectForm } from "@/components";
+import backgrounds from "@/public/backgrounds";
 import Banner from "@/public/banner.png";
 import Avatar from "@/public/avatar.png";
 
@@ -30,68 +36,6 @@ type UserResponse = {
   id: string;
   [key: string]: any;
 };
-
-interface Coder {
-  id: number;
-  created_at?: string;
-  first_name: string;
-  last_name: string;
-  gender?: string;
-  birthday?: string;
-  timezone: string;
-  email_address: string;
-  company?: string;
-  position?: string;
-  city?: string;
-  us_state?: string;
-  country?: string;
-  about?: string;
-  background_image?: number;
-  skills?: string[];
-  socials?: Social[];
-  stack?: Proficiency[];
-  education?: string;
-  auth_id: string;
-  profile_image: boolean;
-}
-
-interface CoderQuestion {
-  id: number;
-  created_at?: string;
-  asker: Coder;
-  question: string;
-  tags?: string[];
-  description: string;
-  answer_preference: string;
-  notify_email: boolean;
-  notify_desktop: boolean;
-  answer?: string;
-  artificial_date?: Date | null;
-  contributors?: Contributor[];
-}
-
-interface Response {
-  id: number;
-  created_at?: string;
-  question_id: number;
-  user_id: number;
-}
-
-interface CoderProject {
-  id: number;
-  created_at: string;
-  owner: Coder;
-  name: string;
-  description: string;
-  start_date: string;
-  end_date?: string;
-  github?: string;
-  status?: string;
-  project_image?: string;
-  stack?: string[];
-  skills?: string[];
-  application?: string;
-}
 
 const UserPage = ({ params }: { params: { id: string } }) => {
   const supabase = createClient();
@@ -141,67 +85,74 @@ const UserPage = ({ params }: { params: { id: string } }) => {
   const [newProjectModalOpen, setNewProjectModalOpen] =
     useState<boolean>(false);
 
-  // const user = getUser(params.id);
-  // if (!user) return false;
-
   useEffect(() => {
     const fetchCoderQuestions = async () => {
       const { data: questions, error: questionsError } = await supabase
         .from("questions")
-        .select("*")
-        .eq("asker", coder?.id);
+        .select(
+          `
+          id, 
+          created_at, 
+          asker ( id, first_name, last_name ), 
+          question,
+          contributors: comments(user_id: commenter(id, first_name, last_name, profile_image, auth_id))
+        `
+        )
+        .eq("asker", coder?.id)
+        .order("created_at", { ascending: false });
 
       if (questionsError) {
         console.error(questionsError);
         return;
       }
 
-      const { data: users, error: usersError } = await supabase
-        .from("coders")
-        .select("*");
-
-      if (usersError) {
-        console.error(usersError);
-        return;
-      }
-
-      const { data: comments, error: commentsError } = await supabase
-        .from("comments")
-        .select("*");
-
-      if (commentsError) {
-        console.error(commentsError);
-        return;
-      }
-
-      // Create a map of users for quick lookup
-      const userMap = new Map(users.map((user) => [user.id, user]));
-
       const updatedQuestions = questions.map((q) => {
-        const askerUser = userMap.get(q.asker) || q.asker;
+        const { id, created_at, asker, question, contributors } = q;
 
-        // Get unique contributors for this question
-        const contributorSet = new Set();
-        comments
-          .filter((c) => c.question_id === q.id)
-          .forEach((c) => {
-            const contributorUser = userMap.get(c.commenter) || c.commenter;
-            const contributorJson = JSON.stringify({
-              question_id: q.id,
-              user_id: contributorUser.id || contributorUser,
-            });
-            contributorSet.add(contributorJson);
+        const updatedAsker: Coder = {
+          id: asker.id as number,
+          first_name: asker.first_name as string,
+          last_name: asker.last_name as string,
+        };
+
+        // Map the comments to contributors
+        const updatedContributors: Contributor[] = contributors.map((c) => ({
+          ...c,
+          user_id: {
+            id: c.user_id.id as number,
+            first_name: c.user_id.first_name as string,
+            last_name: c.user_id.last_name as string,
+            profile_image: c.user_id.profile_image as boolean,
+            auth_id: c.user_id.auth_id as string,
+          },
+        }));
+
+        const uniqueContributors = (
+          contributors: Contributor[]
+        ): Contributor[] => {
+          // Create a map to store unique contributors by auth_id
+          const uniqueMap = new Map();
+
+          // Iterate through the contributors array
+          contributors.forEach((contributor) => {
+            const authId = contributor.user_id?.auth_id;
+            // If the auth_id is not already in the map, add it
+            if (!uniqueMap.has(authId)) {
+              uniqueMap.set(authId, contributor);
+            }
           });
 
-        // Convert the set back to an array of unique contributors
-        const uniqueContributors = Array.from(contributorSet).map(
-          (contributorJson) => JSON.parse(contributorJson as string)
-        );
+          // Convert the map values to an array
+          return Array.from(uniqueMap.values());
+        };
 
+        // Return the transformed object
         return {
-          ...q,
-          asker: askerUser,
-          contributors: uniqueContributors,
+          id: id as number,
+          created_at: created_at as string,
+          asker: updatedAsker,
+          question: question as string,
+          contributors: uniqueContributors(updatedContributors),
         };
       });
 
@@ -211,7 +162,9 @@ const UserPage = ({ params }: { params: { id: string } }) => {
     const fetchCoderProjects = async () => {
       const { data: projects, error: projectsError } = await supabase
         .from("projects")
-        .select("*")
+        .select(
+          `id, owner (first_name, last_name, auth_id), name, description, status, github, stack, skills, project_image, application`
+        )
         .eq("owner", coder?.id);
 
       if (projectsError) {
@@ -219,134 +172,111 @@ const UserPage = ({ params }: { params: { id: string } }) => {
         return;
       }
 
-      const { data: users, error: usersError } = await supabase
-        .from("coders")
-        .select("*");
+      const updatedProjects: ProjectType[] = projects.map((project) => {
+        const updatedOwner: Coder = {
+          first_name: project.owner.first_name as string,
+          last_name: project.owner.last_name as string,
+          auth_id: project.owner.auth_id as string,
+        };
 
-      if (usersError) {
-        console.error(usersError);
-        return;
-      }
-
-      const updatedProjects = projects.map((p) => {
-        const user = users.find((u) => u.id === p.owner);
-        return { ...p, owner: user || p.owner }; // Ensures owner is not null if user not found
+        return {
+          id: project.id as number,
+          owner: updatedOwner, // Updated owner object
+          name: project.name as string,
+          description: project.description as string,
+          status: project.status as string,
+          github: project.github as string,
+          stack: project.stack as string[],
+          skills: project.skills as string[],
+          project_image: project.project_image as boolean,
+          application: project.application as string,
+        };
       });
 
-      console.log(updatedProjects);
       setCoderProjects(updatedProjects);
     };
     const fetchCoderResponses = async () => {
-      // Fetch contributions made by the coder
-      const { data: comments, error: commentsError } = await supabase
-        .from("comments")
-        .select("*")
-        .eq("commenter", coder?.id);
-      console.log("Comments:", comments);
-
-      if (commentsError) {
-        throw commentsError;
-      }
-
-      if (!comments || comments.length === 0) {
-        // No contributions found for the coder
-        setCoderResponses([]);
-        return;
-      }
-
-      // Fetch users for the asker and contributor details
-      const { data: users, error: usersError } = await supabase
-        .from("coders")
-        .select("*");
-
-      if (usersError) {
-        throw usersError;
-      }
-
-      // Extract question_ids from the contributions
-      const questionIds = comments.map((c) => c.question);
-
-      // Fetch only the questions that the user has contributed to
       const { data: questions, error: questionsError } = await supabase
         .from("questions")
-        .select("*")
-        .in("id", questionIds);
+        .select(
+          `
+          id, 
+          created_at, 
+          asker ( id, first_name, last_name ), 
+          question,
+          contributors: comments(user_id: commenter(id, first_name, last_name, profile_image, auth_id))
+        `
+        )
+        .order("created_at", { ascending: false });
 
       if (questionsError) {
-        throw questionsError;
+        console.error(questionsError);
+        return;
+      } else {
+        console.log(questions);
       }
 
-      const questionMap: { [key: number]: QuestionType } = {};
+      const updatedQuestions: QuestionType[] = questions.map((q) => {
+        const { id, created_at, asker, question, contributors } = q;
 
-      // Populate questionMap with questions and their askers
-      questions.forEach((q) => {
-        const user = users.find((u) => u.id === q.asker);
-        const question: QuestionType = {
-          ...q,
-          asker: user || q.asker,
-          contributors: [],
+        const updatedAsker: Coder = {
+          id: asker.id as number,
+          first_name: asker.first_name as string,
+          last_name: asker.last_name as string,
         };
-        questionMap[q.id] = question;
-      });
 
-      // const updatedComments = Array.from(
-      //   new Set(comments.map((c) => JSON.stringify(c)))
-      // ).map((str) => JSON.parse(str));
+        // Map the comments to contributors
+        const updatedContributors: Contributor[] = contributors.map((c) => ({
+          ...c,
+          user_id: {
+            id: c.user_id.id as number,
+            first_name: c.user_id.first_name as string,
+            last_name: c.user_id.last_name as string,
+            profile_image: c.user_id.profile_image as boolean,
+            auth_id: c.user_id.auth_id as string,
+          },
+        }));
 
-      // // Populate the contributors field in questions
-      // updatedComments.forEach((c) => {
-      //   const question = questionMap[c.question];
-      //   const user = users.find((u) => u.id === c.commenter);
+        const uniqueContributors = (
+          contributors: Contributor[]
+        ): Contributor[] => {
+          // Create a map to store unique contributors by auth_id
+          const uniqueMap = new Map();
 
-      //   if (question) {
-      //     question.contributors?.push({
-      //       question_id: question,
-      //       user_id: user || c.commenter,
-      //     });
-      //   }
-      // });
-
-      // const cResponseArray: CoderQuestion[] = Object.values(questionMap);
-      // console.log(cResponseArray);
-      // setCoderResponses(cResponseArray);
-
-      // Use a Map to ensure uniqueness
-      const uniqueCommentsMap = new Map();
-
-      comments.forEach((c) => {
-        const key = `${c.commenter}-${c.question}`;
-        if (!uniqueCommentsMap.has(key)) {
-          uniqueCommentsMap.set(key, c);
-        }
-      });
-
-      const uniqueComments = Array.from(uniqueCommentsMap.values());
-
-      // Populate the contributors field in questions
-      uniqueComments.forEach((c) => {
-        const question = questionMap[c.question];
-        const user = users.find((u) => u.id === c.commenter);
-
-        if (question) {
-          question.contributors?.push({
-            question_id: question,
-            user_id: user || c.commenter,
+          // Iterate through the contributors array
+          contributors.forEach((contributor) => {
+            const authId = contributor.user_id?.auth_id;
+            // If the auth_id is not already in the map, add it
+            if (!uniqueMap.has(authId)) {
+              uniqueMap.set(authId, contributor);
+            }
           });
-        }
+
+          // Convert the map values to an array
+          return Array.from(uniqueMap.values());
+        };
+
+        // Return the transformed object
+        return {
+          id: id as number,
+          created_at: created_at as string,
+          asker: updatedAsker,
+          question: question as string,
+          contributors: uniqueContributors(updatedContributors),
+        };
       });
 
-      const cResponseArray = Object.values(questionMap);
-      console.log(cResponseArray);
-      setCoderResponses(cResponseArray);
+      const finalQuestions: QuestionType[] = updatedQuestions.filter((q) =>
+        q.contributors?.some(
+          (c) => c.user_id?.id === coder?.id && c.user_id?.id !== q.asker?.id
+        )
+      );
+      setCoderResponses(finalQuestions);
     };
     fetchCoderQuestions();
     fetchCoderProjects();
     fetchCoderResponses();
   }, [coder]);
-
-  // const topLanguages: Proficiency[] = user.codingLanguages
-  //   ? getTopLanguages(user.codingLanguages, 5)
-  //   : [];
 
   // Function to format location based on provided city, state, and country
   const formatLocation = (
@@ -399,6 +329,11 @@ const UserPage = ({ params }: { params: { id: string } }) => {
     });
   };
 
+  const addProject = (project: ProjectType) => {
+    setCoderProjects([...coderProjects, project]);
+    setNewProjectModalOpen(false);
+  };
+
   return (
     <>
       {contextHolder}
@@ -406,28 +341,25 @@ const UserPage = ({ params }: { params: { id: string } }) => {
       <div className="p-3 m-0">
         <div className="relative flex h-32 w-full items-center justify-between rounded-xl bg-cover px-10 mb-4">
           <div className="flex flex-row items-center justify-between gap-x-4">
-            <div className="flex h-20 w-20 items-center justify-center rounded-full mr-20">
+            <div className="flex items-center justify-center rounded-full mr-8">
               <Badge
-                badgeContent={isOnline ? "Online" : "Offline"}
-                color={isOnline ? "success" : "danger"}
-                size="md"
-                variant="soft"
-                anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
-                badgeInset="10%"
+                color={isOnline ? "green" : "red"}
+                status={isOnline ? "success" : "error"}
+                offset={[0, 35]}
               >
                 {coder?.profile_image ? (
                   <Image
                     src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/avatars/profileImg-${params.id}`}
                     alt="profile picture"
-                    className="h-full w-full rounded-full"
-                    height={108}
-                    width={108}
+                    className="rounded-full"
+                    height={100}
+                    width={100}
                   />
                 ) : (
-                  <MAvatar sx={{ "--Avatar-size": "108px" }}>
-                    {coder?.first_name[0]}
-                    {coder?.last_name[0]}
-                  </MAvatar>
+                  <DAvatar size={108}>
+                    {coder?.first_name && coder.first_name[0]}
+                    {coder?.last_name && coder.last_name[0]}
+                  </DAvatar>
                 )}
               </Badge>
             </div>
@@ -445,7 +377,9 @@ const UserPage = ({ params }: { params: { id: string } }) => {
                 />
                 {coder?.socials
                   ? coder?.socials.map((social, index) =>
-                      social.social !== "X" && social.social !== "Threads" ? (
+                      social.social?.toLowerCase() !== "x" &&
+                      social.social?.toLowerCase() !== "threads" &&
+                      social.social?.toLowerCase() !== "personal" ? (
                         <SocialIcon
                           key={index}
                           network={social.social
@@ -458,18 +392,18 @@ const UserPage = ({ params }: { params: { id: string } }) => {
                           }
                           style={{ height: 35, width: 35, marginTop: "10px" }}
                         />
-                      ) : social.social === "X" ? (
+                      ) : social.social?.toLowerCase() === "x" ? (
                         <Link
                           href={
                             social.link?.startsWith("https://")
                               ? social.link
                               : `https://${social.link}`
                           }
-                          className="h-[35px] w-[35px] mt-[10px] rounded-full bg-black text-white flex items-center justify-center"
+                          className="h-[35px] w-[35px] mt-[10px] bg-black text-white rounded-full flex items-center justify-center"
                         >
                           <FaXTwitter className="text-base" />
                         </Link>
-                      ) : (
+                      ) : social.social?.toLowerCase() === "threads" ? (
                         <Link
                           href={
                             social.link?.startsWith("https://")
@@ -479,6 +413,17 @@ const UserPage = ({ params }: { params: { id: string } }) => {
                           className="h-[35px] w-[35px] mt-[10px] rounded-full bg-black text-white flex items-center justify-center"
                         >
                           <FaThreads className="text-base" />
+                        </Link>
+                      ) : (
+                        <Link
+                          href={
+                            social.link?.startsWith("https://")
+                              ? social.link
+                              : `https://${social.link}`
+                          }
+                          className="h-[35px] w-[35px] mt-[10px] rounded-full bg-gray-300 text-black flex items-center justify-center"
+                        >
+                          <FaLink className="text-base" />
                         </Link>
                       )
                     )
@@ -513,7 +458,7 @@ const UserPage = ({ params }: { params: { id: string } }) => {
           )}
         </div>
         <Image
-          src={Banner}
+          src={backgrounds[coder?.background_image ?? 0]}
           alt="background cover"
           className="h-2 w-full rounded-xl"
         />
@@ -1591,7 +1536,7 @@ const UserPage = ({ params }: { params: { id: string } }) => {
                     New Project
                   </Dialog.Title>
 
-                  <NewProjectForm />
+                  <NewProjectForm onOk={addProject} />
                 </Dialog.Panel>
               </Transition.Child>
             </div>

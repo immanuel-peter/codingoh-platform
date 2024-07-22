@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
@@ -5,7 +7,7 @@ import remarkToc from "remark-toc";
 import rehypeRaw from "rehype-raw";
 import rehypeSanitize from "rehype-sanitize";
 import rehypeHighlight from "rehype-highlight";
-import SyntaxHighlighter from "react-syntax-highlighter";
+import SyntaxHighlighter, { Prism } from "react-syntax-highlighter";
 import { docco } from "react-syntax-highlighter/dist/esm/styles/hljs";
 import {
   vscDarkPlus,
@@ -114,21 +116,19 @@ const RenderMd = ({
         li: Li,
         h4: H4,
         hr: Hr,
-        code({ node, inline, children, ...props }) {
-          // const match = /language-(\w+)/.exec(className || "");
-
-          return !inline ? (
-            <SyntaxHighlighter
-              style={coldarkDark}
-              language="python"
-              {...props}
-              className="leading-none"
-              wrapLongLines
-            >
-              {String(children).replace(/\n$/, "")}
-            </SyntaxHighlighter>
+        code(props) {
+          const { children, className, node, ...rest } = props;
+          const match = /language-(\w+)/.exec(className || "");
+          return match ? (
+            <Prism
+              {...rest}
+              PreTag="div"
+              children={String(children).replace(/\n$/, "")}
+              language={match[1]}
+              style={vscDarkPlus}
+            />
           ) : (
-            <code className="my-2" {...props}>
+            <code {...rest} className={className}>
               {children}
             </code>
           );

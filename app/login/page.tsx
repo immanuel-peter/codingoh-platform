@@ -1,11 +1,11 @@
 "use client";
 
 import React, { useState } from "react";
-import { Divider, Input, message, Form } from "antd";
+import { Divider, Input, message } from "antd";
 import { FaCode, FaGithub } from "react-icons/fa6";
 import { FcGoogle } from "react-icons/fc";
 import Link from "next/link";
-import { redirect, useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 
 const Login = () => {
@@ -120,7 +120,7 @@ const Login = () => {
   };
 
   return (
-    <>
+    <div>
       {contextHolder}
       <div className="flex justify-center items-center min-h-screen bg-gray-300/75">
         <div className="h-fit w-1/4 bg-slate-50 shadow-sm rounded-md">
@@ -195,7 +195,7 @@ const Login = () => {
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 
