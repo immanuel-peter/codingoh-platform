@@ -121,6 +121,7 @@ export interface Scheduling {
   status?: string | null;
   receiver_note?: string | null;
   question_id?: Question;
+  meeting_id?: string;
   [key: string]: any;
 }
 
@@ -173,4 +174,12 @@ export interface Notification {
   project_ref?: Project;
   scheduling_ref?: Scheduling;
   message_ref?: number;
+}
+
+export interface Meeting {
+  user?: Coder;
+  participant?: Coder;
+  is_done?: boolean;
+  chat?: { [key: string]: string };
+  [key: string]: any;
 }

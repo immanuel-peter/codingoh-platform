@@ -958,8 +958,15 @@ export const NewUser = () => {
 
       // Redirect to user's profile page if everything is successful
       if (userDataResponse) {
-        // router.push(`/users/${user.id}`);
         openNotification();
+        const { data, error } = await supabase
+          .from("notifications")
+          .insert({ event: "signup", coder_ref: userDataResponse[0].id })
+          .select();
+        if (error) {
+          console.log("Error sending notification:", error);
+        }
+        router.push(`/users/${user.id}`);
       }
     } catch (error) {
       console.log("Error during submission:", error);

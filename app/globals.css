@@ -36,7 +36,7 @@
   }
 
   a {
-    @apply p-1 bg-blue-200/50 text-blue-500 rounded-md cursor-pointer hover:underline hover:font-semibold;
+    @apply text-blue-500 cursor-pointer hover:underline;
   }
 
   blockquote {
@@ -127,12 +127,38 @@
   p.is-editor-empty:first-child::before {
     @apply text-gray-400 content-[attr(data-placeholder)] float-left h-0 pointer-events-none;
   }
+}
 
-  /*
-  p.is-empty::before {
-    @apply text-gray-400 content-[attr(data-placeholder)] float-left h-0 pointer-events-none;
-  }
-  */
+.floating-menu {
+  @apply flex bg-gray-300 p-1 rounded-md;
+}
+
+.floating-menu button {
+  @apply bg-transparent p-1 rounded;
+}
+
+.floating-menu button:hover {
+  @apply bg-gray-300 text-purple-500 border border-solid border-gray-400;
+}
+
+.floating-menu button.is-active {
+  @apply bg-white text-purple-500;
+}
+
+.floating-menu button.is-active:hover {
+  @apply text-purple-700;
+}
+
+.str-video__participant-details__name {
+  @apply text-white;
+}
+
+.str-video__generic-menu {
+  @apply text-white;
+}
+
+.str-video__notification__message {
+  @apply text-white;
 }
 
 /* width */

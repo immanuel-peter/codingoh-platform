@@ -12,6 +12,7 @@ import Inbox from "./Inbox";
 import TiptapEditor from "./TiptapEditor";
 import TiptapRender from "./TiptapRender";
 import AddComment from "./AddComment";
+import ChatComponent from "./ChatComponent";
 
 export {
   Navbar,
@@ -28,4 +29,5 @@ export {
   TiptapEditor,
   TiptapRender,
   AddComment,
+  ChatComponent,
 };

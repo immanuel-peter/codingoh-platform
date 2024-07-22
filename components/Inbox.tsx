@@ -73,27 +73,30 @@ const SpotlightAction = ({ notification }: { notification: Notification }) => {
   const formattedDate = dateTime?.toDate();
 
   useEffect(() => {
-    setDateString(
-      notification.scheduling_ref?.scheduled_time
-        ? dayjs(new Date(notification.scheduling_ref?.scheduled_time)).format(
-            "MM/DD/YYYY"
-          )
-        : ""
-    );
-    setTimeString(
-      notification.scheduling_ref?.scheduled_time
-        ? dayjs(new Date(notification.scheduling_ref?.scheduled_time)).format(
-            "h:mm a"
-          )
-        : ""
-    );
-    setDateTime(
-      notification.scheduling_ref?.scheduled_time
-        ? dayjs(new Date(notification.scheduling_ref?.scheduled_time))
-        : null
-    );
-    setScheduleMessage(notification.scheduling_ref?.sender_note || "");
-  }, [notification.scheduling_ref]);
+    if (notification) {
+      // Check if notification is defined
+      setDateString(
+        notification.scheduling_ref?.scheduled_time
+          ? dayjs(new Date(notification.scheduling_ref?.scheduled_time)).format(
+              "MM/DD/YYYY"
+            )
+          : ""
+      );
+      setTimeString(
+        notification.scheduling_ref?.scheduled_time
+          ? dayjs(new Date(notification.scheduling_ref?.scheduled_time)).format(
+              "h:mm a"
+            )
+          : ""
+      );
+      setDateTime(
+        notification.scheduling_ref?.scheduled_time
+          ? dayjs(new Date(notification.scheduling_ref?.scheduled_time))
+          : null
+      );
+      setScheduleMessage(notification.scheduling_ref?.sender_note || "");
+    }
+  }, [notification]); // Ensure notification is included in the dependency array
 
   const deleteQuestion = async (id: number) => {
     try {
@@ -403,7 +406,7 @@ const SpotlightAction = ({ notification }: { notification: Notification }) => {
         />
       </div>
     );
-  } else if (notification.event == "delete_question") {
+  } else if (notification?.event == "delete_question") {
     return (
       <div className="flex flex-col items-start justify-start p-1.5 w-full overflow-y-auto">
         <p className="flex items-center">
@@ -427,7 +430,7 @@ const SpotlightAction = ({ notification }: { notification: Notification }) => {
         </div>
       </div>
     );
-  } else if (notification.event == "add_question") {
+  } else if (notification?.event == "add_question") {
     if (questionDeleted) {
       return (
         <div className="flex flex-col items-start justify-start p-1.5 w-full overflow-y-auto">
@@ -481,7 +484,7 @@ const SpotlightAction = ({ notification }: { notification: Notification }) => {
         </p>
       </div>
     );
-  } else if (notification.event == "add_project") {
+  } else if (notification?.event == "add_project") {
     if (projectDeleted) {
       return (
         <div className="flex flex-col items-start justify-start p-1.5 w-full overflow-y-auto">
@@ -532,7 +535,7 @@ const SpotlightAction = ({ notification }: { notification: Notification }) => {
         </p>
       </div>
     );
-  } else if (notification.event == "schedule_meet") {
+  } else if (notification?.event == "schedule_meet") {
     return (
       <div className="w-full p-1.5">
         <Link
@@ -666,7 +669,7 @@ const SpotlightAction = ({ notification }: { notification: Notification }) => {
           renderStatus(notification.scheduling_ref.status)}
       </div>
     );
-  } else if (notification.event == "accept_meet") {
+  } else if (notification?.event == "accept_meet") {
     return (
       <div className="w-full p-1.5">
         <Link
@@ -714,7 +717,7 @@ const SpotlightAction = ({ notification }: { notification: Notification }) => {
         </div>
       </div>
     );
-  } else if (notification.event == "reject_meet") {
+  } else if (notification?.event == "reject_meet") {
     return (
       <>
         {contextHolder}
@@ -793,7 +796,7 @@ const SpotlightAction = ({ notification }: { notification: Notification }) => {
         </div>
       </>
     );
-  } else if (notification.event == "reschedule_meet") {
+  } else if (notification?.event == "reschedule_meet") {
     return (
       <>
         {contextHolder}
@@ -881,7 +884,7 @@ const SpotlightAction = ({ notification }: { notification: Notification }) => {
         </div>
       </>
     );
-  } else if (notification.event == "cancel_meet") {
+  } else if (notification?.event == "cancel_meet") {
     return (
       <div className="w-full p-1.5">
         <Link
@@ -893,7 +896,7 @@ const SpotlightAction = ({ notification }: { notification: Notification }) => {
         </Link>
       </div>
     );
-  } else if (notification.event == "new_comment") {
+  } else if (notification?.event == "new_comment") {
     return (
       <div className="w-full p-1.5">
         <Link
@@ -909,7 +912,7 @@ const SpotlightAction = ({ notification }: { notification: Notification }) => {
         </p>
       </div>
     );
-  } else if (notification.event == "question_answered") {
+  } else if (notification?.event == "question_answered") {
     return (
       <div className="w-full p-1.5">
         <Link
@@ -1268,7 +1271,8 @@ const Inbox = ({ open, onClose }: { open: boolean; onClose: () => void }) => {
                 `scheduler_id.eq.${coderData.id},receiver_id.eq.${coderData.id}`
               )
               .or(`status.eq.accept,status.is.null`)
-              .gte("scheduled_time", new Date().toISOString());
+              .gte("scheduled_time", new Date().toISOString())
+              .order("scheduled_time", { ascending: true });
           if (schedulingsData) {
             const newSchedulings = schedulingsData.map((scheduling) => {
               const {
@@ -1726,9 +1730,9 @@ const Inbox = ({ open, onClose }: { open: boolean; onClose: () => void }) => {
               <div className="flex w-2/5 border border-solid border-gray-300 shadow-lg rounded-lg">
                 <Calendar fullscreen={false} onSelect={onDateSelect} />
               </div>
-              <div className="flex flex-col items-center justify-start w-full h-full">
+              <div className="flex flex-col items-center justify-start w-full h-full overflow-y-auto">
                 {filteredSchedulings.map((s) => (
-                  <RenderScheduling s={s} user={user} />
+                  <RenderScheduling s={s} user={user ?? { id: "" }} />
                 ))}
               </div>
             </div>

@@ -318,10 +318,6 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
 
         if (scheduleDataResponse) {
           console.log("Scheduling added:", scheduleDataResponse);
-          const { data, error } = await supabase
-            .from("meetings")
-            .insert({ id: meetingId })
-            .select();
           const { data: d, error: e } = await supabase
             .from("notifications")
             .insert({
@@ -484,10 +480,11 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
     // } catch (error) {
     //   console.error("Error accepting meeting request:", error);
     // }
+
     try {
       // Call the Supabase function to update the scheduling and insert into notifications
       const { error } = await supabase.rpc("handle_scheduling_accept", {
-        id: scheduling.id,
+        p_id: scheduling.id,
       });
 
       if (error) {
