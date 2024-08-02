@@ -15,7 +15,6 @@ import { Dialog, Transition } from "@headlessui/react";
 import { Avatar, Drawer } from "antd";
 import { createClient } from "@/utils/supabase/client";
 
-import { inboxItems } from "@/dummy/questions";
 import { Question } from "@/types";
 import { Inbox } from "@/components";
 

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import Image from "next/image";
 import { message, Select } from "antd";
 import { FaUpload, FaCamera } from "react-icons/fa6";
@@ -87,148 +87,110 @@ const NewProjectForm = ({ onOk }: { onOk: (project: ProjectType) => void }) => {
 
   // Form Actions
   const [messageApi, contextHolder] = message.useMessage();
-  let nameCheck = false;
-  let descriptionCheck = false;
-  let appCheck = false;
+  // let nameCheck = false;
+  // let descriptionCheck = false;
+  // let appCheck = false;
+
+  const validateForm = useCallback(() => {
+    if (!newProject.name?.trim()) {
+      message.error("Please provide a project title");
+      return false;
+    }
+    if (!newProject.description?.trim()) {
+      message.error("Please provide a project description");
+      return false;
+    }
+    if (newProject.application?.trim() && newProject.skills?.length === 0) {
+      message.error(
+        "If you are providing an application link, please provide needed skills for the project."
+      );
+      return false;
+    }
+    return true;
+  }, [newProject]);
 
   const handleFormSubmit = async (e: React.SyntheticEvent) => {
     e.preventDefault();
 
-    if (newProject.name?.trim() === "") {
-      messageApi.open({
-        type: "error",
-        content: "Please provide a project title",
-        duration: 3,
-      });
-    } else {
-      nameCheck = true;
-    }
+    // if (newProject.name?.trim() === "") {
+    //   messageApi.open({
+    //     type: "error",
+    //     content: "Please provide a project title",
+    //     duration: 3,
+    //   });
+    // } else {
+    //   nameCheck = true;
+    // }
 
-    if (newProject.description?.trim() === "") {
-      messageApi.open({
-        type: "error",
-        content: "Please provide a project description",
-        duration: 3,
-      });
-    } else {
-      descriptionCheck = true;
-    }
+    // if (newProject.description?.trim() === "") {
+    //   messageApi.open({
+    //     type: "error",
+    //     content: "Please provide a project description",
+    //     duration: 3,
+    //   });
+    // } else {
+    //   descriptionCheck = true;
+    // }
 
-    if (
-      newProject.application?.trim() !== "" &&
-      newProject.skills?.length === 0
-    ) {
-      messageApi.open({
-        type: "error",
-        content:
-          "If you are providing an application link, please provide needed skills for the project.",
-        duration: 3,
-      });
-    } else {
-      appCheck = true;
-    }
+    // if (
+    //   newProject.application?.trim() !== "" &&
+    //   newProject.skills?.length === 0
+    // ) {
+    //   messageApi.open({
+    //     type: "error",
+    //     content:
+    //       "If you are providing an application link, please provide needed skills for the project.",
+    //     duration: 3,
+    //   });
+    // } else {
+    //   appCheck = true;
+    // } nameCheck && descriptionCheck && appCheck
 
-    if (nameCheck && descriptionCheck && appCheck) {
-      try {
-        const newProjectData = {
-          owner: coder?.id,
-          name: newProject.name,
-          description: newProject.description,
-          github: newProject.github,
-          status: newProject.status,
-          project_image: newProjectImage ? true : false,
-          stack: newProject.stack,
-          skills: newProject.skills,
-          application: newProject.application,
-        };
+    if (!validateForm()) return;
 
-        const { data: projectDataResponse, error: projectDataError } =
-          await supabase.from("projects").insert(newProjectData).select();
+    try {
+      const newProjectData = {
+        owner: coder?.id,
+        name: newProject.name,
+        description: newProject.description,
+        github: newProject.github,
+        status: newProject.status,
+        project_image: !!newProjectImage,
+        stack: newProject.stack,
+        skills: newProject.skills,
+        application: newProject.application,
+      };
 
-        if (projectDataError) {
-          console.log("Faulty data:", newProjectData);
-          console.log("Error uploading new project data:", projectDataError);
-          messageApi.open({
-            type: "error",
-            content: "Error uploading new project.",
-            duration: 3,
-          });
+      const { data: projectDataResponse, error: projectDataError } =
+        await supabase.from("projects").insert(newProjectData).select();
+
+      if (projectDataError) {
+        console.error("Error uploading new project data:", projectDataError);
+        message.error("Error uploading new project.");
+        return;
+      }
+
+      if (newProjectImage) {
+        const fileName = `projImage-${projectDataResponse[0].id}`;
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from("projectImages")
+          .upload(fileName, newProjectImage, { upsert: false });
+
+        if (uploadError) {
+          console.error("Error uploading project image:", uploadError);
+          message.error("Error uploading project image.");
           return;
         }
 
-        console.log("Project data uploaded:", projectDataResponse);
-
-        if (newProjectImage) {
-          const { data: d, error: e } = await supabase.storage
-            .from("projectImages")
-            .upload(`projImage-${projectDataResponse[0].id}`, newProjectImage, {
-              upsert: false,
-            });
-
-          if (d) {
-            console.log("Project image uploaded:", d);
-            return;
-          }
-
-          let maxProjectId = 0;
-          let imageUploaded = false;
-          let attempt = 0;
-
-          const { data, error } = await supabase
-            .from("projects")
-            .select("id")
-            .order("id", { ascending: false })
-            .limit(1);
-
-          if (data) {
-            maxProjectId = data[0].id;
-          }
-
-          while (!imageUploaded) {
-            const fileName = `projImage-${maxProjectId + attempt}`;
-
-            const { data: existingFileData, error: existingFileError } =
-              await supabase.storage.from("projectImages").list("", {
-                search: fileName,
-              });
-
-            if (existingFileData && existingFileData.length === 0) {
-              const { data: imageData, error: imageError } =
-                await supabase.storage
-                  .from("projectImages")
-                  .upload(fileName, newProjectImage, {
-                    upsert: false, // Set to false to avoid overwriting
-                  });
-
-              if (imageError) {
-                console.log("Error uploading profile image:", imageError);
-                return;
-              }
-
-              console.log("Profile image uploaded:", imageData);
-              imageUploaded = true;
-            } else {
-              attempt++;
-            }
-          }
-
-          router.refresh();
-        }
-
-        messageApi.open({
-          type: "success",
-          content: "Project successfully uploaded!",
-          duration: 3,
-        });
-        onOk(newProject);
-      } catch (error) {
-        console.log("Error:", error);
-        messageApi.open({
-          type: "error",
-          content: "Error uploading new project.",
-          duration: 3,
-        });
+        console.log("Project image uploaded:", uploadData);
       }
+
+      message.success("Project successfully uploaded!");
+      onOk(newProject);
+      router.refresh();
+    } catch (error) {
+      console.error("Error:", error);
+      message.error("Error uploading new project.");
     }
   };
 
@@ -478,3 +440,63 @@ const NewProjectForm = ({ onOk }: { onOk: (project: ProjectType) => void }) => {
 };
 
 export default NewProjectForm;
+
+/*
+if (validateForm()) {
+      try {
+        const newProjectData = {
+          owner: coder?.id,
+          name: newProject.name,
+          description: newProject.description,
+          github: newProject.github,
+          status: newProject.status,
+          project_image: newProjectImage ? true : false,
+          stack: newProject.stack,
+          skills: newProject.skills,
+          application: newProject.application,
+        };
+
+        const { data: projectDataResponse, error: projectDataError } =
+          await supabase.from("projects").insert(newProjectData).select();
+
+        if (projectDataError) {
+          console.log("Faulty data:", newProjectData);
+          console.log("Error uploading new project data:", projectDataError);
+          messageApi.open({
+            type: "error",
+            content: "Error uploading new project.",
+            duration: 3,
+          });
+          return;
+        }
+
+        console.log("Project data uploaded:", projectDataResponse);
+
+        if (newProjectImage) {
+          const fileName = `projImage-${projectDataResponse[0].id}`;
+          const { data: uploadData, error: uploadError } = await supabase.storage
+            .from("projectImages")
+            .upload(fileName, newProjectImage, { upsert: false });
+  
+          if (uploadError) {
+            console.error("Error uploading project image:", uploadError);
+            message.error("Error uploading project image.");
+            return;
+          }
+  
+          console.log("Project image uploaded:", uploadData);
+        }
+
+        message.success("Project successfully uploaded!");
+        onOk(newProject);
+        router.refresh();
+      } catch (error) {
+        console.log("Error:", error);
+        messageApi.open({
+          type: "error",
+          content: "Error uploading new project.",
+          duration: 3,
+        });
+      }
+    }
+*/

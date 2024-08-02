@@ -186,7 +186,7 @@ const SpotlightAction = ({ notification }: { notification: Notification }) => {
     try {
       // Call the Supabase function to update the scheduling and insert into notifications
       const { error } = await supabase.rpc("handle_scheduling_accept", {
-        id: schedulingId,
+        p_id: schedulingId,
       });
 
       if (error) {
@@ -213,7 +213,7 @@ const SpotlightAction = ({ notification }: { notification: Notification }) => {
     try {
       // Call the Supabase function to update the scheduling and insert into notifications
       const { error } = await supabase.rpc("handle_scheduling_reject", {
-        id: schedulingId,
+        p_id: schedulingId,
       });
 
       if (error) {
@@ -243,7 +243,7 @@ const SpotlightAction = ({ notification }: { notification: Notification }) => {
     try {
       // Call the Supabase function to update the scheduling and insert into notifications
       const { error } = await supabase.rpc("handle_reschedule", {
-        id: schedulingId,
+        p_id: schedulingId,
         note: receiverNote,
       });
 
@@ -945,7 +945,10 @@ const RenderScheduling = ({
   user: { id: string; [key: string]: any };
 }) => {
   const scheduledTime = s.scheduled_time ? new Date(s.scheduled_time) : null;
-  const timeZone = s.scheduler_id?.timezone ?? "UTC";
+  const timeZone =
+    user.id === s.scheduler_id?.auth_id
+      ? s.scheduler_id?.timezone
+      : s.receiver_id?.timezone;
 
   const formattedDate = scheduledTime
     ? new Date(
@@ -1266,11 +1269,12 @@ const Inbox = ({ open, onClose }: { open: boolean; onClose: () => void }) => {
                 status
               `
               )
+              .eq("is_confirmed", true)
               .eq("is_done", false)
+              .eq("status", "accept")
               .or(
                 `scheduler_id.eq.${coderData.id},receiver_id.eq.${coderData.id}`
               )
-              .or(`status.eq.accept,status.is.null`)
               .gte("scheduled_time", new Date().toISOString())
               .order("scheduled_time", { ascending: true });
           if (schedulingsData) {
@@ -1323,6 +1327,65 @@ const Inbox = ({ open, onClose }: { open: boolean; onClose: () => void }) => {
     };
     fetchNotifications();
     fetchSchedulings();
+
+    const notificationsSubscription = supabase
+      .channel("notifications-channel")
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "notifications",
+          filter: `coder_ref=eq.${user?.id}`,
+        },
+        (payload) => {
+          console.log(payload);
+          const newNotification = payload.new;
+          setNotifications((prevNotifications) => [
+            newNotification,
+            ...prevNotifications,
+          ]);
+        }
+      )
+      .subscribe();
+
+    const schedulingsSubscription = supabase
+      .channel("schedulings-channel")
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "schedulings",
+          filter: `id=in.(${schedulings.map((s) => s.id).join(",")})`,
+        },
+        (payload) => {
+          console.log("Scheduling payload:", payload);
+          const updatedScheduling = payload.new;
+          setSchedulings((prevSchedulings) =>
+            prevSchedulings.map((scheduling) =>
+              scheduling.id === updatedScheduling.id
+                ? updatedScheduling
+                : scheduling
+            )
+          );
+          setNotifications((prevNotifications) =>
+            prevNotifications.map((notification) =>
+              notification.scheduling_ref?.id === updatedScheduling.id
+                ? {
+                    ...notification,
+                    scheduling_ref: updatedScheduling,
+                  }
+                : notification
+            )
+          );
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeAllChannels();
+    };
   }, [supabase]);
 
   function formatTimestamp(timestamptz: string) {
@@ -1722,7 +1785,7 @@ const Inbox = ({ open, onClose }: { open: boolean; onClose: () => void }) => {
           {inboxType == "messages" && (
             <div className="flex flex-col items-center justify-start w-full h-full">
               <h1 className="text-2xl font-bold">Messages</h1>
-              <p className="text-sm">No messages yet.</p>
+              <p className="text-sm">Messages coming soon 😉</p>
             </div>
           )}
           {inboxType == "calendar" && (
@@ -1731,9 +1794,16 @@ const Inbox = ({ open, onClose }: { open: boolean; onClose: () => void }) => {
                 <Calendar fullscreen={false} onSelect={onDateSelect} />
               </div>
               <div className="flex flex-col items-center justify-start w-full h-full overflow-y-auto">
-                {filteredSchedulings.map((s) => (
-                  <RenderScheduling s={s} user={user ?? { id: "" }} />
-                ))}
+                {filteredSchedulings.length === 0 ? (
+                  <>
+                    <h1 className="text-2xl font-bold">Calendar</h1>
+                    <p className="text-sm">No meetings scheduled.</p>
+                  </>
+                ) : (
+                  filteredSchedulings.map((s) => (
+                    <RenderScheduling s={s} user={user ?? { id: "" }} />
+                  ))
+                )}
               </div>
             </div>
           )}

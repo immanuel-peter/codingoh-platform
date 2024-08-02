@@ -57,7 +57,7 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
   const [comments, setComments] = useState<Comment[]>([]);
   const [toSendContributors, setToSendContributors] = useState<Contributor[]>();
   const [schedulings, setSchedulings] = useState<Scheduling[]>([]);
-  const devScheduling: Scheduling | undefined = schedulings.find(
+  let devScheduling: Scheduling | undefined = schedulings.find(
     (scheduling) =>
       scheduling.scheduler_id?.id === coder?.id &&
       scheduling.status !== "reject" &&
@@ -92,6 +92,8 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
   const [dateTime, setDateTime] = useState<Dayjs | null>(null);
   const [scheduleMessage, setScheduleMessage] = useState<string>("");
   const [receiverNote, setReceiverNote] = useState<string>("");
+  const [isJoinMeetingVisible, setIsJoinMeetingVisible] =
+    useState<boolean>(false);
   const [messageApi, contextHolder] = message.useMessage();
 
   useEffect(() => {
@@ -186,7 +188,7 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
       const { data: schedulings, error: schedulingsError } = await supabase
         .from("schedulings")
         .select(
-          `id, receiver_id (first_name, last_name, timezone), scheduler_id (id, first_name, last_name, timezone, profile_image, auth_id), scheduled_time, sender_note, status, receiver_note`
+          `id, receiver_id (first_name, last_name, timezone), scheduler_id (id, first_name, last_name, timezone, profile_image, auth_id), scheduled_time, sender_note, status, receiver_note, meeting_id`
         )
         .eq("question_id", params.id);
       if (schedulings) {
@@ -210,6 +212,7 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
             sender_note: s.sender_note as string,
             status: s.status as string,
             receiver_note: s.receiver_note as string,
+            meeting_id: s.meeting_id as string,
           };
         });
 
@@ -251,6 +254,18 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
         : null
     );
     setScheduleMessage(devScheduling?.sender_note || "");
+  }, [devScheduling]);
+
+  useEffect(() => {
+    if (devScheduling && devScheduling.scheduled_time) {
+      const scheduledTime = dayjs(devScheduling.scheduled_time);
+      const currentTime = dayjs();
+      const diffInMinutes = scheduledTime.diff(currentTime, "minute");
+
+      if (diffInMinutes <= 15) {
+        setIsJoinMeetingVisible(true);
+      }
+    }
   }, [devScheduling]);
 
   if (!question) {
@@ -318,6 +333,7 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
 
         if (scheduleDataResponse) {
           console.log("Scheduling added:", scheduleDataResponse);
+          devScheduling = scheduleDataResponse;
           const { data: d, error: e } = await supabase
             .from("notifications")
             .insert({
@@ -720,7 +736,16 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
               </div>
             ) : (
               user &&
-              user?.id !== question.asker?.auth_id && (
+              user?.id !== question.asker?.auth_id &&
+              (isJoinMeetingVisible ? (
+                <Link
+                  href={`/meetings/${devScheduling?.meeting_id}`}
+                  className="p-3 flex flex-row items-center justify-center gap-2 text-slate-200 rounded-lg border-blue-600 hover:border-blue-800 bg-blue-500 hover:bg-blue-700 cursor-pointer"
+                >
+                  <FaVideo className="bg-inherit text-slate-200" />
+                  Join Meeting
+                </Link>
+              ) : (
                 <div
                   onClick={
                     !devScheduling
@@ -736,7 +761,7 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
                   <FaVideo className="bg-inherit text-slate-200" />
                   {!devScheduling ? "Schedule Meeting" : "Edit Meeting"}
                 </div>
-              )
+              ))
             )}
             {user?.id === question.asker?.auth_id &&
               !question.answer &&
@@ -1210,10 +1235,15 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
                     as="h3"
                     className="text-lg font-medium leading-6 text-blue-600 inline-flex items-center gap-2"
                   >
-                    View Meeting Requests <FaVideo />
+                    View Scheduled Meetings <FaVideo />
                   </Dialog.Title>
                   {schedulings
-                    .filter((s) => s.status === "accept")
+                    .filter(
+                      (s) =>
+                        s.status === "accept" &&
+                        s.scheduled_time &&
+                        s.scheduled_time >= new Date().toISOString()
+                    )
                     .map((scheduling) => (
                       <>
                         <div key={scheduling.id} className="py-4 mt-2">
@@ -1379,3 +1409,31 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
 };
 
 export default QuestionPage;
+
+/*
+{question.answer ? (
+              <div className="p-3 flex flex-row items-center justify-center gap-2 border-green-700 bg-green-600 text-slate-200 rounded-lg cursor-auto">
+                <FaCircleCheck className="bg-inherit text-slate-200" />
+                {"Answered"}
+              </div>
+            ) : (
+              user &&
+              user?.id !== question.asker?.auth_id && (
+                <div
+                  onClick={
+                    !devScheduling
+                      ? () => setIsScheduleMeetOpen(true)
+                      : () => setIsEditScheduleMeetOpen(true)
+                  }
+                  className={`p-3 flex flex-row items-center justify-center gap-2 text-slate-200 rounded-lg ${
+                    !devScheduling
+                      ? "border-blue-600 hover:border-blue-800 bg-blue-500 hover:bg-blue-700 cursor-pointer"
+                      : "border-violet-500 hover:border-violet-700 bg-violet-600 hover:bg-violet-800 cursor-pointer"
+                  }`}
+                >
+                  <FaVideo className="bg-inherit text-slate-200" />
+                  {!devScheduling ? "Schedule Meeting" : "Edit Meeting"}
+                </div>
+              )
+            )}
+*/
