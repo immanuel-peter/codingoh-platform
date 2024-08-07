@@ -4,7 +4,7 @@ import { FaCode } from "react-icons/fa6";
 
 export const CancelMeeting = (props: {
   receiver_name: string;
-  scheduler_id: number;
+  scheduler_id: string;
   scheduler_name: string;
   question_title: string;
   question_id: number;

@@ -3,7 +3,7 @@ import Link from "next/link";
 import { FaCode } from "react-icons/fa6";
 
 export const RejectMeeting = (props: {
-  receiver_id: number;
+  receiver_id: string;
   receiver_name: string;
   scheduler_name: string;
   question_title: string;

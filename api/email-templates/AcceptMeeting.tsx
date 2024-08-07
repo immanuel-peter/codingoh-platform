@@ -5,7 +5,7 @@ import { parseISO, format } from "date-fns";
 import { toZonedTime } from "date-fns-tz";
 
 export const AcceptMeeting = (props: {
-  receiver_id: number;
+  receiver_id: string;
   receiver_name: string;
   receiver_tz: string;
   scheduler_name: string;

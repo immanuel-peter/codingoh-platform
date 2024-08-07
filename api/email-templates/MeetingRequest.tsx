@@ -6,7 +6,7 @@ import { toZonedTime } from "date-fns-tz";
 
 export const MeetingRequest = (props: {
   receiver_name: string;
-  scheduler_id: number;
+  scheduler_id: string;
   scheduler_name: string;
   scheduled_time: string;
   scheduler_tz: string;
