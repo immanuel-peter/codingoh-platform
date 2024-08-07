@@ -122,7 +122,7 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
       const { data: question, error } = await supabase
         .from("questions")
         .select(
-          `id, created_at, question, tags, description_json, asker (id, first_name, last_name, timezone, auth_id), contributors: comments(user_id: commenter(id, first_name, last_name, profile_image, auth_id))`
+          `id, created_at, question, tags, description_json, asker (id, first_name, last_name, timezone, auth_id), contributors: comments(user_id: commenter(id, first_name, last_name, profile_image, auth_id)), meeters: schedulings(user_id: scheduler_id(id, first_name, last_name, profile_image, auth_id), is_done)`
         )
         .eq("id", params.id)
         .single();
@@ -135,6 +135,18 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
           timezone: question.asker.timezone as string,
           auth_id: question.asker.auth_id as string,
         };
+
+        const newMeeters = question.meeters.filter((m) => m.is_done);
+        const updatedMeeters = newMeeters.map((m) => ({
+          ...m,
+          user_id: {
+            id: m.user_id.id as number,
+            first_name: m.user_id.first_name as string,
+            last_name: m.user_id.last_name as string,
+            profile_image: m.user_id.profile_image as boolean,
+            auth_id: m.user_id.auth_id as string,
+          },
+        }));
 
         // Map the comments to contributors
         const updatedContributors: Contributor[] = question.contributors.map(
@@ -149,6 +161,8 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
             },
           })
         );
+
+        const allContributors = [...updatedContributors, ...updatedMeeters];
 
         const uniqueContributors = (
           contributors: Contributor[]
@@ -178,7 +192,7 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
           asker: updatedAsker,
         };
 
-        setToSendContributors(uniqueContributors(updatedContributors));
+        setToSendContributors(uniqueContributors(allContributors));
         setQuestion(updatedQuestion);
       } else {
         console.error("Error fetching question:", error);

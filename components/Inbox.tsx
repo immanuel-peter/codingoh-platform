@@ -928,6 +928,55 @@ const SpotlightAction = ({ notification }: { notification: Notification }) => {
         </p>
       </div>
     );
+  } else if (notification.event == "finish_meet") {
+    if (
+      notification.scheduling_ref?.receiver_id?.id == notification.coder_ref?.id
+    ) {
+      return (
+        <div className="w-full p-1.5">
+          <Link
+            href={`/questions/${notification.scheduling_ref?.question_id?.id}`}
+            className="flex flex-row items-center justify-between mb-2 w-full cursor-pointer hover:bg-slate-200/50 hover:py-1 hover:px-2 rounded-lg"
+          >
+            <span>View the referenced question</span>
+            <LuExternalLink className="text-blue-500" />
+          </Link>
+          <p>
+            Did your meeting with{" "}
+            {notification.scheduling_ref?.scheduler_id?.first_name} go well?
+            Were you able to find an answer to your problem? Feel free to add an
+            answer using the link above.
+          </p>
+          <p className="mt-2">
+            <span className="font-bold">Question:</span>{" "}
+            {notification.scheduling_ref?.question_id?.question}
+          </p>
+        </div>
+      );
+    } else {
+      return (
+        <div className="w-full p-1.5">
+          <Link
+            href={`/questions/${notification.scheduling_ref?.question_id?.id}`}
+            className="flex flex-row items-center justify-between mb-2 w-full cursor-pointer hover:bg-slate-200/50 hover:py-1 hover:px-2 rounded-lg"
+          >
+            <span>View the referenced question</span>
+            <LuExternalLink className="text-blue-500" />
+          </Link>
+          <p>
+            Did your meeting with{" "}
+            {notification.scheduling_ref?.receiver_id?.first_name} go well? Were
+            you able to find an answer to{" "}
+            {notification.scheduling_ref?.receiver_id?.first_name}'s problem?
+            Feel free to add a comment using the link above.
+          </p>
+          <p className="mt-2">
+            <span className="font-bold">Question:</span>{" "}
+            {notification.scheduling_ref?.question_id?.question}
+          </p>
+        </div>
+      );
+    }
   } else {
     return (
       <>
@@ -1026,7 +1075,7 @@ const RenderScheduling = ({
             <span className="font-semibold text-blue-600">{formattedDate}</span>
           </div>
           <Link
-            href="/"
+            href={`/meetings/${s.meeting_id}`}
             className="flex flex-row items-center justify-center gap-2 p-3 rounded-lg bg-blue-400 hover:bg-blue-600 text-white hover:text-white"
           >
             <FaVideo /> Join Meeting
@@ -1080,7 +1129,7 @@ const Inbox = ({ open, onClose }: { open: boolean; onClose: () => void }) => {
             await supabase
               .from("notifications")
               .select(
-                `id, created_at, event, read, coder_ref (id, first_name, last_name, position, stack, profile_image, auth_id), question_ref (id, asker (id, first_name, last_name, profile_image, timezone, auth_id), question, tags, answer_preference, answer), comment_ref (id, parent_comment (id, commenter (id, first_name, last_name, profile_image, auth_id), is_answer, likes), commenter (id, first_name, last_name, profile_image, auth_id), is_answer, likes), project_ref (id, owner (first_name, last_name, auth_id), name, description, status, github, stack, skills, application), scheduling_ref (id, scheduler_id (id, first_name, last_name, profile_image, auth_id, timezone), receiver_id (id, first_name, last_name, profile_image, auth_id, timezone), scheduled_time, sender_note, status, receiver_note, is_done, is_confirmed)`
+                `id, created_at, event, read, coder_ref (id, first_name, last_name, position, stack, profile_image, auth_id), question_ref (id, asker (id, first_name, last_name, profile_image, timezone, auth_id), question, tags, answer_preference, answer), comment_ref (id, parent_comment (id, commenter (id, first_name, last_name, profile_image, auth_id), is_answer, likes), commenter (id, first_name, last_name, profile_image, auth_id), is_answer, likes), project_ref (id, owner (first_name, last_name, auth_id), name, description, status, github, stack, skills, application), scheduling_ref (id, scheduler_id (id, first_name, last_name, profile_image, auth_id, timezone), receiver_id (id, first_name, last_name, profile_image, auth_id, timezone), question_id (id, question), scheduled_time, sender_note, status, receiver_note, is_done, is_confirmed)`
               )
               .eq("coder_ref", coderData.id)
               .order("created_at", { ascending: false });
@@ -1198,6 +1247,10 @@ const Inbox = ({ open, onClose }: { open: boolean; onClose: () => void }) => {
                       auth_id: scheduling_ref.receiver_id.auth_id as string,
                       timezone: scheduling_ref.receiver_id.timezone as string,
                     },
+                    question_id: {
+                      id: scheduling_ref.question_id.id as number,
+                      question: scheduling_ref.question_id.question as string,
+                    },
                     scheduled_time: scheduling_ref.scheduled_time as string,
                     sender_note: scheduling_ref.sender_note as string,
                     status: scheduling_ref.status as string,
@@ -1266,7 +1319,8 @@ const Inbox = ({ open, onClose }: { open: boolean; onClose: () => void }) => {
                   question
                 ),
                 scheduled_time,
-                status
+                status,
+                meeting_id
               `
               )
               .eq("is_confirmed", true)
@@ -1286,6 +1340,7 @@ const Inbox = ({ open, onClose }: { open: boolean; onClose: () => void }) => {
                 question_id,
                 scheduled_time,
                 status,
+                meeting_id,
               } = scheduling;
               return {
                 id: id as number,
@@ -1315,6 +1370,7 @@ const Inbox = ({ open, onClose }: { open: boolean; onClose: () => void }) => {
                 },
                 scheduled_time: scheduled_time as string,
                 status: status ? status : "null",
+                meeting_id,
               };
             });
             console.log(newSchedulings);
@@ -1636,6 +1692,11 @@ const Inbox = ({ open, onClose }: { open: boolean; onClose: () => void }) => {
       return {
         notification: notification,
         message: notifMessage,
+      };
+    } else if (notification.event == "finish_meet") {
+      return {
+        notification: notification,
+        message: <p>Congratulations on completing your meeting!</p>,
       };
     } else {
       return { notification: notification, message: notification.event };

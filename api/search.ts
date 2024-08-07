@@ -9,7 +9,7 @@ export const semanticSearch = async (query: string) => {
   const { data: allQuestions, error } = await supabase
     .from("questions")
     .select(
-      `id, created_at, asker (id, first_name, last_name, auth_id), question, answer, embedding, contributors: comments(user_id: commenter(id, first_name, last_name, profile_image, auth_id))`
+      `id, created_at, asker (id, first_name, last_name, auth_id), question, answer, embedding, contributors: comments(user_id: commenter(id, first_name, last_name, profile_image, auth_id)), meeters: schedulings(user_id: scheduler_id(id, first_name, last_name, profile_image, auth_id), is_done)`
     );
 
   if (error) {
@@ -35,6 +35,18 @@ export const semanticSearch = async (query: string) => {
         last_name: asker.last_name as string,
       };
 
+      const newMeeters = q.meeters.filter((m) => m.is_done);
+      const updatedMeeters = newMeeters.map((m) => ({
+        ...m,
+        user_id: {
+          id: m.user_id.id as number,
+          first_name: m.user_id.first_name as string,
+          last_name: m.user_id.last_name as string,
+          profile_image: m.user_id.profile_image as boolean,
+          auth_id: m.user_id.auth_id as string,
+        },
+      }));
+
       // Map the comments to contributors
       const updatedContributors: Contributor[] = contributors.map((c) => ({
         ...c,
@@ -46,6 +58,8 @@ export const semanticSearch = async (query: string) => {
           auth_id: c.user_id.auth_id as string,
         },
       }));
+
+      const allContributors = [...updatedContributors, ...updatedMeeters];
 
       const uniqueContributors = (
         contributors: Contributor[]
@@ -74,7 +88,7 @@ export const semanticSearch = async (query: string) => {
         question: question as string,
         answer: answer as boolean,
         embedding: embedding as string,
-        contributors: uniqueContributors(updatedContributors),
+        contributors: uniqueContributors(allContributors),
       };
     });
 

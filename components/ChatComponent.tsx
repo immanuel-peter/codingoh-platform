@@ -281,8 +281,6 @@ function ChatComponent({
   const [messages, setMessages] = useState<Text[]>([]);
   const [sendContent, setSendContent] = useState<JSONContent>({});
   const messagesEndRef = useRef<HTMLDivElement>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const imageInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const fetchMessages = async () => {
@@ -444,36 +442,6 @@ function ChatComponent({
     }
   };
 
-  const handleFileInputChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      console.log("File uploaded:", file);
-    }
-  };
-
-  const handleFileUploadClick = () => {
-    if (fileInputRef.current) {
-      fileInputRef.current.click();
-    }
-  };
-
-  const handleImageInputChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    const image = event.target.files?.[0];
-    if (image) {
-      console.log("Image uploaded:", image);
-    }
-  };
-
-  const handleImageUploadClick = () => {
-    if (imageInputRef.current) {
-      imageInputRef.current.click();
-    }
-  };
-
   return (
     <div className="flex flex-col w-full h-full justify-end">
       <div className="flex-1 h-64 overflow-y-auto p-4 mb-16">
@@ -491,8 +459,6 @@ function ChatComponent({
       </div>
       <div className="fixed bottom-0 p-2 w-1/4 bg-slate-200">
         <div className="w-full p-3 flex flex-row items-center justify-center border border-solid border-gray-400 rounded-lg">
-          {/* <div className="w-full flex justify-start mx-2 text-sm border border-black rounded-md"> */}
-          {/* resize-none w-full overflow-x-hidden overflow-y-auto */}
           <div className="w-full mr-2 flex justify-start resize-y overflow-auto">
             {editor && (
               <FloatingMenu editor={editor} tippyOptions={{ duration: 100 }}>
@@ -511,25 +477,9 @@ function ChatComponent({
                   >
                     Code Block
                   </button>
-                  <button onClick={handleImageUploadClick}>Image</button>
-                  <button onClick={handleFileUploadClick}>File</button>
                 </div>
               </FloatingMenu>
             )}
-            <input
-              type="file"
-              ref={imageInputRef}
-              className="hidden"
-              accept="image/*"
-              onChange={handleImageInputChange}
-            />
-            <input
-              type="file"
-              ref={fileInputRef}
-              className="hidden"
-              accept={`${codeFileExtensions.map((ext) => ext.abbreviation).join(",")},application/*,text/*`}
-              onChange={handleFileInputChange}
-            />
             <EditorContent editor={editor} />
           </div>
 

@@ -26,7 +26,8 @@ export default function Home() {
           created_at, 
           asker ( id, first_name, last_name ), 
           question,
-          contributors: comments(user_id: commenter(id, first_name, last_name, profile_image, auth_id))
+          contributors: comments(user_id: commenter(id, first_name, last_name, profile_image, auth_id)),
+          meeters: schedulings(user_id: scheduler_id(id, first_name, last_name, profile_image, auth_id), is_done)
         `
         )
         .eq("answer", false)
@@ -39,13 +40,25 @@ export default function Home() {
       }
 
       const updatedQuestions = questions.map((q) => {
-        const { id, created_at, asker, question, contributors } = q;
+        const { id, created_at, asker, question, contributors, meeters } = q;
 
         let updatedAsker: Coder = {
           id: asker.id as number,
           first_name: asker.first_name as string,
           last_name: asker.last_name as string,
         };
+
+        const newMeeters = meeters.filter((m) => m.is_done);
+        const updatedMeeters = newMeeters.map((m) => ({
+          ...m,
+          user_id: {
+            id: m.user_id.id as number,
+            first_name: m.user_id.first_name as string,
+            last_name: m.user_id.last_name as string,
+            profile_image: m.user_id.profile_image as boolean,
+            auth_id: m.user_id.auth_id as string,
+          },
+        }));
 
         // Map the comments to contributors
         const updatedContributors: Contributor[] = contributors.map((c) => ({
@@ -58,6 +71,8 @@ export default function Home() {
             auth_id: c.user_id.auth_id as string,
           },
         }));
+
+        const allContributors = [...updatedContributors, ...updatedMeeters];
 
         const uniqueContributors = (
           contributors: Contributor[]
@@ -84,7 +99,7 @@ export default function Home() {
           created_at: created_at as string,
           asker: updatedAsker,
           question: question as string,
-          contributors: uniqueContributors(updatedContributors),
+          contributors: uniqueContributors(allContributors),
         };
       });
       console.log(updatedQuestions);

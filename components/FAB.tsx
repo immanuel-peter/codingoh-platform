@@ -93,22 +93,6 @@ const FAB = () => {
                   </div>
                   <div className="p-2 m-2 flex items-center justify-center">
                     <Link
-                      href="/codebot"
-                      className="p-2 w-1/2 h-20 rounded-xl bg-blue-300 hover:bg-blue-400 flex items-center justify-center"
-                    >
-                      <div className="bg-inherit flex items-center justify-center">
-                        <BsRobot className="bg-inherit text-4xl font-bold mr-4" />
-                        <h1 className="bg-inherit text-3xl font-bold ml-4">
-                          Talk with CodeBot
-                        </h1>
-                        <span className="bg-inherit text-xs p-1 ml-4 border border-solid border-black rounded-lg">
-                          Beta
-                        </span>
-                      </div>
-                    </Link>
-                  </div>
-                  <div className="p-2 m-2 flex items-center justify-center">
-                    <Link
                       href="https://successful-echium-b3f.notion.site/Support-CodingOH-67de2dbf28694086bbf3d59baa1fa10b?pvs=4"
                       className="p-2 w-1/2 h-20 rounded-xl bg-blue-300 hover:bg-blue-400 flex items-center justify-center"
                     >
