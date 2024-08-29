@@ -23,12 +23,12 @@ export default async function RootLayout({
   const { data, error } = await supabase
     .from("schedulings")
     .select(
-      `...scheduler_id (scheduler_auth: auth_id), ...receiver_id (receiver_auth: auth_id), is_done`
+      `...scheduler_id (scheduler_auth: auth_id), ...receiver_id (receiver_auth: auth_id), is_done, expired`
     )
     .eq("meeting_id", params.id)
     .single();
 
-  if (e || error || !data || data.is_done) {
+  if (e || error || !data || data.is_done || data.expired) {
     console.log(data, error);
     redirect("/");
   }

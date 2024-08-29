@@ -1,8 +1,54 @@
 import React from "react";
 import Link from "next/link";
 import { FaCode } from "react-icons/fa6";
-import { parseISO, format } from "date-fns";
+import { parseISO, format, addMinutes } from "date-fns";
 import { toZonedTime } from "date-fns-tz";
+
+export const createMeetingICS = (props: {
+  receiver_name: string;
+  receiver_tz: string;
+  scheduler_name: string;
+  scheduled_time: string;
+  question_title: string;
+}) => {
+  const {
+    receiver_name,
+    receiver_tz,
+    scheduler_name,
+    scheduled_time,
+    question_title,
+  } = props;
+
+  // Parse and format the date
+  const date = parseISO(scheduled_time);
+  const zonedDate = toZonedTime(date, receiver_tz);
+  const endZonedDate = addMinutes(zonedDate, 30);
+  const formattedDate = format(zonedDate, "yyyyMMdd'T'HHmmss'Z'");
+  const formattedEndDate = format(endZonedDate, "yyyyMMdd'T'HHmmss'Z'"); // Assuming a 1-hour meeting
+
+  const icsData = `
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//CodingOH//EN
+CALSCALE:GREGORIAN
+METHOD:REQUEST
+BEGIN:VEVENT
+UID:${new Date().getTime()}@codingoh.com
+DTSTAMP:${new Date().toISOString().replace(/[-:]/g, "").split(".")[0]}Z
+DTSTART:${formattedDate}
+DTEND:${formattedEndDate}
+SUMMARY:Meeting with ${receiver_name}
+DESCRIPTION:Meeting to discuss the question "${question_title}" on CodingOH.
+ORGANIZER;CN=${scheduler_name}:MAILTO:no-reply@codingoh.com
+ATTENDEE;CN=${receiver_name};RSVP=TRUE:MAILTO:no-reply@codingoh.com
+LOCATION:Online
+END:VEVENT
+END:VCALENDAR
+  `.trim();
+
+  // Create a File object from the ICS data
+  return new File([icsData], "meeting.ics", { type: "text/calendar" });
+};
 
 export const AcceptMeeting = (props: {
   receiver_id: string;

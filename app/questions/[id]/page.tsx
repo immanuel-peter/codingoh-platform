@@ -36,7 +36,7 @@ import Link from "next/link";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
 import { v4 as uuidv4 } from "uuid";
-import { CreateEmailResponseSuccess, ErrorResponse } from "resend";
+import axios from "axios";
 
 import { Question, Coder, Contributor, Comment, Scheduling } from "@/types";
 import { Navbar, FAB, RenderMd, TiptapRender } from "@/components";
@@ -68,6 +68,8 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
   let devScheduling: Scheduling | undefined = schedulings.find(
     (scheduling) =>
       scheduling.scheduler_id?.id === coder?.id &&
+      scheduling.is_done === false &&
+      scheduling.expired === false &&
       scheduling.status !== "reject" &&
       scheduling.status !== "delete"
   );
@@ -130,7 +132,7 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
       const { data: question, error } = await supabase
         .from("questions")
         .select(
-          `id, created_at, question, tags, description_json, asker (id, first_name, last_name, timezone, auth_id), contributors: comments(user_id: commenter(id, first_name, last_name, profile_image, auth_id)), meeters: schedulings(user_id: scheduler_id(id, first_name, last_name, profile_image, auth_id), is_done)`
+          `id, created_at, question, tags, description_json, asker (id, first_name, last_name, timezone, auth_id, email_address), contributors: comments(user_id: commenter(id, first_name, last_name, profile_image, auth_id)), meeters: schedulings(user_id: scheduler_id(id, first_name, last_name, profile_image, auth_id), is_done)`
         )
         .eq("id", params.id)
         .single();
@@ -142,6 +144,7 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
           last_name: question.asker.last_name as string,
           timezone: question.asker.timezone as string,
           auth_id: question.asker.auth_id as string,
+          email_address: question.asker.email_address as string,
         };
 
         const newMeeters = question.meeters.filter((m) => m.is_done);
@@ -210,7 +213,7 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
       const { data: schedulings, error: schedulingsError } = await supabase
         .from("schedulings")
         .select(
-          `id, receiver_id (first_name, last_name, timezone), scheduler_id (id, first_name, last_name, timezone, profile_image, auth_id), scheduled_time, sender_note, status, receiver_note, meeting_id`
+          `id, receiver_id (first_name, last_name, timezone), scheduler_id (id, first_name, last_name, timezone, profile_image, auth_id), scheduled_time, sender_note, status, receiver_note, meeting_id, is_done, expired`
         )
         .eq("question_id", params.id);
       if (schedulings) {
@@ -235,6 +238,8 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
             status: s.status as string,
             receiver_note: s.receiver_note as string,
             meeting_id: s.meeting_id as string,
+            is_done: s.is_done as boolean,
+            expired: s.expired as boolean,
           };
         });
 
@@ -284,7 +289,7 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
       const currentTime = dayjs();
       const diffInMinutes = scheduledTime.diff(currentTime, "minute");
 
-      if (diffInMinutes <= 15) {
+      if (0 <= diffInMinutes && diffInMinutes <= 15) {
         setIsJoinMeetingVisible(true);
       }
     }
@@ -371,23 +376,49 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
             console.error(e);
           }
           // Send the meeting request email
-          const { data: emailData, error: emailError } =
-            await sendMeetingRequest({
+          const response = await fetch("/api/send", {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
               to_email: question.asker?.email_address ?? "",
               receiver_name: question.asker?.first_name ?? "",
               scheduler_id: coder?.auth_id ?? "",
               scheduler_name: `${coder?.first_name} ${coder?.last_name}`,
               scheduled_time: formattedDate?.toISOString() ?? "",
-              scheduler_tz: coder?.timezone ?? "", // Replace with actual timezone if needed
+              scheduler_tz: coder?.timezone ?? "",
               question_title: question.question ?? "",
               question_id: question.id ?? 0,
               sender_note: scheduleMessage || "",
-            });
-          if (emailError) {
-            console.error("Error sending meeting request email:", emailError);
+            }),
+          });
+          if (!response.ok) {
+            console.error(
+              "Error sending meeting request email:",
+              await response.text()
+            );
           } else {
-            console.log("Meeting request email sent:", emailData);
+            const data = await response.json();
+            console.log("Meeting request email sent:", data);
           }
+          // const { data: emailData, error: emailError } =
+          //   await sendMeetingRequest({
+          //     to_email: question.asker?.email_address ?? "",
+          //     receiver_name: question.asker?.first_name ?? "",
+          //     scheduler_id: coder?.auth_id ?? "",
+          //     scheduler_name: `${coder?.first_name} ${coder?.last_name}`,
+          //     scheduled_time: formattedDate?.toISOString() ?? "",
+          //     scheduler_tz: coder?.timezone ?? "", // Replace with actual timezone if needed
+          //     question_title: question.question ?? "",
+          //     question_id: question.id ?? 0,
+          //     sender_note: scheduleMessage || "",
+          //   });
+          // if (emailError) {
+          //   console.error("Error sending meeting request email:", emailError);
+          // } else {
+          //   console.log("Meeting request email sent:", emailData);
+          // }
           setIsScheduleMeetOpen(false);
           router.refresh();
         }
