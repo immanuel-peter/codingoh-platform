@@ -1,6 +1,7 @@
 import React from "react";
 import Image from "next/image";
 import { CircularProgress } from "@mui/material";
+import { palette } from "@mui/system";
 
 import Avatar from "../public/avatar.png";
 import Banner from "../public/banner.png";
