@@ -12,7 +12,7 @@ const Login = () => {
   const supabase = createClient();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const verify = searchParams.get("verify");
+  const verify = searchParams.get("verify") == "true";
 
   const [messageApi, contextHolder] = message.useMessage();
 
@@ -39,11 +39,21 @@ const Login = () => {
         password,
       });
       if (data) {
+        messageApi.open({
+          type: "success",
+          content: (
+            <span>
+              Create a profile{" "}
+              <a href={`/users/add`} className="text-blue-500 hover:underline">
+                here
+              </a>
+            </span>
+          ),
+        });
         console.log(data);
         if (verify) {
           router.push("/users/add");
         } else {
-          // router.push(`/users/${data.user?.id}`);
           messageApi.open({
             type: "success",
             content: (
@@ -58,6 +68,7 @@ const Login = () => {
               </span>
             ),
           });
+          router.push(`/users/${data.user?.id}`);
         }
       } else {
         console.log(error);
@@ -134,23 +145,6 @@ const Login = () => {
             <h1 className="px-4 py-2 font-semibold text-lg">Login</h1>
           </div>
 
-          <div className="px-4 pt-2 flex flex-col justify-center items-center gap-4">
-            <div
-              onClick={signInWithGoogle}
-              className="px-4 py-2 flex flex-row justify-center items-center gap-2 border border-solid border-black rounded-md hover:cursor-pointer hover:bg-blue-200"
-            >
-              <FcGoogle size={30} /> Login Using Google &rarr;
-            </div>
-            <div
-              onClick={signInWithGithub}
-              className="px-4 py-2 flex flex-row justify-center items-center gap-2 border border-solid border-black rounded-md hover:cursor-pointer hover:bg-gray-400"
-            >
-              <FaGithub size={30} /> Login Using GitHub &rarr;
-            </div>
-          </div>
-
-          <Divider>or</Divider>
-
           <div className="px-4 py-2 flex flex-col">
             <label className="text-blue-500">Email</label>
             <Input
@@ -163,14 +157,39 @@ const Login = () => {
             <label className="text-blue-500">Password</label>
             <Input.Password
               name="password"
-              placeholder="Generate a password"
+              placeholder="Enter your password"
               className="mb-2"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>
 
-          <div className="flex justify-center mt-1">
+          {!verify && (
+            <>
+              <Divider>or</Divider>
+
+              <div className="px-2 flex flex-col justify-center items-center gap-4">
+                <span className="text-xs text-center">
+                  If your CodingOH profile email matches your Google or GitHub
+                  account's email, sign in with either.
+                </span>
+                <div
+                  onClick={signInWithGoogle}
+                  className="px-4 py-2 flex flex-row justify-center items-center gap-2 border border-solid border-black rounded-md hover:cursor-pointer hover:bg-blue-200"
+                >
+                  <FcGoogle size={30} /> Login Using Google &rarr;
+                </div>
+                <div
+                  onClick={signInWithGithub}
+                  className="px-4 py-2 flex flex-row justify-center items-center gap-2 border border-solid border-black rounded-md hover:cursor-pointer hover:bg-gray-400"
+                >
+                  <FaGithub size={30} /> Login Using GitHub &rarr;
+                </div>
+              </div>
+            </>
+          )}
+
+          <div className="flex justify-center mt-3">
             <button
               onClick={handleLogin}
               className="rounded-md bg-blue-600 px-4 py-2 text-sm font-semibold text-white shadow-sm hover:bg-blue-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"

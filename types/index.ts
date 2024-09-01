@@ -41,6 +41,7 @@ export interface Coder {
   education?: string;
   auth_id?: string;
   profile_image?: boolean;
+  is_online?: boolean;
 }
 
 export interface UserType {

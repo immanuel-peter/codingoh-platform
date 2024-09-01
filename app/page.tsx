@@ -108,10 +108,10 @@ export default function Home() {
     const fetchCoders = async () => {
       const { data: coders, error } = await supabase
         .from("coders")
-        .select("id, auth_id, first_name, last_name, position, stack");
+        .select("id, auth_id, first_name, last_name, position, stack")
+        .eq("is_online", true);
       if (coders) {
-        const updatedCoders = coders.filter((coder) => Math.random() > 0.5);
-        setCoders(updatedCoders);
+        setCoders(coders);
       } else {
         console.error(error);
       }
@@ -180,7 +180,7 @@ export default function Home() {
           {coders.length !== 0 ? (
             <div>
               <div className="flex items-center justify-center mt-3">
-                <h1 className="font-bold text-emerald-600 mr-5">{`${coders.length} online users`}</h1>
+                <h1 className="font-bold text-emerald-600 mr-5">{`${coders.length} online ${coders.length > 1 ? "users" : "user"}`}</h1>
                 <Link href="/users/all" className="text-base text-sky-600 ml-5">
                   View All &rarr;
                 </Link>

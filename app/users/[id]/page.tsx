@@ -343,8 +343,6 @@ const UserPage = ({ params }: { params: { id: string } }) => {
     ? getTopLanguages(coder?.stack, 5)
     : [];
 
-  const isOnline = Math.random() > 0.5;
-
   const handleSignOut = async () => {
     const { error } = await supabase.auth.signOut();
     if (error) {
@@ -374,26 +372,28 @@ const UserPage = ({ params }: { params: { id: string } }) => {
         <div className="relative flex h-32 w-full items-center justify-between rounded-xl bg-cover px-10 mb-4">
           <div className="flex flex-row items-center justify-between gap-x-4">
             <div className="flex items-center justify-center rounded-full mr-8">
-              <Badge
-                color={isOnline ? "green" : "red"}
-                status={isOnline ? "success" : "error"}
-                offset={[0, 35]}
-              >
-                {coder?.profile_image ? (
-                  <Image
-                    src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/avatars/profileImg-${params.id}`}
-                    alt="profile picture"
-                    className="rounded-full"
-                    height={100}
-                    width={100}
-                  />
-                ) : (
-                  <DAvatar size={108}>
-                    {coder?.first_name && coder.first_name[0]}
-                    {coder?.last_name && coder.last_name[0]}
-                  </DAvatar>
-                )}
-              </Badge>
+              {coder?.profile_image ? (
+                <Image
+                  src={`${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/avatars/profileImg-${params.id}`}
+                  alt="profile picture"
+                  className={`rounded-full border-4 ${
+                    coder?.is_online ? "border-green-500" : "border-red-500"
+                  }`}
+                  height={100}
+                  width={100}
+                />
+              ) : (
+                <DAvatar
+                  style={{
+                    borderWidth: "4px",
+                    borderColor: coder?.is_online ? "green" : "red",
+                  }}
+                  size={108}
+                >
+                  {coder?.first_name && coder.first_name[0]}
+                  {coder?.last_name && coder.last_name[0]}
+                </DAvatar>
+              )}
             </div>
             <div className="flex-grow">
               <h1 className="text-xl font-bold">

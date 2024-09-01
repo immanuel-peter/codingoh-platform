@@ -26,7 +26,9 @@ const allUsers = () => {
     const fetchCoders = async () => {
       const { data: coders, error } = await supabase
         .from("coders")
-        .select("id, first_name, last_name, about, position, stack, auth_id");
+        .select(
+          "id, first_name, last_name, about, position, stack, auth_id, is_online"
+        );
       if (coders) {
         setCoders(coders);
         setDisplayedUsers(coders);
@@ -119,7 +121,7 @@ const allUsers = () => {
                 key={index}
                 name={`${coder.first_name} ${coder.last_name}`}
                 position={coder.position || "Undefined"}
-                isOnline={Math.random() > 0.5}
+                isOnline={coder.is_online ?? false}
                 languages={coder.stack || []}
               />
             </Link>

@@ -2,6 +2,9 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
+import { v4 as uuidv4 } from "uuid";
+import { createClient } from "@/utils/supabase/client";
+import { message } from "antd";
 
 import { useEditor, EditorContent, JSONContent } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
@@ -331,6 +334,8 @@ else:
   };
 
   const ImageInput = () => {
+    const supabase = createClient();
+    const [messageApi, contextHolder] = message.useMessage();
     const [image, setImage] = useState<File | null>(null);
     const [imageLink, setImageLink] = useState<string>("");
 
@@ -349,22 +354,39 @@ else:
       editor.chain().focus().setImage({ src: imageLink }).run();
     };
 
-    const addImage = () => {
+    const addImage = async () => {
       if (image === null) {
         return;
       }
 
       if (image instanceof File) {
-        editor
-          .chain()
-          .focus()
-          .setImage({ src: URL.createObjectURL(image) })
-          .run();
+        const uid = uuidv4();
+
+        const { data, error } = await supabase.storage
+          .from("qimgs")
+          .upload(`${uid}`, image, {
+            upsert: false,
+          });
+
+        if (error) {
+          console.error(error);
+          messageApi.error("Failed to upload image");
+          return;
+        } else {
+          editor
+            .chain()
+            .focus()
+            .setImage({
+              src: `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/${data.fullPath}`,
+            })
+            .run();
+        }
       }
     };
 
     return (
       <>
+        {contextHolder}
         {image === null ? (
           <div>
             <div className="text-center p-6 border border-dashed border-slate-700 rounded-lg">

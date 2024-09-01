@@ -95,7 +95,7 @@ const SignUp = () => {
             <h1 className="px-4 py-2 font-semibold text-lg">Sign Up</h1>
           </div>
 
-          <div className="px-4 pt-2 flex flex-col justify-center items-center gap-4">
+          {/* <div className="px-4 pt-2 flex flex-col justify-center items-center gap-4">
             <div
               onClick={signInWithGoogle}
               className="px-4 py-2 flex flex-row justify-center items-center gap-2 border border-solid border-black rounded-md hover:cursor-pointer hover:bg-blue-200"
@@ -110,7 +110,7 @@ const SignUp = () => {
             </div>
           </div>
 
-          <Divider>or</Divider>
+          <Divider>or</Divider> */}
 
           <div className="px-4 py-2 flex flex-col">
             <label className="text-blue-500">Name</label>
