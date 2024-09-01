@@ -6,7 +6,6 @@ import Project from "./Project";
 import FAB from "./FAB";
 import NewFAB from "./NewFAB";
 import RenderMd from "./RenderMd";
-import Codebot from "./Codebot";
 import NewProjectForm from "./NewProjectForm";
 import Inbox from "./Inbox";
 import TiptapEditor from "./TiptapEditor";
@@ -23,7 +22,6 @@ export {
   FAB,
   NewFAB,
   RenderMd,
-  Codebot,
   NewProjectForm,
   Inbox,
   TiptapEditor,
