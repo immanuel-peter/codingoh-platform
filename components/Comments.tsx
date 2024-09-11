@@ -291,10 +291,6 @@ const Comment = ({
           isChecked ? "bg-green-100" : "bg-white"
         }`}
       >
-        {/* <RenderMd
-          className="text-gray-800 items-center p-4"
-          markdown={comment.text ?? ""}
-        /> */}
         <TiptapRender
           renderContent={comment.comment_json}
           style="text-gray-800 items-center p-4"

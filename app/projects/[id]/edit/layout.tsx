@@ -20,22 +20,17 @@ export default async function PageLayout({
     error: userError,
   } = await supabase.auth.getUser();
 
-  const { data: project, error: projectError } = await supabase
-    .from("projects")
-    .select("*")
-    .eq("id", params.id)
-    .single();
-  const { data: coder, error: coderError } = await supabase
-    .from("coders")
-    .select("*")
-    .eq("id", project.owner)
-    .single();
-
   if (userError || !user) {
     redirect("/login");
   }
 
-  if (projectError || !project || coder.auth_id != user.id) {
+  const { data: project, error: projectError } = await supabase
+    .from("projects")
+    .select("id, coders (auth_id)")
+    .eq("id", params.id)
+    .single();
+
+  if (projectError || !project || project.coders.auth_id != user.id) {
     redirect("/");
   }
 

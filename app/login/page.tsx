@@ -39,19 +39,22 @@ const Login = () => {
         password,
       });
       if (data) {
-        messageApi.open({
-          type: "success",
-          content: (
-            <span>
-              Create a profile{" "}
-              <a href={`/users/add`} className="text-blue-500 hover:underline">
-                here
-              </a>
-            </span>
-          ),
-        });
         console.log(data);
         if (verify) {
+          messageApi.open({
+            type: "success",
+            content: (
+              <span>
+                Create a profile{" "}
+                <a
+                  href={`/users/add`}
+                  className="text-blue-500 hover:underline"
+                >
+                  here
+                </a>
+              </span>
+            ),
+          });
           router.push("/users/add");
         } else {
           messageApi.open({

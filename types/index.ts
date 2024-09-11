@@ -123,6 +123,8 @@ export interface Scheduling {
   receiver_note?: string | null;
   question_id?: Question;
   meeting_id?: string;
+  is_done?: boolean;
+  expired?: boolean;
   [key: string]: any;
 }
 

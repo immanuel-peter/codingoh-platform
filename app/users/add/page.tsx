@@ -48,6 +48,7 @@ import {
 import { Proficiency, Social } from "@/types";
 import { createClient } from "@/utils/supabase/client";
 import { redirect, useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
 
 const timezones: string[] = [
   "UTC",
@@ -886,8 +887,6 @@ export const NewUser = () => {
     });
   };
 
-  // style={{ color: '#108ee9' }}
-
   const handleFormSubmit = async (e: SyntheticEvent) => {
     e.preventDefault();
 
@@ -1365,7 +1364,18 @@ export const NewUser = () => {
 
             <div className="border-b border-gray-900/10 pb-12">
               <h2 className="text-base font-semibold leading-7 mb-7l text-gray-900">
-                Frameworks
+                Tech Stack{" "}
+                <span className="text-xs font-normal">
+                  (If you need help, check out this{" "}
+                  <Link
+                    href="https://successful-echium-b3f.notion.site/Support-CodingOH-67de2dbf28694086bbf3d59baa1fa10b?pvs=4"
+                    target="_blank"
+                    className="text-blue-400 hover:text-blue-600 hover:underline"
+                  >
+                    video.
+                  </Link>
+                  )
+                </span>
               </h2>
 
               <div className="flex flex-row mt-10 items-start justify-between">
@@ -1455,9 +1465,6 @@ export const NewUser = () => {
                 placeholder="Project Management, Kanban, Cloud Computing..."
                 options={labelValues(uniqueArray(inDemandSkills))}
                 allowClear
-                clearIcon={
-                  <IoCloseCircleOutline className="text-red-300 hover:text-red-600" />
-                }
                 onChange={handleSkillChange}
               />
             </div>
@@ -1656,5 +1663,3 @@ export const NewUser = () => {
 };
 
 export default NewUser;
-
-// Intl.DateTimeFormat().resolvedOptions().timeZone

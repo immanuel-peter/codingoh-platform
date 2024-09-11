@@ -3,7 +3,7 @@ import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
-  title: "Edit Project - CodingOH",
+  title: "Edit Question - CodingOH",
 };
 
 export default async function PageLayout({

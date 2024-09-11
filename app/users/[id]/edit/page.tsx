@@ -403,7 +403,6 @@ const countryList: string[] = [
   "Zambia",
   "Zimbabwe",
 ];
-const labelStyle = "abbrev";
 const genderOptions: string[] = [
   "Male",
   "Female",
@@ -411,10 +410,6 @@ const genderOptions: string[] = [
   "Prefer not to say",
   "Other",
 ];
-
-// const getUser = (userId: string): User | undefined => {
-//   return users.find((user) => user.id === Number(userId));
-// };
 
 export const EditUser = ({ params }: { params: { id: string } }) => {
   const router = useRouter();
@@ -548,17 +543,6 @@ export const EditUser = ({ params }: { params: { id: string } }) => {
   const formattedDob: string = dob
     ? new Date(dob).toISOString().split("T")[0]
     : "";
-
-  // const timezones = allTimezones;
-  // const { options, parseTimezone } = useTimezoneSelect({
-  //   labelStyle,
-  //   timezones,
-  // });
-  // const handleTzChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-  //   e.preventDefault();
-  //   const data = parseTimezone(e.currentTarget.value);
-  //   setTimezone(data.value);
-  // };
 
   const onImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
@@ -854,7 +838,7 @@ export const EditUser = ({ params }: { params: { id: string } }) => {
             <FaMedium className="text-4xl text-black" />
             <input
               className="block w-3/4 rounded-md border-0 py-1.5 text-gray-900 placeholder:text-gray-400 placeholder:italic shadow-sm ring-1 ring-inset ring-gray-300 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:max-w-xs sm:text-sm sm:leading-6"
-              placeholder="www.medium.com"
+              placeholder="https://www.medium.com"
               value={socialLinks[6].link}
               onChange={(e) => updateSocialLink("medium", e.target.value)}
             />
@@ -1446,7 +1430,7 @@ export const EditUser = ({ params }: { params: { id: string } }) => {
 
                 <div className="sm:col-span-1">
                   <label
-                    htmlFor="about"
+                    htmlFor="avatar"
                     className="block text-sm font-medium leading-6 text-gray-900"
                   >
                     Avatar
@@ -1540,7 +1524,7 @@ export const EditUser = ({ params }: { params: { id: string } }) => {
 
             <div className="border-b border-gray-900/10 pb-12">
               <h2 className="text-base font-semibold leading-7 mb-7l text-gray-900">
-                Frameworks
+                Tech Stack
               </h2>
 
               <div className="flex flex-row mt-10 items-start justify-between">
@@ -1644,7 +1628,7 @@ export const EditUser = ({ params }: { params: { id: string } }) => {
             </div>
 
             <div className="flex flex-row justify-between border-b border-gray-900/10 pb-12">
-              <h2 className="text-base font-semibold leading-7 mb-7l text-gray-900">
+              <h2 className="text-base font-semibold leading-7 mb-7 text-gray-900">
                 Skills
               </h2>
               <Select
@@ -1653,9 +1637,6 @@ export const EditUser = ({ params }: { params: { id: string } }) => {
                 placeholder="Project Management, Kanban, Cloud Computing..."
                 options={labelValues(uniqueArray(inDemandSkills))}
                 allowClear
-                clearIcon={
-                  <IoCloseCircleOutline className="text-red-300 hover:text-red-600" />
-                }
                 value={skills}
                 onDeselect={handleSkillDeselect}
                 onSelect={handleSkillChange}

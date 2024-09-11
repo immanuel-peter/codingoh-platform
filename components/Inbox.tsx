@@ -928,7 +928,7 @@ const SpotlightAction = ({ notification }: { notification: Notification }) => {
         </p>
       </div>
     );
-  } else if (notification.event == "finish_meet") {
+  } else if (notification?.event == "finish_meet") {
     if (
       notification.scheduling_ref?.receiver_id?.id == notification.coder_ref?.id
     ) {

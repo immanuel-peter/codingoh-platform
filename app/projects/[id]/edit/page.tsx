@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import { FaGithub, FaLink } from "react-icons/fa6";
+import { IoCloseCircleOutline } from "react-icons/io5";
 import { Select, message } from "antd";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
@@ -11,7 +12,6 @@ import { Project } from "@/types";
 import Navbar from "@/components/Navbar";
 import sortedIcons from "@/utils/icons";
 import { labelValues, uniqueArray } from "@/utils";
-import { IoCloseCircleOutline } from "react-icons/io5";
 
 const { Option } = Select;
 
@@ -33,7 +33,7 @@ const Page = ({ params }: { params: { id: string } }) => {
       } else {
         const { data: coder, error: coderError } = await supabase
           .from("coders")
-          .select("*")
+          .select("first_name, last_name, auth_id")
           .eq("id", projectRetrievalData.owner)
           .single();
         const retrievedProject = { ...projectRetrievalData, owner: coder };
@@ -58,8 +58,6 @@ const Page = ({ params }: { params: { id: string } }) => {
     fetchProject();
   }, []);
 
-  // const project = getProject(params.id);
-  // if (!project) return false;
   const projectCopy = Object.assign({}, project);
 
   const [newProjectImg, setNewProjectImg] = useState<File | null>(null);
@@ -76,10 +74,6 @@ const Page = ({ params }: { params: { id: string } }) => {
 
   const [messageApi, contextHolder] = message.useMessage();
   const router = useRouter();
-
-  const formattedDate = (date: Date | null): string => {
-    return date instanceof Date ? date.toISOString().split("T")[0] : "";
-  };
 
   const onImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
@@ -98,7 +92,9 @@ const Page = ({ params }: { params: { id: string } }) => {
   };
 
   const handleSkillChange = (value: string) => {
-    needed && setNeeded([...needed, value]);
+    if (needed) {
+      setNeeded([...needed, value]);
+    }
   };
   const handleSkillDeselect = (value: string) => {
     const newSkills = needed?.filter((skill) => skill !== value) ?? null;
@@ -147,9 +143,6 @@ const Page = ({ params }: { params: { id: string } }) => {
       });
     } else {
       try {
-        // Make database call
-        // console.log("Added user to database:", userData.firstName, userData.lastName)
-        // Redirect to dev profile page '/users/{/* id given by database */}'
         const { data: projectData, error: projectError } = await supabase
           .from("projects")
           .update(updatedProjectData)
@@ -185,36 +178,6 @@ const Page = ({ params }: { params: { id: string } }) => {
   };
 
   const handleDelete = async () => {
-    // try {
-    //   const isProjectImage = project?.project_image;
-    //   const ownerId = project?.owner?.auth_id;
-
-    //   const { error } = await supabase
-    //     .from("projects")
-    //     .delete()
-    //     .eq("id", params.id);
-
-    //   if (isProjectImage) {
-    //     const { data, error } = await supabase.storage
-    //       .from("projectImages")
-    //       .remove([`projImage-${params.id}`]);
-
-    //     if (error) {
-    //       console.error("Error:", error);
-    //     } else {
-    //       console.log("Successfully deleted project image:", data);
-    //     }
-    //   }
-
-    //   if (error) {
-    //     console.error("Error:", error);
-    //   } else {
-    //     console.log("Successfully deleted project");
-    //     router.push(`/users/${ownerId}`);
-    //   }
-    // } catch (error) {
-    //   console.log("Error:", error);
-    // }
     try {
       const ownerId = project?.owner?.auth_id;
 
@@ -528,7 +491,7 @@ const Page = ({ params }: { params: { id: string } }) => {
                     clearIcon={
                       <IoCloseCircleOutline className="text-red-300 hover:text-red-600" />
                     }
-                    value={needed} // Fix: Ensure value is of type string | null | undefined
+                    value={needed}
                     onDeselect={handleSkillDeselect}
                     onSelect={handleSkillChange}
                   />

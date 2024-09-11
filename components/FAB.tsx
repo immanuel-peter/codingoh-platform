@@ -4,8 +4,8 @@ import React, { Fragment, useState } from "react";
 import { Tooltip } from "antd";
 import { AiFillProject } from "react-icons/ai";
 import { FaPlus, FaGear, FaThumbsUp, FaHandshake } from "react-icons/fa6";
+import { MdInfo } from "react-icons/md";
 import { IoChevronBack } from "react-icons/io5";
-import { BsRobot } from "react-icons/bs";
 import { Transition, Dialog } from "@headlessui/react";
 import Link from "next/link";
 
@@ -97,9 +97,9 @@ const FAB = () => {
                       className="p-2 w-1/2 h-20 rounded-xl bg-blue-300 hover:bg-blue-400 flex items-center justify-center"
                     >
                       <div className="bg-inherit flex items-center justify-center">
-                        <FaHandshake className="bg-inherit text-4xl font-bold mr-4" />
+                        <MdInfo className="bg-inherit text-4xl font-bold mr-4" />
                         <h1 className="bg-inherit text-3xl font-bold ml-4">
-                          Help CodingOH
+                          About CodingOH
                         </h1>
                       </div>
                     </Link>

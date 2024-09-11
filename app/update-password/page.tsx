@@ -71,8 +71,6 @@ const SignUp = () => {
           });
 
         if (authData) {
-          console.log(authData);
-          // router.push(`/users/${authData.user?.id}`); // not going to link, just redirects back /login
           messageApi.open({
             type: "success",
             content: (
@@ -88,6 +86,7 @@ const SignUp = () => {
             ),
             duration: 3,
           });
+          router.push(`/users/${authData.user?.id}`);
         } else {
           console.log(authError);
           messageApi.open({

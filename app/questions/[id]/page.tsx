@@ -10,6 +10,7 @@ import {
   FaShare,
   FaCircleCheck,
   FaUserClock,
+  FaTrash,
 } from "react-icons/fa6";
 import { FaHome, FaEdit } from "react-icons/fa";
 import {
@@ -30,6 +31,7 @@ import {
   DatePicker,
   TimePicker,
   Avatar as DAvatar,
+  Alert,
 } from "antd";
 import Image from "next/image";
 import Link from "next/link";
@@ -250,7 +252,6 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
     };
     fetchUser();
     fetchQuestion();
-    // fetchComments();
     fetchSchedulings();
   }, []);
 
@@ -284,7 +285,11 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
   }, [devScheduling]);
 
   useEffect(() => {
-    if (devScheduling && devScheduling.scheduled_time) {
+    if (
+      devScheduling &&
+      devScheduling.status == "accept" &&
+      devScheduling.scheduled_time
+    ) {
       const scheduledTime = dayjs(devScheduling.scheduled_time);
       const currentTime = dayjs();
       const diffInMinutes = scheduledTime.diff(currentTime, "minute");
@@ -360,6 +365,11 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
 
         if (scheduleDataResponse) {
           console.log("Scheduling added:", scheduleDataResponse);
+          messageApi.open({
+            type: "success",
+            content: "Scheduling added successfully",
+            duration: 3,
+          });
           devScheduling = scheduleDataResponse;
           const { data: d, error: e } = await supabase
             .from("notifications")
@@ -938,6 +948,12 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
     <>
       {contextHolder}
       <Navbar />
+      <Alert
+        type="info"
+        message="You can schedule, edit, delete, accept, reject, or reschedule a meeting using the Dialog. If you do not see any change to the screen, refresh it to see the update."
+        banner
+        showIcon
+      />
       <div className="p-3 m-0">
         <div className="mx-auto max-w-7xl pt-5 pb-2 px-8 border-solid border-black border-[1px] border-x-0 border-t-0">
           <div className="flex flex-row justify-between bg-inherit">
@@ -968,18 +984,19 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
                 <FaCircleCheck className="bg-inherit text-slate-200" />
                 {"Answered"}
               </div>
+            ) : user &&
+              isJoinMeetingVisible &&
+              (user.id === question.asker?.auth_id ||
+                user.id === devScheduling?.scheduler_id?.auth_id) ? (
+              <Link
+                href={`/meetings/${devScheduling?.meeting_id}`}
+                className="p-3 flex flex-row items-center justify-center gap-2 text-slate-200 rounded-lg border-blue-600 hover:border-blue-800 bg-blue-500 hover:bg-blue-700 cursor-pointer"
+              >
+                <FaVideo className="bg-inherit text-slate-200" />
+                Join Meeting
+              </Link>
             ) : (
-              user &&
-              user?.id !== question.asker?.auth_id &&
-              (isJoinMeetingVisible ? (
-                <Link
-                  href={`/meetings/${devScheduling?.meeting_id}`}
-                  className="p-3 flex flex-row items-center justify-center gap-2 text-slate-200 rounded-lg border-blue-600 hover:border-blue-800 bg-blue-500 hover:bg-blue-700 cursor-pointer"
-                >
-                  <FaVideo className="bg-inherit text-slate-200" />
-                  Join Meeting
-                </Link>
-              ) : (
+              user?.id !== question.asker?.auth_id && (
                 <div
                   onClick={
                     !devScheduling
@@ -995,8 +1012,9 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
                   <FaVideo className="bg-inherit text-slate-200" />
                   {!devScheduling ? "Schedule Meeting" : "Edit Meeting"}
                 </div>
-              ))
+              )
             )}
+
             {user?.id === question.asker?.auth_id &&
               !question.answer &&
               schedulings.filter((s) => s.status === null).length > 0 && (
@@ -1010,7 +1028,9 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
               )}
             {user?.id === question.asker?.auth_id &&
               !question.answer &&
-              schedulings.filter((s) => s.status === "accept").length > 0 && (
+              schedulings.filter(
+                (s) => s.status === "accept" && s.is_done == false
+              ).length > 0 && (
                 <div
                   onClick={() => setIsViewMeetingsOpen(true)}
                   className="p-3 flex flex-row items-center justify-center gap-2 border-green-600 hover:border-green-800 bg-green-500 hover:bg-green-700 text-slate-200 rounded-lg cursor-pointer"
@@ -1033,7 +1053,7 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
                 onClick={() => setIsDeleteOpen(true)}
                 className="p-3 flex flex-row items-center justify-center gap-2 border-red-600 hover:border-red-800 bg-red-500 hover:bg-red-700 text-slate-200 rounded-lg cursor-pointer"
               >
-                <MdLogout className="bg-inherit text-slate-200" />
+                <FaTrash className="bg-inherit text-slate-200" />
                 {"Delete Question"}
               </div>
             )}

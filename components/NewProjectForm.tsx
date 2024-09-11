@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useCallback } from "react";
 import Image from "next/image";
-import { message, Select } from "antd";
+import { Alert, message, Select } from "antd";
 import { FaUpload, FaCamera } from "react-icons/fa6";
 import { IoCloseCircleOutline } from "react-icons/io5";
 import { createClient } from "@/utils/supabase/client";
@@ -392,9 +392,6 @@ const NewProjectForm = ({ onOk }: { onOk: (project: ProjectType) => void }) => {
               placeholder="Project Management, Kanban, Cloud Computing..."
               options={labelValues(uniqueArray(techSkills))}
               allowClear
-              clearIcon={
-                <IoCloseCircleOutline className="text-red-300 hover:text-red-600" />
-              }
               onChange={handleSkillChange}
             />
           </div>
@@ -423,6 +420,13 @@ const NewProjectForm = ({ onOk }: { onOk: (project: ProjectType) => void }) => {
               className="flex flex-col w-full self-center rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-blue-600 sm:text-sm sm:leading-6"
             />
           </div>
+
+          <Alert
+            type="info"
+            message="If the screen doesn't update after you upload your project, refresh the screen."
+            showIcon
+            className="mt-3"
+          />
         </div>
 
         <div className="mt-4">
@@ -440,63 +444,3 @@ const NewProjectForm = ({ onOk }: { onOk: (project: ProjectType) => void }) => {
 };
 
 export default NewProjectForm;
-
-/*
-if (validateForm()) {
-      try {
-        const newProjectData = {
-          owner: coder?.id,
-          name: newProject.name,
-          description: newProject.description,
-          github: newProject.github,
-          status: newProject.status,
-          project_image: newProjectImage ? true : false,
-          stack: newProject.stack,
-          skills: newProject.skills,
-          application: newProject.application,
-        };
-
-        const { data: projectDataResponse, error: projectDataError } =
-          await supabase.from("projects").insert(newProjectData).select();
-
-        if (projectDataError) {
-          console.log("Faulty data:", newProjectData);
-          console.log("Error uploading new project data:", projectDataError);
-          messageApi.open({
-            type: "error",
-            content: "Error uploading new project.",
-            duration: 3,
-          });
-          return;
-        }
-
-        console.log("Project data uploaded:", projectDataResponse);
-
-        if (newProjectImage) {
-          const fileName = `projImage-${projectDataResponse[0].id}`;
-          const { data: uploadData, error: uploadError } = await supabase.storage
-            .from("projectImages")
-            .upload(fileName, newProjectImage, { upsert: false });
-  
-          if (uploadError) {
-            console.error("Error uploading project image:", uploadError);
-            message.error("Error uploading project image.");
-            return;
-          }
-  
-          console.log("Project image uploaded:", uploadData);
-        }
-
-        message.success("Project successfully uploaded!");
-        onOk(newProject);
-        router.refresh();
-      } catch (error) {
-        console.log("Error:", error);
-        messageApi.open({
-          type: "error",
-          content: "Error uploading new project.",
-          duration: 3,
-        });
-      }
-    }
-*/
