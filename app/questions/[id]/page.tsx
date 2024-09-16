@@ -45,13 +45,6 @@ import { Navbar, FAB, RenderMd, TiptapRender } from "@/components";
 import { formatDateTime } from "@/utils";
 import { Comments } from "@/components";
 import { JSONContent } from "@tiptap/react";
-import {
-  sendAcceptMeeting,
-  sendCancelMeeting,
-  sendMeetingRequest,
-  sendRejectMeeting,
-  sendRescheduleMeeting,
-} from "@/api/send-email";
 
 dayjs.extend(advancedFormat);
 dayjs.extend(utc);
@@ -385,50 +378,7 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
           } else {
             console.error(e);
           }
-          // Send the meeting request email
-          const response = await fetch("/api/send", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              to_email: question.asker?.email_address ?? "",
-              receiver_name: question.asker?.first_name ?? "",
-              scheduler_id: coder?.auth_id ?? "",
-              scheduler_name: `${coder?.first_name} ${coder?.last_name}`,
-              scheduled_time: formattedDate?.toISOString() ?? "",
-              scheduler_tz: coder?.timezone ?? "",
-              question_title: question.question ?? "",
-              question_id: question.id ?? 0,
-              sender_note: scheduleMessage || "",
-            }),
-          });
-          if (!response.ok) {
-            console.error(
-              "Error sending meeting request email:",
-              await response.text()
-            );
-          } else {
-            const data = await response.json();
-            console.log("Meeting request email sent:", data);
-          }
-          // const { data: emailData, error: emailError } =
-          //   await sendMeetingRequest({
-          //     to_email: question.asker?.email_address ?? "",
-          //     receiver_name: question.asker?.first_name ?? "",
-          //     scheduler_id: coder?.auth_id ?? "",
-          //     scheduler_name: `${coder?.first_name} ${coder?.last_name}`,
-          //     scheduled_time: formattedDate?.toISOString() ?? "",
-          //     scheduler_tz: coder?.timezone ?? "", // Replace with actual timezone if needed
-          //     question_title: question.question ?? "",
-          //     question_id: question.id ?? 0,
-          //     sender_note: scheduleMessage || "",
-          //   });
-          // if (emailError) {
-          //   console.error("Error sending meeting request email:", emailError);
-          // } else {
-          //   console.log("Meeting request email sent:", emailData);
-          // }
+
           setIsScheduleMeetOpen(false);
           router.refresh();
         }
@@ -497,22 +447,7 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
           } else {
             console.error(e);
           }
-          const { data, error } = await sendMeetingRequest({
-            to_email: question.asker?.email_address ?? "",
-            receiver_name: question.asker?.first_name ?? "",
-            scheduler_id: coder?.auth_id ?? "",
-            scheduler_name: `${coder?.first_name} ${coder?.last_name}`,
-            scheduled_time: formattedDate?.toISOString() ?? "",
-            scheduler_tz: coder?.timezone ?? "", // Replace with actual timezone if needed
-            question_title: question.question ?? "",
-            question_id: question.id ?? 0,
-            sender_note: scheduleMessage || "",
-          });
-          if (error) {
-            console.error(error);
-          } else {
-            console.log(data);
-          }
+
           setIsEditScheduleMeetOpen(false);
         }
       } catch (error) {
@@ -557,19 +492,7 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
         } else {
           console.error(e);
         }
-        const { data: emailData, error: emailError } = await sendCancelMeeting({
-          to_email: question.asker?.email_address ?? "",
-          receiver_name: question.asker?.first_name ?? "",
-          scheduler_id: coder?.auth_id ?? "",
-          scheduler_name: `${coder?.first_name} ${coder?.last_name}`,
-          question_title: question.question ?? "",
-          question_id: question.id ?? 0,
-        });
-        if (emailError) {
-          console.error("Error sending cancel meeting email:", emailError);
-        } else {
-          console.log("Cancel meeting email sent:", emailData);
-        }
+
         setIsEditScheduleMeetOpen(false);
         router.refresh();
       }
@@ -660,23 +583,6 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
         return;
       }
 
-      const { data: emailData, error: emailError } = await sendAcceptMeeting({
-        to_email: schedulingDetails.scheduler_id.email_address,
-        meeting_id: schedulingDetails.meeting_id,
-        receiver_id: schedulingDetails.receiver_id.auth_id,
-        receiver_name: `${schedulingDetails.receiver_id.first_name} ${schedulingDetails.receiver_id.last_name}`,
-        receiver_tz: schedulingDetails.receiver_id.timezone,
-        scheduler_name: schedulingDetails.scheduler_id.first_name,
-        scheduled_time: schedulingDetails.scheduled_time,
-        question_title: schedulingDetails.question_id.title,
-        question_id: schedulingDetails.question_id.id,
-      });
-      if (emailError) {
-        console.error("Error sending acceptance email:", emailError);
-      } else {
-        console.log("Acceptance email sent:", emailData);
-      }
-
       router.refresh();
     } catch (error) {
       console.error("Error accepting meeting request:", error);
@@ -757,19 +663,6 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
         return;
       }
 
-      const { data: emailData, error: emailError } = await sendRejectMeeting({
-        to_email: schedulingDetails.scheduler_id.email_address,
-        receiver_id: schedulingDetails.receiver_id.auth_id,
-        receiver_name: `${schedulingDetails.receiver_id.first_name} ${schedulingDetails.receiver_id.last_name}`,
-        scheduler_name: schedulingDetails.scheduler_id.first_name,
-        question_title: schedulingDetails.question_id.title,
-        question_id: schedulingDetails.question_id.id,
-      });
-      if (emailError) {
-        console.error("Error sending rejection email:", emailError);
-      } else {
-        console.log("Rejection email sent:", emailData);
-      }
       router.refresh();
     } catch (error) {
       console.error("Error rejecting meeting request:", error);
@@ -858,22 +751,6 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
         return;
       }
 
-      const { data: emailData, error: emailError } =
-        await sendRescheduleMeeting({
-          to_email: schedulingDetails.scheduler_id.email_address,
-          receiver_id: schedulingDetails.receiver_id.auth_id,
-          receiver_name: `${schedulingDetails.receiver_id.first_name} ${schedulingDetails.receiver_id.last_name}`,
-          receiver_tz: schedulingDetails.receiver_id.timezone,
-          receiver_note: receiverNote,
-          scheduler_name: schedulingDetails.scheduler_id.first_name,
-          question_title: schedulingDetails.question_id.title,
-          question_id: schedulingDetails.question_id.id,
-        });
-      if (emailError) {
-        console.error("Error sending rejection email:", emailError);
-      } else {
-        console.log("Rejection email sent:", emailData);
-      }
       router.refresh();
     } catch (error) {
       console.error("Error rescheduling meeting request:", error);

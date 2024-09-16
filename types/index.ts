@@ -1,6 +1,5 @@
 import { StaticImageData } from "next/image";
 
-// dummy/questions.ts
 export interface Question {
   id?: number;
   created_at?: Date | string;
