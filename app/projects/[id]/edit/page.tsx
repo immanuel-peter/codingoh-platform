@@ -2,7 +2,6 @@
 
 import React, { useEffect, useState } from "react";
 import { FaGithub, FaLink } from "react-icons/fa6";
-import { IoCloseCircleOutline } from "react-icons/io5";
 import { Select, message } from "antd";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
@@ -19,6 +18,21 @@ const Page = ({ params }: { params: { id: string } }) => {
   const supabase = createClient();
   const [project, setProject] = useState<Project>();
 
+  const [newProjectImg, setNewProjectImg] = useState<File | null>(null);
+  const [projectImg, setProjectImg] = useState<string>("");
+  const [name, setName] = useState<string>("");
+  const [description, setDescription] = useState<string>("");
+  const [startDate, setStartDate] = useState<Date | string | null>(null);
+  const [endDate, setEndDate] = useState<Date | string | null>(null);
+  const [github, setGithub] = useState<string | null>("");
+  const [status, setStatus] = useState<string>("");
+  const [stack, setStack] = useState<string[] | null>([]);
+  const [needed, setNeeded] = useState<string[] | null>([]);
+  const [application, setApplication] = useState<string | null>(null);
+
+  const [messageApi, contextHolder] = message.useMessage();
+  const router = useRouter();
+
   useEffect(() => {
     const fetchProject = async () => {
       const { data: projectRetrievalData, error: projectRetrievalError } =
@@ -27,6 +41,7 @@ const Page = ({ params }: { params: { id: string } }) => {
           .select("*")
           .eq("id", params.id)
           .single();
+
       if (projectRetrievalError) {
         console.error(projectRetrievalError);
         router.push("/");
@@ -56,24 +71,9 @@ const Page = ({ params }: { params: { id: string } }) => {
       }
     };
     fetchProject();
-  }, []);
+  }, [params.id, supabase, router]);
 
   const projectCopy = Object.assign({}, project);
-
-  const [newProjectImg, setNewProjectImg] = useState<File | null>(null);
-  const [projectImg, setProjectImg] = useState<string>("");
-  const [name, setName] = useState<string>("");
-  const [description, setDescription] = useState<string>("");
-  const [startDate, setStartDate] = useState<Date | string | null>(null);
-  const [endDate, setEndDate] = useState<Date | string | null>(null);
-  const [github, setGithub] = useState<string | null>("");
-  const [status, setStatus] = useState<string>("");
-  const [stack, setStack] = useState<string[] | null>([]);
-  const [needed, setNeeded] = useState<string[] | null>([]);
-  const [application, setApplication] = useState<string | null>(null);
-
-  const [messageApi, contextHolder] = message.useMessage();
-  const router = useRouter();
 
   const onImageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
@@ -156,6 +156,11 @@ const Page = ({ params }: { params: { id: string } }) => {
         }
 
         console.log("Successfully updated project:", projectData);
+        messageApi.open({
+          type: "success",
+          content: "Successfully updated project",
+          duration: 3,
+        });
 
         if (newProjectImg) {
           const { data: imageData, error: imageError } = await supabase.storage
@@ -168,6 +173,11 @@ const Page = ({ params }: { params: { id: string } }) => {
           }
 
           console.log("Project image updated:", imageData);
+          messageApi.open({
+            type: "success",
+            content: "Successfully updated project image",
+            duration: 3,
+          });
         }
 
         router.push(`/users/${project?.owner?.auth_id}`);
@@ -291,7 +301,7 @@ const Page = ({ params }: { params: { id: string } }) => {
                 </label>
                 <div>
                   <input
-                    value={`${project?.owner?.first_name} ${project?.owner?.last_name}`}
+                    value={`${project?.owner?.first_name ?? "John"} ${project?.owner?.last_name ?? "Doe"}`}
                     type="text"
                     name="first-name"
                     id="first-name"
@@ -453,7 +463,7 @@ const Page = ({ params }: { params: { id: string } }) => {
                   <span className="font-light leading-4">(optional)</span>
                 </label>
                 <div>
-                  <Select
+                  {/* <Select
                     className="w-full"
                     mode="multiple"
                     placeholder="Python, TensorFlow, Pytorch, etc..."
@@ -462,14 +472,32 @@ const Page = ({ params }: { params: { id: string } }) => {
                     onDeselect={handleStackDeselect}
                   >
                     {Object.keys(sortedIcons).map((icon) => (
-                      <Option value={icon}>
+                      <Option key={icon} value={icon}>
                         <div className="flex flex-row justify-between items-center px-3">
                           {sortedIcons[icon]}
                           {icon}
                         </div>
                       </Option>
                     ))}
-                  </Select>
+                  </Select> */}
+                  <Select
+                    className="w-full"
+                    mode="multiple"
+                    placeholder="Python, TensorFlow, Pytorch, etc..."
+                    value={stack}
+                    onChange={handleStackChange}
+                    onDeselect={handleStackDeselect}
+                    options={Object.keys(sortedIcons).map((key) => ({
+                      value: key,
+                      label: (
+                        <div className="flex flex-row justify-between items-center px-3">
+                          {sortedIcons[key]}
+                          {key}
+                        </div>
+                      ),
+                    }))}
+                    optionRender={(option) => <>{option.data.label}</>}
+                  />
                 </div>
               </div>
 
@@ -488,9 +516,6 @@ const Page = ({ params }: { params: { id: string } }) => {
                     placeholder="Project Management, Kanban, Cloud Computing..."
                     options={labelValues(uniqueArray(techSkills))}
                     allowClear
-                    clearIcon={
-                      <IoCloseCircleOutline className="text-red-300 hover:text-red-600" />
-                    }
                     value={needed}
                     onDeselect={handleSkillDeselect}
                     onSelect={handleSkillChange}

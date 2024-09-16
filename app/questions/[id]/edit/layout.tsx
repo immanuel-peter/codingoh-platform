@@ -20,22 +20,22 @@ export default async function PageLayout({
     error: userError,
   } = await supabase.auth.getUser();
 
-  const { data: question, error: projectError } = await supabase
-    .from("questions")
-    .select("*")
-    .eq("id", params.id)
-    .single();
-  const { data: coder, error: coderError } = await supabase
-    .from("coders")
-    .select("*")
-    .eq("id", question.asker)
-    .single();
-
   if (userError || !user) {
     redirect("/login");
   }
 
-  if (projectError || !question || coder.auth_id != user.id) {
+  const { data: question, error: questionError } = await supabase
+    .from("questions")
+    .select("asker")
+    .eq("id", params.id)
+    .single();
+  const { data: coder, error: coderError } = await supabase
+    .from("coders")
+    .select("auth_id")
+    .eq("id", question?.asker)
+    .single();
+
+  if (questionError || !question || coder?.auth_id != user.id) {
     redirect("/");
   }
 

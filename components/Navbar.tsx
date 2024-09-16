@@ -223,10 +223,7 @@ const Navbar = () => {
           )}
           {user.id != "" && (
             <>
-              <Link
-                href="https://successful-echium-b3f.notion.site/Support-CodingOH-67de2dbf28694086bbf3d59baa1fa10b?pvs=4"
-                target="_blank"
-              >
+              <Link href="https://tinyurl.com/58tzrd22" target="_blank">
                 <HiDocumentText className="text-3xl hover:text-blue-500 cursor-pointer" />
               </Link>
 

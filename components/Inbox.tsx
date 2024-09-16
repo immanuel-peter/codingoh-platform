@@ -884,7 +884,7 @@ const SpotlightAction = ({ notification }: { notification: Notification }) => {
         </div>
       </>
     );
-  } else if (notification?.event == "cancel_meet") {
+  } else if (notification?.event == "new_comment") {
     return (
       <div className="w-full p-1.5">
         <Link
@@ -896,7 +896,7 @@ const SpotlightAction = ({ notification }: { notification: Notification }) => {
         </Link>
       </div>
     );
-  } else if (notification?.event == "new_comment") {
+  } else if (notification?.event == "cancel_meet") {
     return (
       <div className="w-full p-1.5">
         <Link

@@ -1368,7 +1368,7 @@ export const NewUser = () => {
                 <span className="text-xs font-normal">
                   (If you need help, check out this{" "}
                   <Link
-                    href="https://successful-echium-b3f.notion.site/Support-CodingOH-67de2dbf28694086bbf3d59baa1fa10b?pvs=4"
+                    href="https://tinyurl.com/58tzrd22"
                     target="_blank"
                     className="text-blue-400 hover:text-blue-600 hover:underline"
                   >

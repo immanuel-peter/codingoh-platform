@@ -2,7 +2,6 @@ import "./globals.css";
 import type { Metadata } from "next";
 import { DM_Sans } from "next/font/google";
 import Progress from "./progress";
-import { useUserPresence } from "@/hooks/useUserPresence";
 import { UserPresence } from "@/components/UserPresence";
 
 const dmsans = DM_Sans({ subsets: ["latin"], weight: ["400", "500", "700"] });
@@ -21,10 +20,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <body className={dmsans.className}>
-        <UserPresence />
-        <Progress>{children}</Progress>
-      </body>
+      <UserPresence>
+        <body className={dmsans.className}>
+          <Progress>{children}</Progress>
+        </body>
+      </UserPresence>
     </html>
   );
 }

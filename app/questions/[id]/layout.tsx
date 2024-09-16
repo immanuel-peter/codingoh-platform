@@ -1,5 +1,7 @@
 import { Metadata } from "next";
 import { createClient } from "@/utils/supabase/server";
+import { notFound } from "next/navigation";
+import { ReactNode } from "react";
 
 export async function generateMetadata({
   params,
@@ -10,7 +12,7 @@ export async function generateMetadata({
 
   const { data: question, error } = await supabase
     .from("questions")
-    .select("*")
+    .select("question, description")
     .eq("id", params.id)
     .single();
 
@@ -27,11 +29,27 @@ export async function generateMetadata({
   };
 }
 
-export default function PageLayout({
+export default async function PageLayout({
   children,
+  params,
 }: {
-  children: React.ReactNode;
+  children: ReactNode;
+  params: { id: string };
 }) {
+  const supabase = createClient();
+
+  // Fetch question data here for page layout logic
+  const { data: question, error } = await supabase
+    .from("questions")
+    .select("id")
+    .eq("id", params.id)
+    .single();
+
+  // Redirect to not-found page if no question is found
+  if (error || !question) {
+    notFound();
+  }
+
   return (
     <html lang="en">
       <body>{children}</body>

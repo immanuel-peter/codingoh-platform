@@ -1,8 +1,13 @@
 "use client";
 
+import { ReactNode } from "react";
 import { useUserPresence } from "@/hooks/useUserPresence";
 
-export function UserPresence() {
+interface UserPresenceProps {
+  children: ReactNode;
+}
+
+export function UserPresence({ children }: UserPresenceProps) {
   useUserPresence();
-  return null;
+  return <>{children}</>;
 }
