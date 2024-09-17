@@ -411,7 +411,7 @@ const genderOptions: string[] = [
   "Other",
 ];
 
-export const EditUser = ({ params }: { params: { id: string } }) => {
+const EditUser = ({ params }: { params: { id: string } }) => {
   const router = useRouter();
 
   const supabase = createClient();
@@ -421,6 +421,117 @@ export const EditUser = ({ params }: { params: { id: string } }) => {
   }>();
   const [coder, setCoder] = useState<Coder>();
   const [coderPic, setCoderPic] = useState<string>("");
+
+  // Personal Info
+  const [firstName, setFirstName] = useState<string>(
+    coder?.first_name ? coder.first_name : ""
+  );
+  const [lastName, setLastName] = useState<string>(
+    coder?.last_name ? coder.last_name : ""
+  );
+  const [gender, setGender] = useState<string>(
+    coder?.gender ? coder.gender : ""
+  );
+  const [dob, setDob] = useState<Date | string | undefined>(
+    coder?.birthday ? new Date(coder.birthday) : undefined
+  );
+  const [timezone, setTimezone] = useState<string>(
+    coder?.timezone
+      ? coder.timezone
+      : Intl.DateTimeFormat().resolvedOptions().timeZone
+  );
+  const [email, setEmail] = useState<string>(
+    coder?.email_address ? coder.email_address : ""
+  );
+  const [education, setEducation] = useState<string>(
+    coder?.education ? coder.education : ""
+  );
+  const [company, setCompany] = useState<string>(
+    coder?.company ? coder.company : ""
+  );
+  const [position, setPosition] = useState<string>(
+    coder?.position ? coder.position : ""
+  );
+  const [city, setCity] = useState<string>(coder?.city ? coder.city : "");
+  const [usState, setUsState] = useState<string>(
+    coder?.us_state ? coder.us_state : ""
+  );
+  const [country, setCountry] = useState<string>(
+    coder?.country ? coder.country : ""
+  );
+  const [newProfileImg, setNewProfileImg] = useState<File | null>(null);
+  const [about, setAbout] = useState<string>(coder?.about ? coder.about : "");
+
+  // Background Banner
+  const [selectedBackgroundImage, setSelectedBackgroundImage] =
+    useState<number>(coder?.background_image ? coder.background_image : 0);
+
+  // Proficient Languages
+  const [inputValue, setInputValue] = useState<string>("");
+  const [langOptions, setLangOptions] = useState<string[]>(
+    Object.keys(sortedIcons)
+  );
+  const [filteredOptions, setFilteredOptions] = useState<string[]>([]);
+  const [showOptions, setShowOptions] = useState<boolean>(false);
+  const [userLangs, setUserLangs] = useState<string[]>(
+    coder?.stack ? coder?.stack.map((lang) => lang.language ?? "") : []
+  );
+  const [newLangs, setNewLangs] = useState<string[]>([]);
+  const [selectedOption, setSelectedOption] = useState<string>("");
+  const [userProfs, setUserProfs] = useState<Proficiency[]>([]);
+  const [newProfs, setNewProfs] = useState<Proficiency[]>([]);
+  const [finalProfs, setFinalProfs] = useState<{ [lang: string]: number }>(
+    coder?.stack ? finalProfsByLangs(coder?.stack) : {}
+  );
+  console.log(finalProfs);
+  const [newFinalProfs, setNewFinalProfs] = useState<{
+    [lang: string]: number;
+  }>({});
+  const [allProfs, setAllProfs] = useState<{ [lang: string]: number }>({
+    ...finalProfs,
+    ...newFinalProfs,
+  });
+  console.log(allProfs);
+  const ultimateProfs: Proficiency[] = Object.entries(allProfs).map(
+    ([key, value]) => {
+      return { language: key, proficiency: value };
+    }
+  );
+  console.log(ultimateProfs);
+
+  // Skills
+  const [skills, setSkills] = useState<string[]>([]);
+
+  // Social Links
+  const defaultSocialLinks = [
+    { social: "discord", link: "" },
+    { social: "dropbox", link: "" },
+    { social: "facebook", link: "" },
+    { social: "github", link: "" },
+    { social: "instagram", link: "" },
+    { social: "linkedin", link: "" },
+    { social: "medium", link: "" },
+    { social: "reddit", link: "" },
+    { social: "stackoverflow", link: "" },
+    { social: "tiktok", link: "" },
+    { social: "twitch", link: "" },
+    { social: "x", link: "" },
+    { social: "youtube", link: "" },
+    { social: "threads", link: "" },
+    { social: "personal", link: "" },
+  ];
+  const [socials, setSocials] = useState<string[]>(
+    coder?.socials
+      ? coder?.socials.map(
+          (p) => p.social?.toLowerCase().replace(/\s/g, "") ?? ""
+        )
+      : []
+  );
+  const [socialLinks, setSocialLinks] =
+    useState<{ social: string; link: string }[]>(defaultSocialLinks);
+  const [finalSocialLinks, setFinalSocialLinks] = useState<
+    { social: string; link: string }[]
+  >([]);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -500,46 +611,6 @@ export const EditUser = ({ params }: { params: { id: string } }) => {
     fetchCoder();
   }, []);
 
-  // Personal Info
-  const [firstName, setFirstName] = useState<string>(
-    coder?.first_name ? coder.first_name : ""
-  );
-  const [lastName, setLastName] = useState<string>(
-    coder?.last_name ? coder.last_name : ""
-  );
-  const [gender, setGender] = useState<string>(
-    coder?.gender ? coder.gender : ""
-  );
-  const [dob, setDob] = useState<Date | string | undefined>(
-    coder?.birthday ? new Date(coder.birthday) : undefined
-  );
-  const [timezone, setTimezone] = useState<string>(
-    coder?.timezone
-      ? coder.timezone
-      : Intl.DateTimeFormat().resolvedOptions().timeZone
-  );
-  const [email, setEmail] = useState<string>(
-    coder?.email_address ? coder.email_address : ""
-  );
-  const [education, setEducation] = useState<string>(
-    coder?.education ? coder.education : ""
-  );
-  const [company, setCompany] = useState<string>(
-    coder?.company ? coder.company : ""
-  );
-  const [position, setPosition] = useState<string>(
-    coder?.position ? coder.position : ""
-  );
-  const [city, setCity] = useState<string>(coder?.city ? coder.city : "");
-  const [usState, setUsState] = useState<string>(
-    coder?.us_state ? coder.us_state : ""
-  );
-  const [country, setCountry] = useState<string>(
-    coder?.country ? coder.country : ""
-  );
-  const [newProfileImg, setNewProfileImg] = useState<File | null>(null);
-  const [about, setAbout] = useState<string>(coder?.about ? coder.about : "");
-
   const formattedDob: string = dob
     ? new Date(dob).toISOString().split("T")[0]
     : "";
@@ -550,43 +621,6 @@ export const EditUser = ({ params }: { params: { id: string } }) => {
       setNewProfileImg(img);
     }
   };
-
-  // Background Banner
-  const [selectedBackgroundImage, setSelectedBackgroundImage] =
-    useState<number>(coder?.background_image ? coder.background_image : 0);
-
-  // Proficient Languages
-  const [inputValue, setInputValue] = useState<string>("");
-  const [langOptions, setLangOptions] = useState<string[]>(
-    Object.keys(sortedIcons)
-  );
-  const [filteredOptions, setFilteredOptions] = useState<string[]>([]);
-  const [showOptions, setShowOptions] = useState<boolean>(false);
-  const [userLangs, setUserLangs] = useState<string[]>(
-    coder?.stack ? coder?.stack.map((lang) => lang.language ?? "") : []
-  );
-  const [newLangs, setNewLangs] = useState<string[]>([]);
-  const [selectedOption, setSelectedOption] = useState<string>("");
-  const [userProfs, setUserProfs] = useState<Proficiency[]>([]);
-  const [newProfs, setNewProfs] = useState<Proficiency[]>([]);
-  const [finalProfs, setFinalProfs] = useState<{ [lang: string]: number }>(
-    coder?.stack ? finalProfsByLangs(coder?.stack) : {}
-  );
-  console.log(finalProfs);
-  const [newFinalProfs, setNewFinalProfs] = useState<{
-    [lang: string]: number;
-  }>({});
-  const [allProfs, setAllProfs] = useState<{ [lang: string]: number }>({
-    ...finalProfs,
-    ...newFinalProfs,
-  });
-  console.log(allProfs);
-  const ultimateProfs: Proficiency[] = Object.entries(allProfs).map(
-    ([key, value]) => {
-      return { language: key, proficiency: value };
-    }
-  );
-  console.log(ultimateProfs);
 
   const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const newInputValue = event.target.value;
@@ -689,9 +723,6 @@ export const EditUser = ({ params }: { params: { id: string } }) => {
     setShowOptions(true);
   }, [inputValue]);
 
-  // Skills
-  const [skills, setSkills] = useState<string[]>([]);
-
   const handleSkillChange = (value: string) => {
     const newSkills = [...skills, value];
     setSkills(newSkills);
@@ -701,37 +732,6 @@ export const EditUser = ({ params }: { params: { id: string } }) => {
     const newSkills = skills.filter((skill) => skill !== value);
     setSkills(newSkills);
   };
-
-  // Social Links
-  const defaultSocialLinks = [
-    { social: "discord", link: "" },
-    { social: "dropbox", link: "" },
-    { social: "facebook", link: "" },
-    { social: "github", link: "" },
-    { social: "instagram", link: "" },
-    { social: "linkedin", link: "" },
-    { social: "medium", link: "" },
-    { social: "reddit", link: "" },
-    { social: "stackoverflow", link: "" },
-    { social: "tiktok", link: "" },
-    { social: "twitch", link: "" },
-    { social: "x", link: "" },
-    { social: "youtube", link: "" },
-    { social: "threads", link: "" },
-    { social: "personal", link: "" },
-  ];
-  const [socials, setSocials] = useState<string[]>(
-    coder?.socials
-      ? coder?.socials.map(
-          (p) => p.social?.toLowerCase().replace(/\s/g, "") ?? ""
-        )
-      : []
-  );
-  const [socialLinks, setSocialLinks] =
-    useState<{ social: string; link: string }[]>(defaultSocialLinks);
-  const [finalSocialLinks, setFinalSocialLinks] = useState<
-    { social: string; link: string }[]
-  >([]);
 
   const socialIcons = [
     {
