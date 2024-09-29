@@ -17,23 +17,13 @@ import {
   FaYoutube,
   FaXTwitter,
   FaThreads,
-  FaUserCheck,
   FaBell,
   FaCheck,
 } from "react-icons/fa6";
-import { IoCloseCircleOutline } from "react-icons/io5";
 import { BsPlusCircleFill } from "react-icons/bs";
-import {
-  Select,
-  Tooltip,
-  message,
-  notification,
-  Badge,
-  Avatar,
-  Slider,
-} from "antd";
+import { Select, Tooltip, message, Badge, Avatar, Slider } from "antd";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { notFound, useRouter } from "next/navigation";
 import { createClient } from "@/utils/supabase/client";
 
 import Navbar from "@/components/Navbar";
@@ -411,7 +401,11 @@ const genderOptions: string[] = [
   "Other",
 ];
 
-const EditUser = ({ params }: { params: { id: string } }) => {
+const EditUser = ({ params }: { params?: { id: string } }) => {
+  if (!params) {
+    notFound();
+  }
+
   const router = useRouter();
 
   const supabase = createClient();
@@ -532,6 +526,9 @@ const EditUser = ({ params }: { params: { id: string } }) => {
   const [finalSocialLinks, setFinalSocialLinks] = useState<
     { social: string; link: string }[]
   >([]);
+
+  // Form Actions
+  const [messageApi, contextHolder] = message.useMessage();
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -1016,24 +1013,6 @@ const EditUser = ({ params }: { params: { id: string } }) => {
   };
   console.log(possibleData);
   console.log(newProfileImg);
-
-  // Form Actions
-  const [messageApi, contextHolder] = message.useMessage();
-  const [api] = notification.useNotification();
-
-  const openSubmitNotification = () => {
-    api.success({
-      message: "User Profile Updated!",
-      description: (
-        <span>
-          Check out your updated profile{" "}
-          <a href={`/users/${params.id}`}>here</a>
-        </span>
-      ),
-      icon: <FaUserCheck className="text-green-600" />,
-      placement: "bottomLeft",
-    });
-  };
 
   const handleFormSubmit = async (e: SyntheticEvent) => {
     e.preventDefault();
