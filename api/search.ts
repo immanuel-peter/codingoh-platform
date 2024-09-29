@@ -4,13 +4,45 @@ import { Coder, Contributor, Question } from "@/types";
 
 const supabase = createClient();
 
+interface Asker {
+  id: number;
+  first_name: string;
+  last_name: string;
+  auth_id: string;
+}
+
+interface Scheduler {
+  id: number;
+  first_name: string;
+  last_name: string;
+  profile_image: boolean;
+  auth_id: string;
+}
+
+interface Meeter {
+  user_id: Scheduler;
+  is_done: boolean;
+}
+
+interface QuestionData {
+  id: number;
+  created_at: string;
+  asker: Asker;
+  question: string;
+  answer: boolean;
+  embedding: string;
+  contributors: Contributor[];
+  meeters: Meeter[];
+}
+
 export const semanticSearch = async (query: string) => {
   // Retrieve all questions from the database
   const { data: allQuestions, error } = await supabase
     .from("questions")
     .select(
       `id, created_at, asker (id, first_name, last_name, auth_id), question, answer, embedding, contributors: comments(user_id: commenter(id, first_name, last_name, profile_image, auth_id)), meeters: schedulings(user_id: scheduler_id(id, first_name, last_name, profile_image, auth_id), is_done)`
-    );
+    )
+    .returns<QuestionData[]>();
 
   if (error) {
     throw error;
@@ -51,11 +83,11 @@ export const semanticSearch = async (query: string) => {
       const updatedContributors: Contributor[] = contributors.map((c) => ({
         ...c,
         user_id: {
-          id: c.user_id.id as number,
-          first_name: c.user_id.first_name as string,
-          last_name: c.user_id.last_name as string,
-          profile_image: c.user_id.profile_image as boolean,
-          auth_id: c.user_id.auth_id as string,
+          id: c.user_id?.id as number,
+          first_name: c.user_id?.first_name as string,
+          last_name: c.user_id?.last_name as string,
+          profile_image: c.user_id?.profile_image as boolean,
+          auth_id: c.user_id?.auth_id as string,
         },
       }));
 
