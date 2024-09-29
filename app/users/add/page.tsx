@@ -428,7 +428,7 @@ type UserResponse = {
   [key: string]: any;
 };
 
-export const NewUser = () => {
+const NewUser = () => {
   const router = useRouter();
   const supabase = createClient();
   const [user, setUser] = useState<UserResponse>({ id: "" });
