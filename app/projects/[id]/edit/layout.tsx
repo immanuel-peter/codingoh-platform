@@ -28,7 +28,7 @@ export default async function PageLayout({
     .from("projects")
     .select("id, coders (auth_id)")
     .eq("id", params.id)
-    .single();
+    .returns<{ id: number; coders: { auth_id: string } }>();
 
   if (projectError || !project || project.coders.auth_id != user.id) {
     redirect("/");

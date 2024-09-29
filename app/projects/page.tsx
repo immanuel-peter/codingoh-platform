@@ -52,14 +52,15 @@ const Page = () => {
         .select(
           `id, owner (first_name, last_name, auth_id), name, description, status, github, stack, skills, project_image, application`
         )
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: false })
+        .returns<ProjectType[]>();
 
       if (projects) {
         const updatedProjects: ProjectType[] = projects.map((project) => {
           const updatedOwner: Coder = {
-            first_name: project.owner.first_name as string,
-            last_name: project.owner.last_name as string,
-            auth_id: project.owner.auth_id as string,
+            first_name: project.owner?.first_name as string,
+            last_name: project.owner?.last_name as string,
+            auth_id: project.owner?.auth_id as string,
           };
 
           return {

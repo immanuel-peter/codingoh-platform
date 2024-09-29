@@ -37,6 +37,18 @@ type UserResponse = {
   [key: string]: any;
 };
 
+type QuestionsQueryType = {
+  id: number;
+  created_at: string;
+  asker: Coder;
+  question: string;
+  contributors: Contributor[];
+  meeters: {
+    user_id: Coder;
+    is_done: boolean;
+  }[];
+};
+
 const UserPage = ({ params }: { params: { id: string } }) => {
   const supabase = createClient();
   const [supabaseUser, setSupabaseUser] = useState<UserResponse>({ id: "" });
@@ -100,7 +112,8 @@ const UserPage = ({ params }: { params: { id: string } }) => {
         `
         )
         .eq("asker", coder?.id)
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: false })
+        .returns<QuestionsQueryType[]>();
 
       if (questionsError) {
         console.error(questionsError);
@@ -132,11 +145,11 @@ const UserPage = ({ params }: { params: { id: string } }) => {
         const updatedContributors: Contributor[] = contributors.map((c) => ({
           ...c,
           user_id: {
-            id: c.user_id.id as number,
-            first_name: c.user_id.first_name as string,
-            last_name: c.user_id.last_name as string,
-            profile_image: c.user_id.profile_image as boolean,
-            auth_id: c.user_id.auth_id as string,
+            id: c.user_id?.id as number,
+            first_name: c.user_id?.first_name as string,
+            last_name: c.user_id?.last_name as string,
+            profile_image: c.user_id?.profile_image as boolean,
+            auth_id: c.user_id?.auth_id as string,
           },
         }));
 
@@ -180,7 +193,8 @@ const UserPage = ({ params }: { params: { id: string } }) => {
         .select(
           `id, owner (first_name, last_name, auth_id), name, description, status, github, stack, skills, project_image, application`
         )
-        .eq("owner", coder?.id);
+        .eq("owner", coder?.id)
+        .returns<ProjectType[]>();
 
       if (projectsError) {
         console.error(projectsError);
@@ -189,9 +203,9 @@ const UserPage = ({ params }: { params: { id: string } }) => {
 
       const updatedProjects: ProjectType[] = projects.map((project) => {
         const updatedOwner: Coder = {
-          first_name: project.owner.first_name as string,
-          last_name: project.owner.last_name as string,
-          auth_id: project.owner.auth_id as string,
+          first_name: project.owner?.first_name as string,
+          last_name: project.owner?.last_name as string,
+          auth_id: project.owner?.auth_id as string,
         };
 
         return {
@@ -223,7 +237,8 @@ const UserPage = ({ params }: { params: { id: string } }) => {
           meeters: schedulings(user_id: scheduler_id(id, first_name, last_name, profile_image, auth_id), is_done)
         `
         )
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: false })
+        .returns<QuestionsQueryType[]>();
 
       if (questionsError) {
         console.error(questionsError);
@@ -259,11 +274,11 @@ const UserPage = ({ params }: { params: { id: string } }) => {
         const updatedContributors: Contributor[] = contributors.map((c) => ({
           ...c,
           user_id: {
-            id: c.user_id.id as number,
-            first_name: c.user_id.first_name as string,
-            last_name: c.user_id.last_name as string,
-            profile_image: c.user_id.profile_image as boolean,
-            auth_id: c.user_id.auth_id as string,
+            id: c.user_id?.id as number,
+            first_name: c.user_id?.first_name as string,
+            last_name: c.user_id?.last_name as string,
+            profile_image: c.user_id?.profile_image as boolean,
+            auth_id: c.user_id?.auth_id as string,
           },
         }));
 

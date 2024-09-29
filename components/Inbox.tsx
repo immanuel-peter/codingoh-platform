@@ -38,6 +38,7 @@ import {
   Comment,
   Project,
   Scheduling,
+  Proficiency,
 } from "@/types";
 import { Card } from "@/components";
 
@@ -1098,6 +1099,18 @@ const RenderScheduling = ({
   }
 };
 
+interface NotificationQueryType {
+  id: number;
+  created_at: string;
+  event: string;
+  read: boolean;
+  coder_ref: Coder;
+  question_ref: Question;
+  comment_ref: Comment;
+  project_ref: Project;
+  scheduling_ref: Scheduling;
+}
+
 const Inbox = ({ open, onClose }: { open: boolean; onClose: () => void }) => {
   const supabase = createClient();
   const [user, setUser] = useState<{ id: string; [key: string]: any }>();
@@ -1132,7 +1145,8 @@ const Inbox = ({ open, onClose }: { open: boolean; onClose: () => void }) => {
                 `id, created_at, event, read, coder_ref (id, first_name, last_name, position, stack, profile_image, auth_id), question_ref (id, asker (id, first_name, last_name, profile_image, timezone, auth_id), question, tags, answer_preference, answer), comment_ref (id, parent_comment (id, commenter (id, first_name, last_name, profile_image, auth_id), is_answer, likes), commenter (id, first_name, last_name, profile_image, auth_id), is_answer, likes), project_ref (id, owner (first_name, last_name, auth_id), name, description, status, github, stack, skills, application), scheduling_ref (id, scheduler_id (id, first_name, last_name, profile_image, auth_id, timezone), receiver_id (id, first_name, last_name, profile_image, auth_id, timezone), question_id (id, question), scheduled_time, sender_note, status, receiver_note, is_done, is_confirmed)`
               )
               .eq("coder_ref", coderData.id)
-              .order("created_at", { ascending: false });
+              .order("created_at", { ascending: false })
+              .returns<NotificationQueryType[]>();
           if (notificationsData) {
             const newNotifications = notificationsData.map((notification) => {
               const {
@@ -1148,7 +1162,7 @@ const Inbox = ({ open, onClose }: { open: boolean; onClose: () => void }) => {
                 first_name: coder_ref.first_name as string,
                 last_name: coder_ref.last_name as string,
                 position: coder_ref.position as string,
-                stack: coder_ref.stack as string[],
+                stack: coder_ref.stack as Proficiency[],
                 profile_image: coder_ref.profile_image as boolean,
                 auth_id: coder_ref.auth_id as string,
               };
@@ -1157,13 +1171,13 @@ const Inbox = ({ open, onClose }: { open: boolean; onClose: () => void }) => {
                 ? {
                     id: question_ref.id as number,
                     asker: {
-                      id: question_ref.asker.id as number,
-                      first_name: question_ref.asker.first_name as string,
-                      last_name: question_ref.asker.last_name as string,
+                      id: question_ref.asker?.id as number,
+                      first_name: question_ref.asker?.first_name as string,
+                      last_name: question_ref.asker?.last_name as string,
                       profile_image: question_ref.asker
-                        .profile_image as boolean,
-                      timezone: question_ref.asker.timezone as string,
-                      auth_id: question_ref.asker.auth_id as string,
+                        ?.profile_image as boolean,
+                      timezone: question_ref.asker?.timezone as string,
+                      auth_id: question_ref.asker?.auth_id as string,
                     },
                     question: question_ref.question as string,
                     tags: question_ref.tags as string[],
@@ -1178,27 +1192,27 @@ const Inbox = ({ open, onClose }: { open: boolean; onClose: () => void }) => {
                     parent_comment: comment_ref.parent_comment && {
                       id: comment_ref.parent_comment.id as number,
                       commenter: {
-                        id: comment_ref.parent_comment.commenter.id as number,
+                        id: comment_ref.parent_comment.commenter?.id as number,
                         first_name: comment_ref.parent_comment.commenter
-                          .first_name as string,
+                          ?.first_name as string,
                         last_name: comment_ref.parent_comment.commenter
-                          .last_name as string,
+                          ?.last_name as string,
                         profile_image: comment_ref.parent_comment.commenter
-                          .profile_image as boolean,
+                          ?.profile_image as boolean,
                         auth_id: comment_ref.parent_comment.commenter
-                          .auth_id as string,
+                          ?.auth_id as string,
                       },
                       is_answer: comment_ref.parent_comment
                         .is_answer as boolean,
                       likes: comment_ref.parent_comment.likes as number,
                     },
                     commenter: {
-                      id: comment_ref.commenter.id as number,
-                      first_name: comment_ref.commenter.first_name as string,
-                      last_name: comment_ref.commenter.last_name as string,
+                      id: comment_ref.commenter?.id as number,
+                      first_name: comment_ref.commenter?.first_name as string,
+                      last_name: comment_ref.commenter?.last_name as string,
                       profile_image: comment_ref.commenter
-                        .profile_image as boolean,
-                      auth_id: comment_ref.commenter.auth_id as string,
+                        ?.profile_image as boolean,
+                      auth_id: comment_ref.commenter?.auth_id as string,
                     },
                     is_answer: comment_ref.is_answer as boolean,
                     likes: comment_ref.likes as number,
@@ -1209,9 +1223,9 @@ const Inbox = ({ open, onClose }: { open: boolean; onClose: () => void }) => {
                 ? {
                     id: project_ref.id as number,
                     owner: {
-                      first_name: project_ref.owner.first_name as string,
-                      last_name: project_ref.owner.last_name as string,
-                      auth_id: project_ref.owner.auth_id as string,
+                      first_name: project_ref.owner?.first_name as string,
+                      last_name: project_ref.owner?.last_name as string,
+                      auth_id: project_ref.owner?.auth_id as string,
                     },
                     name: project_ref.name as string,
                     description: project_ref.description as string,
@@ -1227,29 +1241,30 @@ const Inbox = ({ open, onClose }: { open: boolean; onClose: () => void }) => {
                 ? {
                     id: scheduling_ref.id as number,
                     scheduler_id: {
-                      id: scheduling_ref.scheduler_id.id as number,
+                      id: scheduling_ref.scheduler_id?.id as number,
                       first_name: scheduling_ref.scheduler_id
-                        .first_name as string,
+                        ?.first_name as string,
                       last_name: scheduling_ref.scheduler_id
-                        .last_name as string,
+                        ?.last_name as string,
                       profile_image: scheduling_ref.scheduler_id
-                        .profile_image as boolean,
-                      auth_id: scheduling_ref.scheduler_id.auth_id as string,
-                      timezone: scheduling_ref.scheduler_id.timezone as string,
+                        ?.profile_image as boolean,
+                      auth_id: scheduling_ref.scheduler_id?.auth_id as string,
+                      timezone: scheduling_ref.scheduler_id?.timezone as string,
                     },
                     receiver_id: {
-                      id: scheduling_ref.receiver_id.id as number,
+                      id: scheduling_ref.receiver_id?.id as number,
                       first_name: scheduling_ref.receiver_id
-                        .first_name as string,
-                      last_name: scheduling_ref.receiver_id.last_name as string,
+                        ?.first_name as string,
+                      last_name: scheduling_ref.receiver_id
+                        ?.last_name as string,
                       profile_image: scheduling_ref.receiver_id
-                        .profile_image as boolean,
-                      auth_id: scheduling_ref.receiver_id.auth_id as string,
-                      timezone: scheduling_ref.receiver_id.timezone as string,
+                        ?.profile_image as boolean,
+                      auth_id: scheduling_ref.receiver_id?.auth_id as string,
+                      timezone: scheduling_ref.receiver_id?.timezone as string,
                     },
                     question_id: {
-                      id: scheduling_ref.question_id.id as number,
-                      question: scheduling_ref.question_id.question as string,
+                      id: scheduling_ref.question_id?.id as number,
+                      question: scheduling_ref.question_id?.question as string,
                     },
                     scheduled_time: scheduling_ref.scheduled_time as string,
                     sender_note: scheduling_ref.sender_note as string,
@@ -1330,7 +1345,8 @@ const Inbox = ({ open, onClose }: { open: boolean; onClose: () => void }) => {
                 `scheduler_id.eq.${coderData.id},receiver_id.eq.${coderData.id}`
               )
               .gte("scheduled_time", new Date().toISOString())
-              .order("scheduled_time", { ascending: true });
+              .order("scheduled_time", { ascending: true })
+              .returns<Scheduling[]>();
           if (schedulingsData) {
             const newSchedulings = schedulingsData.map((scheduling) => {
               const {
@@ -1345,28 +1361,28 @@ const Inbox = ({ open, onClose }: { open: boolean; onClose: () => void }) => {
               return {
                 id: id as number,
                 scheduler_id: {
-                  id: scheduler_id.id as number,
-                  first_name: scheduler_id.first_name as string,
-                  last_name: scheduler_id.last_name as string,
-                  profile_pic: scheduler_id.profile_image
-                    ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/avatars/profileImg-${scheduler_id.auth_id}`
+                  id: scheduler_id?.id as number,
+                  first_name: scheduler_id?.first_name as string,
+                  last_name: scheduler_id?.last_name as string,
+                  profile_pic: scheduler_id?.profile_image
+                    ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/avatars/profileImg-${scheduler_id?.auth_id}`
                     : "",
-                  auth_id: scheduler_id.auth_id as string,
-                  timezone: scheduler_id.timezone as string,
+                  auth_id: scheduler_id?.auth_id as string,
+                  timezone: scheduler_id?.timezone as string,
                 },
                 receiver_id: {
-                  id: receiver_id.id as number,
-                  first_name: receiver_id.first_name as string,
-                  last_name: receiver_id.last_name as string,
-                  profile_pic: receiver_id.profile_image
-                    ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/avatars/profileImg-${receiver_id.auth_id}`
+                  id: receiver_id?.id as number,
+                  first_name: receiver_id?.first_name as string,
+                  last_name: receiver_id?.last_name as string,
+                  profile_pic: receiver_id?.profile_image
+                    ? `${process.env.NEXT_PUBLIC_SUPABASE_URL}/storage/v1/object/public/avatars/profileImg-${receiver_id?.auth_id}`
                     : "",
-                  auth_id: receiver_id.auth_id as string,
-                  timezone: receiver_id.timezone as string,
+                  auth_id: receiver_id?.auth_id as string,
+                  timezone: receiver_id?.timezone as string,
                 },
                 question_id: {
-                  id: question_id.id as number,
-                  question: question_id.question as string,
+                  id: question_id?.id as number,
+                  question: question_id?.question as string,
                 },
                 scheduled_time: scheduled_time as string,
                 status: status ? status : "null",

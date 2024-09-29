@@ -30,6 +30,38 @@ import { getTopLanguages } from "@/utils";
 import sortedIcons from "@/utils/icons";
 import { ChatComponent } from "@/components";
 
+interface MeetingQuery {
+  id: number;
+  scheduler_id: {
+    id: number;
+    first_name: string;
+    last_name: string;
+    education: string;
+    company: string;
+    position: string;
+    city: string;
+    skills: string[];
+    stack: string[];
+    profile_image: boolean;
+    auth_id: string;
+  };
+  receiver_id: {
+    id: number;
+    first_name: string;
+    last_name: string;
+    education: string;
+    company: string;
+    position: string;
+    city: string;
+    skills: string[];
+    stack: string[];
+    profile_image: boolean;
+    auth_id: string;
+  };
+  scheduled_time: string;
+  is_done: boolean;
+}
+
 const MyUILayout = ({
   meetingId,
   user_one,
@@ -113,7 +145,7 @@ const MeetingPage = ({ params }: { params: { id: string } }) => {
           `id, scheduler_id (id, first_name, last_name, education, company, position, city, skills, stack, profile_image, auth_id), receiver_id (id, first_name, last_name, education, company, position, city, skills, stack, profile_image, auth_id), scheduled_time, is_done`
         )
         .eq("meeting_id", params.id)
-        .single();
+        .returns<MeetingQuery>();
       if (meeting) {
         const { id, scheduler_id, receiver_id, scheduled_time, is_done } =
           meeting;
@@ -174,7 +206,7 @@ const MeetingPage = ({ params }: { params: { id: string } }) => {
             auth_id: scheduler_id.auth_id,
           };
         }
-        const updatedMeeting = {
+        const updatedMeeting: Meeting = {
           id,
           user: updatedUser,
           participant: updatedParticipant,

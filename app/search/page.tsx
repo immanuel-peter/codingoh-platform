@@ -10,8 +10,6 @@ import { Navbar, Question, FAB } from "@/components";
 import { semanticSearch } from "@/api/search";
 import { Question as QuestionType } from "@/types";
 
-// How can I let each id correspond to a unique set of rows in MySQL?
-
 const SearchPage = () => {
   const searchParams = useSearchParams();
   const searchQuery = searchParams ? searchParams.get("q") : null;
@@ -53,63 +51,60 @@ const SearchPage = () => {
     };
   }, []);
 
+  if (loading) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <Spin size="large" />
+      </div>
+    );
+  }
+
   return (
     <>
-      {loading ? (
-        <>
-          <Navbar />
-          <div className="flex justify-center items-center h-screen">
-            <Spin size="large" />
-          </div>
-        </>
-      ) : (
-        <>
-          <Navbar />
-          <div className="flex w-full">
-            <div className="px-3 w-full">
-              <ul role="list" className="divide-y divide-gray-600 w-full">
-                {questionsInOrder.map((question, index) => (
-                  <li key={index}>
-                    <Link
-                      href={`/questions/${question.id}`}
-                      className={`flex justify-between gap-x-6 py-5 ${question.answer ? "bg-green-300" : null}`}
-                    >
-                      <Question
-                        key={question.id}
-                        question={question.question ?? ""}
-                        asker={`${question.asker?.first_name} ${question.asker?.last_name}`}
-                        answered={question.answer ?? false}
-                        contributors={question.contributors || []}
-                        date={
-                          question.created_at
-                            ? new Date(question.created_at).toLocaleDateString(
-                                "en-US",
-                                {
-                                  year: "numeric",
-                                  month: "long",
-                                  day: "numeric",
-                                }
-                              )
-                            : ""
-                        }
-                      />
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          </div>
-          <button
-            onClick={scrollToTop}
-            className={`fixed bottom-4 left-1/2 z-10 bg-gray-500 opacity-50 text-white font-semibold w-8 h-8 rounded-full flex items-center justify-center ${
-              showScrollTopButton ? "visible" : "invisible"
-            }`}
-          >
-            <PiCaretDoubleUpLight className="bg-inherit self-center" />
-          </button>
-          <FAB />
-        </>
-      )}
+      <Navbar />
+      <div className="flex w-full">
+        <div className="px-3 w-full">
+          <ul role="list" className="divide-y divide-gray-600 w-full">
+            {questionsInOrder.map((question, index) => (
+              <li key={index}>
+                <Link
+                  href={`/questions/${question.id}`}
+                  className={`flex justify-between gap-x-6 py-5 ${question.answer ? "bg-green-300" : null}`}
+                >
+                  <Question
+                    key={question.id}
+                    question={question.question ?? ""}
+                    asker={`${question.asker?.first_name} ${question.asker?.last_name}`}
+                    answered={question.answer ?? false}
+                    contributors={question.contributors || []}
+                    date={
+                      question.created_at
+                        ? new Date(question.created_at).toLocaleDateString(
+                            "en-US",
+                            {
+                              year: "numeric",
+                              month: "long",
+                              day: "numeric",
+                            }
+                          )
+                        : ""
+                    }
+                  />
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </div>
+      </div>
+      <button
+        onClick={scrollToTop}
+        className={`fixed bottom-4 left-1/2 z-10 bg-gray-500 opacity-50 text-white font-semibold w-8 h-8 rounded-full flex items-center justify-center ${
+          showScrollTopButton ? "visible" : "invisible"
+        }`}
+      >
+        <PiCaretDoubleUpLight className="bg-inherit self-center" />
+      </button>
+      <FAB />
     </>
   );
 };

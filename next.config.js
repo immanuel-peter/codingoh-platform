@@ -8,10 +8,9 @@ const nextConfig = {
       },
     ],
   },
-  // ignoreBuildErrors: true,
-  // experimental: {
-  //   optimizePackageImports: ["devicons-react"],
-  // },
+  experimental: {
+    missingSuspenseWithCSRBailout: false,
+  },
 };
 
 module.exports = nextConfig;

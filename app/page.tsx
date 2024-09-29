@@ -8,6 +8,18 @@ import { createClient } from "@/utils/supabase/client";
 import { Navbar, Card, Question, FAB } from "@/components";
 import { Coder, Question as QuestionType, Contributor } from "@/types";
 
+interface QueryType {
+  id: number;
+  created_at: string;
+  asker: Coder;
+  question: string;
+  contributors: Contributor[];
+  meeters: {
+    is_done: boolean;
+    user_id: Coder;
+  }[];
+}
+
 export default function Home() {
   const supabase = createClient();
   const [dbQuestions, setDbQuestions] = useState<QuestionType[]>([]);
@@ -31,7 +43,8 @@ export default function Home() {
         `
         )
         .eq("answer", false)
-        .order("created_at", { ascending: false });
+        .order("created_at", { ascending: false })
+        .returns<QueryType[]>();
 
       if (questionsError) {
         throw questionsError;
@@ -64,11 +77,11 @@ export default function Home() {
         const updatedContributors: Contributor[] = contributors.map((c) => ({
           ...c,
           user_id: {
-            id: c.user_id.id as number,
-            first_name: c.user_id.first_name as string,
-            last_name: c.user_id.last_name as string,
-            profile_image: c.user_id.profile_image as boolean,
-            auth_id: c.user_id.auth_id as string,
+            id: c.user_id?.id as number,
+            first_name: c.user_id?.first_name as string,
+            last_name: c.user_id?.last_name as string,
+            profile_image: c.user_id?.profile_image as boolean,
+            auth_id: c.user_id?.auth_id as string,
           },
         }));
 

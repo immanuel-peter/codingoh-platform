@@ -51,6 +51,41 @@ dayjs.extend(utc);
 dayjs.extend(timezone);
 dayjs.extend(customParseFormat);
 
+interface QuestionQueryType {
+  id: number;
+  created_at: string;
+  question: string;
+  tags: string[];
+  description_json: JSONContent;
+  asker: {
+    id: number;
+    first_name: string;
+    last_name: string;
+    timezone: string;
+    auth_id: string;
+    email_address: string;
+  };
+  contributors: {
+    user_id: {
+      id: number;
+      first_name: string;
+      last_name: string;
+      profile_image: boolean;
+      auth_id: string;
+    };
+  }[];
+  meeters: {
+    user_id: {
+      id: number;
+      first_name: string;
+      last_name: string;
+      profile_image: boolean;
+      auth_id: string;
+    };
+    is_done: boolean;
+  }[];
+}
+
 const QuestionPage = ({ params }: { params: { id: string } }) => {
   const router = useRouter();
   const supabase = createClient();
@@ -130,7 +165,7 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
           `id, created_at, question, tags, description_json, asker (id, first_name, last_name, timezone, auth_id, email_address), contributors: comments(user_id: commenter(id, first_name, last_name, profile_image, auth_id)), meeters: schedulings(user_id: scheduler_id(id, first_name, last_name, profile_image, auth_id), is_done)`
         )
         .eq("id", params.id)
-        .single();
+        .returns<QuestionQueryType>();
       console.log(question);
       if (question) {
         const updatedAsker: Coder = {
@@ -210,23 +245,24 @@ const QuestionPage = ({ params }: { params: { id: string } }) => {
         .select(
           `id, receiver_id (first_name, last_name, timezone), scheduler_id (id, first_name, last_name, timezone, profile_image, auth_id), scheduled_time, sender_note, status, receiver_note, meeting_id, is_done, expired`
         )
-        .eq("question_id", params.id);
+        .eq("question_id", params.id)
+        .returns<Scheduling[]>();
       if (schedulings) {
         const updatedSchedulings: Scheduling[] = schedulings.map((s) => {
           return {
             id: s.id as number,
             receiver_id: {
-              first_name: s.receiver_id.first_name as string,
-              last_name: s.receiver_id.last_name as string,
-              timezone: s.receiver_id.timezone as string,
+              first_name: s.receiver_id?.first_name as string,
+              last_name: s.receiver_id?.last_name as string,
+              timezone: s.receiver_id?.timezone as string,
             },
             scheduler_id: {
-              id: s.scheduler_id.id as number,
-              first_name: s.scheduler_id.first_name as string,
-              last_name: s.scheduler_id.last_name as string,
-              timezone: s.scheduler_id.timezone as string,
-              profile_image: s.scheduler_id.profile_image as boolean,
-              auth_id: s.scheduler_id.auth_id as string,
+              id: s.scheduler_id?.id as number,
+              first_name: s.scheduler_id?.first_name as string,
+              last_name: s.scheduler_id?.last_name as string,
+              timezone: s.scheduler_id?.timezone as string,
+              profile_image: s.scheduler_id?.profile_image as boolean,
+              auth_id: s.scheduler_id?.auth_id as string,
             },
             scheduled_time: s.scheduled_time as string,
             sender_note: s.sender_note as string,
